@@ -36,6 +36,7 @@ const RAW_RUNTIME_STATE =
           ["@types/react", "npm:18.2.43"],\
           ["@types/react-dom", "npm:18.2.17"],\
           ["@types/testing-library__jest-dom", "npm:6.0.0"],\
+          ["classnames", "npm:2.3.2"],\
           ["craco-alias", "npm:3.0.1"],\
           ["eslint", "npm:8.55.0"],\
           ["eslint-config-prettier", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:9.1.0"],\
@@ -46,6 +47,7 @@ const RAW_RUNTIME_STATE =
           ["react", "npm:18.2.0"],\
           ["react-dom", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:18.2.0"],\
           ["react-scripts", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:5.0.1"],\
+          ["sass", "npm:1.69.5"],\
           ["typescript", "patch:typescript@npm%3A4.9.5#optional!builtin<compat/typescript>::version=4.9.5&hash=289587"],\
           ["web-vitals", "npm:2.1.4"]\
         ],\
@@ -7039,6 +7041,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["classnames", [\
+      ["npm:2.3.2", {\
+        "packageLocation": "../../../.yarn/berry/cache/classnames-npm-2.3.2-d2fdae468d-10c0.zip/node_modules/classnames/",\
+        "packageDependencies": [\
+          ["classnames", "npm:2.3.2"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["clean-css", [\
       ["npm:5.3.3", {\
         "packageLocation": "../../../.yarn/berry/cache/clean-css-npm-5.3.3-d2bb553a94-10c0.zip/node_modules/clean-css/",\
@@ -10571,6 +10582,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["immutable", [\
+      ["npm:4.3.4", {\
+        "packageLocation": "../../../.yarn/berry/cache/immutable-npm-4.3.4-2f54cf641b-10c0.zip/node_modules/immutable/",\
+        "packageDependencies": [\
+          ["immutable", "npm:4.3.4"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["import-fresh", [\
       ["npm:3.3.0", {\
         "packageLocation": "../../../.yarn/berry/cache/import-fresh-npm-3.3.0-3e34265ca9-10c0.zip/node_modules/import-fresh/",\
@@ -10674,6 +10694,7 @@ const RAW_RUNTIME_STATE =
           ["@types/react", "npm:18.2.43"],\
           ["@types/react-dom", "npm:18.2.17"],\
           ["@types/testing-library__jest-dom", "npm:6.0.0"],\
+          ["classnames", "npm:2.3.2"],\
           ["craco-alias", "npm:3.0.1"],\
           ["eslint", "npm:8.55.0"],\
           ["eslint-config-prettier", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:9.1.0"],\
@@ -10684,6 +10705,7 @@ const RAW_RUNTIME_STATE =
           ["react", "npm:18.2.0"],\
           ["react-dom", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:18.2.0"],\
           ["react-scripts", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:5.0.1"],\
+          ["sass", "npm:1.69.5"],\
           ["typescript", "patch:typescript@npm%3A4.9.5#optional!builtin<compat/typescript>::version=4.9.5&hash=289587"],\
           ["web-vitals", "npm:2.1.4"]\
         ],\
@@ -16165,6 +16187,18 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../.yarn/berry/cache/sanitize.css-npm-13.0.0-3424903b5d-10c0.zip/node_modules/sanitize.css/",\
         "packageDependencies": [\
           ["sanitize.css", "npm:13.0.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["sass", [\
+      ["npm:1.69.5", {\
+        "packageLocation": "../../../.yarn/berry/cache/sass-npm-1.69.5-3f0210c9f9-10c0.zip/node_modules/sass/",\
+        "packageDependencies": [\
+          ["sass", "npm:1.69.5"],\
+          ["chokidar", "npm:3.5.3"],\
+          ["immutable", "npm:4.3.4"],\
+          ["source-map-js", "npm:1.0.2"]\
         ],\
         "linkType": "HARD"\
       }]\
