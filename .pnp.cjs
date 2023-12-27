@@ -40,6 +40,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/testing-library__jest-dom", "npm:6.0.0"],\
             ["classnames", "npm:2.3.2"],\
             ["craco-alias", "npm:3.0.1"],\
+            ["date-fns", "npm:3.0.6"],\
             ["eslint", "npm:8.56.0"],\
             ["eslint-config-prettier", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:9.1.0"],\
             ["eslint-config-react-app", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:7.0.1"],\
@@ -7968,6 +7969,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["date-fns", [\
+        ["npm:3.0.6", {\
+          "packageLocation": "./.yarn/cache/date-fns-npm-3.0.6-5f59bceef3-ee62b8e764.zip/node_modules/date-fns/",\
+          "packageDependencies": [\
+            ["date-fns", "npm:3.0.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["debug", [\
         ["npm:2.6.9", {\
           "packageLocation": "./.yarn/cache/debug-npm-2.6.9-7d4cb597dc-d2f51589ca.zip/node_modules/debug/",\
@@ -10803,6 +10813,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/testing-library__jest-dom", "npm:6.0.0"],\
             ["classnames", "npm:2.3.2"],\
             ["craco-alias", "npm:3.0.1"],\
+            ["date-fns", "npm:3.0.6"],\
             ["eslint", "npm:8.56.0"],\
             ["eslint-config-prettier", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:9.1.0"],\
             ["eslint-config-react-app", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:7.0.1"],\
