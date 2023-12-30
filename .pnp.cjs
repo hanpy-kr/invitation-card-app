@@ -52,6 +52,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["react-dom", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:18.2.0"],\
             ["react-scripts", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:5.0.1"],\
             ["sass", "npm:1.69.5"],\
+            ["swiper", "npm:9.4.1"],\
             ["typescript", "patch:typescript@npm%3A4.9.3#~builtin<compat/typescript>::version=4.9.3&hash=d73830"],\
             ["web-vitals", "npm:2.1.4"]\
           ],\
@@ -10825,6 +10826,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["react-dom", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:18.2.0"],\
             ["react-scripts", "virtual:012995881c28c476fd3f03f0b6966248770b3bddcabb80ea1c3603b325283aa3562e15061f74b0592b0688fe3d9679fb7363635a44aefe414f9ac8a4ac8458a7#npm:5.0.1"],\
             ["sass", "npm:1.69.5"],\
+            ["swiper", "npm:9.4.1"],\
             ["typescript", "patch:typescript@npm%3A4.9.3#~builtin<compat/typescript>::version=4.9.3&hash=d73830"],\
             ["web-vitals", "npm:2.1.4"]\
           ],\
@@ -17025,6 +17027,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["ssr-window", [\
+        ["npm:4.0.2", {\
+          "packageLocation": "./.yarn/cache/ssr-window-npm-4.0.2-01f9c0151e-df18260092.zip/node_modules/ssr-window/",\
+          "packageDependencies": [\
+            ["ssr-window", "npm:4.0.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["ssri", [\
         ["npm:10.0.5", {\
           "packageLocation": "./.yarn/cache/ssri-npm-10.0.5-1a7557d04d-0a31b65f21.zip/node_modules/ssri/",\
@@ -17471,6 +17482,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["csso", "npm:4.2.0"],\
             ["picocolors", "npm:1.0.0"],\
             ["stable", "npm:0.1.8"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["swiper", [\
+        ["npm:9.4.1", {\
+          "packageLocation": "./.yarn/cache/swiper-npm-9.4.1-38d46d35a3-1180b3b766.zip/node_modules/swiper/",\
+          "packageDependencies": [\
+            ["swiper", "npm:9.4.1"],\
+            ["ssr-window", "npm:4.0.2"]\
           ],\
           "linkType": "HARD"\
         }]\
