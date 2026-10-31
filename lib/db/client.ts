@@ -22,7 +22,7 @@ function createDb(): Db {
     idle_timeout: 20,
     connect_timeout: 10,
   })
-  return drizzle(client, { schema })
+  return drizzle(client, { schema, logger: process.env.DB_LOG === '1' })
 }
 
 export function getDb(): Db {

@@ -16,7 +16,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "shot": "tsx scripts/screenshot.ts"
   },
   "dependencies": {
     "classnames": "^2.5.1",
@@ -39,6 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.28",
     "eslint-config-prettier": "^10",
+    "playwright": "1.63.0",
     "prettier": "^3",
     "sass": "^1.107.1",
     "tsx": "^4.23.15",

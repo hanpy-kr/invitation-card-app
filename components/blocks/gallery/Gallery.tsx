@@ -1,13 +1,15 @@
 'use client'
 
 import classNames from 'classnames/bind'
-import { useCallback, useState } from 'react'
+import { lazy, Suspense, useCallback, useState } from 'react'
 
 import Section from '../common/Section'
 import styles from './Gallery.module.scss'
-import ImageViewer from './ImageViewer'
 
 const cx = classNames.bind(styles)
+
+// Swiper는 사진을 눌렀을 때만 내려받는다 (첫 로딩 JS 줄이기)
+const ImageViewer = lazy(() => import('./ImageViewer'))
 
 type Props = {
   title: string
@@ -46,7 +48,9 @@ export default function Gallery({ title, images }: Props) {
         </ul>
       </Section>
       {selectedIdx > -1 ? (
-        <ImageViewer images={images} initialIndex={selectedIdx} onClose={handleClose} />
+        <Suspense fallback={null}>
+          <ImageViewer images={images} initialIndex={selectedIdx} onClose={handleClose} />
+        </Suspense>
       ) : null}
     </>
   )

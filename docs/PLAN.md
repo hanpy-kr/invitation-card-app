@@ -32,7 +32,10 @@
   - [x] Section: 제목 없으면 제목 영역 렌더링 안 함 (`title !== null` 버그)
   - [x] FullScreenMessage: 에러 아이콘 JSX 속성 카멜케이스, 크기 지정, `Error` 이름 변경
   - 날짜는 서버(UTC)에서도 한국 시간으로 나오게 `shared/date.ts`(Intl, Asia/Seoul)로 계산. Video 블록은 런칭 이후 범위라 이식 보류
-- [ ] 공개 초대장 `/i/[slug]`: 쿼리 1회, 블록 순서대로 렌더링, `generateMetadata`로 OG title · description · image
+- [x] 공개 초대장 `/i/[slug]`: 쿼리 1회, 블록 순서대로 렌더링, `generateMetadata`로 OG title · description · image
+  - 쿼리 1회 확인(`DB_LOG=1`로 SQL 로그), 검색 노출 막음(noindex), 사진 없으면 `/og/[eventType]` 기본 이미지(빌드 때 생성)
+  - 사진 뷰어(Swiper)는 사진을 눌렀을 때만 로드 → 첫 로딩 JS 133kB → 108kB
+  - rsvp · guestbook 블록은 D3까지 화면에 안 그림
 - [ ] 카카오 로그인 (login → callback → 세션 쿠키 → logout). ⏸ 키 없으면 `DEV_LOGIN`으로 우회
 - 완료 기준: seed 초대장이 `/i/<slug>`에서 모바일로 보이고, HTML에 og 태그가 들어 있음
 
