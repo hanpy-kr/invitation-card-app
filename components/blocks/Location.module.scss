@@ -1,0 +1,59 @@
+@use '../../styles/utils' as *;
+
+.container {
+  .wrap-place {
+    text-align: center;
+    margin-bottom: 20px;
+
+    .txt-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .txt-detail {
+      font-size: 15px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .txt-address {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+  }
+
+  .wrap-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 28px;
+
+    a {
+      display: block;
+      text-align: center;
+      padding: 12px 8px;
+      border-radius: 8px;
+      background: var(--surface);
+      font-size: 14px;
+      text-decoration: none;
+    }
+  }
+
+  .list-ways {
+    border-top: 1px solid var(--line);
+
+    li {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      line-height: 22px;
+    }
+
+    .txt-label {
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+  }
+}

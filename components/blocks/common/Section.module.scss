@@ -1,0 +1,14 @@
+@use '../../../styles/utils' as *;
+
+.container {
+  padding: 40px 24px;
+
+  .txt-title {
+    @include display-font;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+}

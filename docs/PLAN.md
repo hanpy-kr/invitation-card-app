@@ -25,12 +25,13 @@
   - `docker compose up -d` → `pnpm db:migrate` → `pnpm db:seed` → `/i/demowed1`, `/i/demodol1`, `/i/demomeet`
   - 샘플 사진 key는 `samples/wedding_XX.webp`. R2 연결 전에는 `public/uploads/samples/`(gitignore)에 두면 로컬에서 보임 ⏸ R2에 업로드 필요
 - [x] `shared/blocks.ts`: 블록 6종 타입 + zod 스키마
-- [ ] 레거시 → 블록 이식 + 버그 수정
-  - [ ] cover ← Heading. 요일을 날짜로 계산 (하드코딩 `SATURDAY` 제거)
-  - [ ] greeting ← Intro · Invitation, Text 컴포넌트 재사용
-  - [ ] gallery ← ImageGallery + ImageViewer. 누른 사진부터 열기(`initialSlide`), ESC 닫기, 배경 스크롤 잠금, `border-radius: 8px`
-  - [ ] Section: 제목 없으면 제목 영역 렌더링 안 함 (`title !== null` 버그)
-  - [ ] FullScreenMessage: 에러 아이콘 JSX 속성 카멜케이스, 크기 지정, `Error` 이름 변경
+- [x] 레거시 → 블록 이식 + 버그 수정
+  - [x] cover ← Heading. 요일을 날짜로 계산 (하드코딩 `SATURDAY` 제거)
+  - [x] greeting ← Intro · Invitation, Text 컴포넌트 재사용
+  - [x] gallery ← ImageGallery + ImageViewer. 누른 사진부터 열기(`initialSlide`), ESC 닫기, 배경 스크롤 잠금, `border-radius: 8px`
+  - [x] Section: 제목 없으면 제목 영역 렌더링 안 함 (`title !== null` 버그)
+  - [x] FullScreenMessage: 에러 아이콘 JSX 속성 카멜케이스, 크기 지정, `Error` 이름 변경
+  - 날짜는 서버(UTC)에서도 한국 시간으로 나오게 `shared/date.ts`(Intl, Asia/Seoul)로 계산. Video 블록은 런칭 이후 범위라 이식 보류
 - [ ] 공개 초대장 `/i/[slug]`: 쿼리 1회, 블록 순서대로 렌더링, `generateMetadata`로 OG title · description · image
 - [ ] 카카오 로그인 (login → callback → 세션 쿠키 → logout). ⏸ 키 없으면 `DEV_LOGIN`으로 우회
 - 완료 기준: seed 초대장이 `/i/<slug>`에서 모바일로 보이고, HTML에 og 태그가 들어 있음

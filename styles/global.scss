@@ -1,0 +1,51 @@
+@charset "utf-8";
+
+@use './reset';
+
+:root {
+  --font-body:
+    -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR',
+    'Malgun Gothic', sans-serif;
+  /* 기본 테마(classic) — 초대장마다 shared/themes.ts 값으로 덮어씀 */
+  --red: #ea7664;
+  --black: #544f4f;
+  --brown: #89757a;
+  --beige: #f6f5f5;
+  --accent: var(--red);
+  --text: var(--black);
+  --muted: var(--brown);
+  --surface: var(--beige);
+  --bg: #ffffff;
+  --line: #ece8e8;
+  --column: 480px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}

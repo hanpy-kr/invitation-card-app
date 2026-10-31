@@ -1,0 +1,8 @@
+@mixin txt-content {
+  text-align: center;
+  line-height: 26px;
+}
+
+@mixin display-font {
+  font-family: var(--font-display), var(--font-body);
+}

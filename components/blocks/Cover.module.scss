@@ -1,0 +1,53 @@
+@use '../../styles/utils' as *;
+
+.container {
+  text-align: center;
+  font-weight: bold;
+  padding-top: 48px;
+
+  &.text {
+    background: var(--surface);
+    padding: 96px 24px 88px;
+  }
+
+  .txt-date {
+    @include display-font;
+    font-size: 30px;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .txt-day {
+    font-size: 15px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  .wrap-photo {
+    margin: 0 auto 28px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+
+    img {
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: cover;
+    }
+  }
+
+  .txt-title {
+    @include display-font;
+    font-size: 26px;
+    letter-spacing: 1.4px;
+    margin-bottom: 8px;
+  }
+
+  .txt-subtitle {
+    font-size: 15px;
+    font-weight: normal;
+    color: var(--muted);
+  }
+}

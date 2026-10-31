@@ -1,0 +1,63 @@
+@use '../../styles/utils' as *;
+
+.container {
+  @include txt-content;
+
+  .ico-flower {
+    width: 28px;
+    height: 28px;
+    margin: 0 auto 10px;
+  }
+
+  .ico-post {
+    width: 22px;
+    height: 22px;
+    margin: 0 auto 12px;
+    fill: var(--accent);
+  }
+
+  .txt-heading {
+    @include display-font;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .txt-message {
+    @include display-font;
+    font-size: 17px;
+    line-height: 30px;
+  }
+
+  .wrap-hosts {
+    @include display-font;
+    font-size: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    letter-spacing: 1.4px;
+    font-weight: bold;
+    margin: 36px 0 8px;
+
+    .ico-heart {
+      fill: var(--accent);
+      width: 16px;
+      height: 16px;
+      margin: 0 8px;
+    }
+
+    .sep-dot {
+      margin: 0 10px;
+      color: var(--muted);
+    }
+  }
+
+  .wrap-date {
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+}
