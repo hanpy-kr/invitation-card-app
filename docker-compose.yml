@@ -1,0 +1,14 @@
+# 로컬 개발용 Postgres. `docker compose up -d` 후 .env.local의 DATABASE_URL 사용
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: dearday
+      POSTGRES_PASSWORD: dearday
+      POSTGRES_DB: dearday
+    ports:
+      - '5432:5432'
+    volumes:
+      - dearday-pg:/var/lib/postgresql/data
+volumes:
+  dearday-pg:

@@ -17,12 +17,14 @@
 - [x] orphan 브랜치에서 Next.js 15 새 프로젝트 생성 (pnpm, TS strict, ESLint + Prettier, App Router)
 - [x] `.gitignore`: `.env*`(단 `.env.example` 제외), `node_modules`, `.next`, 미디어 원본
 - [x] `CLAUDE.md`, `docs/PLAN.md`(이 파일) 포함해 첫 커밋 → `main`에 강제 푸시
-- [ ] 클론 크기 확인 (수 MB 이내여야 함)
+- [x] 클론 크기 확인 (수 MB 이내여야 함) — 첫 커밋 기준 424KB
 
 ## D1 · 10/31(토) — 기반
 
-- [ ] Drizzle 스키마 + 마이그레이션 (CLAUDE.md 데이터 모델), 로컬 Postgres(docker), seed 스크립트(결혼 · 돌잔치 · 회식 샘플 3건)
-- [ ] `shared/blocks.ts`: 블록 6종 타입 + zod 스키마
+- [x] Drizzle 스키마 + 마이그레이션 (CLAUDE.md 데이터 모델), 로컬 Postgres(docker), seed 스크립트(결혼 · 돌잔치 · 회식 샘플 3건)
+  - `docker compose up -d` → `pnpm db:migrate` → `pnpm db:seed` → `/i/demowed1`, `/i/demodol1`, `/i/demomeet`
+  - 샘플 사진 key는 `samples/wedding_XX.webp`. R2 연결 전에는 `public/uploads/samples/`(gitignore)에 두면 로컬에서 보임 ⏸ R2에 업로드 필요
+- [x] `shared/blocks.ts`: 블록 6종 타입 + zod 스키마
 - [ ] 레거시 → 블록 이식 + 버그 수정
   - [ ] cover ← Heading. 요일을 날짜로 계산 (하드코딩 `SATURDAY` 제거)
   - [ ] greeting ← Intro · Invitation, Text 컴포넌트 재사용
