@@ -1,6 +1,7 @@
 /**
  * 모바일 뷰포트(390×844) 스크린샷. 완료 기준 확인용.
  * 사용: pnpm shot /i/demowed1 [/dashboard ...]   (서버가 먼저 떠 있어야 함)
+ * 로그인 필요한 화면: SHOT_LOGIN=1 (로컬 DEV_LOGIN으로 먼저 로그인)
  * 크롬 경로: PLAYWRIGHT_CHROME=/usr/bin/google-chrome (없으면 playwright 기본 chromium)
  */
 import { mkdirSync } from 'node:fs'
@@ -29,6 +30,10 @@ async function main() {
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+
+  if (process.env.SHOT_LOGIN === '1') {
+    await page.goto(`${BASE}/api/auth/kakao/login?dev=1&next=/`)
+  }
 
   for (const path of paths) {
     const res = await page.goto(BASE + path, { waitUntil: 'networkidle' })

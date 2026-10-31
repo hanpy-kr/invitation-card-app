@@ -36,8 +36,12 @@
   - 쿼리 1회 확인(`DB_LOG=1`로 SQL 로그), 검색 노출 막음(noindex), 사진 없으면 `/og/[eventType]` 기본 이미지(빌드 때 생성)
   - 사진 뷰어(Swiper)는 사진을 눌렀을 때만 로드 → 첫 로딩 JS 133kB → 108kB
   - rsvp · guestbook 블록은 D3까지 화면에 안 그림
-- [ ] 카카오 로그인 (login → callback → 세션 쿠키 → logout). ⏸ 키 없으면 `DEV_LOGIN`으로 우회
-- 완료 기준: seed 초대장이 `/i/<slug>`에서 모바일로 보이고, HTML에 og 태그가 들어 있음
+- [x] 카카오 로그인 (login → callback → 세션 쿠키 → logout). ⏸ 키 없으면 `DEV_LOGIN`으로 우회
+  - HMAC 서명 httpOnly 쿠키(30일), state 쿠키로 CSRF 방지, 돌아갈 경로는 사이트 내부만 허용. 미들웨어 없이 페이지에서 `requireSession`
+  - `DEV_LOGIN=1`은 사이트 주소가 localhost일 때만 동작 (운영에서 켜져 있어도 무시)
+  - 로컬에서 위조 쿠키 · state 불일치 · 취소 · 로그아웃 확인. 실제 카카오 왕복은 ⏸ 키 받은 뒤 확인
+  - 대시보드는 로그인 확인용 최소 화면(내 초대장 목록 · 로그아웃)만. 나머지는 D2
+- 완료 기준: seed 초대장이 `/i/<slug>`에서 모바일로 보이고, HTML에 og 태그가 들어 있음 ✅ 10/31 확인
 
 ## D2 · 11/1(일) — 만들기
 
