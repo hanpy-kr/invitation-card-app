@@ -13,7 +13,7 @@
 
 1. 버킷 `dearday-media` 만들기
 2. 공개 접근: 버킷 Settings → Custom Domain → `media.thedearday.com` 연결 → `R2_PUBLIC_BASE_URL`은 `https://media.thedearday.com`
-   - 이 레코드는 Cloudflare가 자동으로 만들고 **프록시(주황 구름)가 켜진 상태가 정상**입니다. 아래 4번의 'DNS only'는 Amplify 레코드에만 해당
+   - 이 레코드는 Cloudflare가 자동으로 만들고 **프록시(주황 구름)가 켜진 상태가 정상**입니다. 'DNS only'는 아래 '4. AWS Amplify' 5단계의 Amplify 레코드에만 해당
 3. R2 → Manage API tokens → **Object Read & Write**, 이 버킷만 → Access Key ID / Secret → `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
 4. 계정 ID → `R2_ACCOUNT_ID`
 5. 버킷 Settings → CORS policy:
