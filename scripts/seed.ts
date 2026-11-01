@@ -4,6 +4,7 @@
  *
  * 사진은 storage key `samples/wedding_XX.webp`를 가리킨다.
  * R2가 없으면 .local/uploads/samples/ 에 같은 이름으로 파일을 두면 로컬에서 보인다.
+ * 카톡 미리보기용 JPEG 사본(wedding_XX.share.jpg, 긴 변 1200px)도 같은 폴더 · 버킷에 함께 둘 것.
  */
 import { drizzle } from 'drizzle-orm/postgres-js'
 import { eq, inArray } from 'drizzle-orm'

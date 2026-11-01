@@ -193,8 +193,8 @@ async function main() {
     `카카오 공유: 설명 "${share.content.description}"`,
   )
   check(
-    /^https?:\/\/.+\.webp$/.test(String(share.content.imageUrl)),
-    '카카오 공유: 표지 사진 절대 주소',
+    /^https?:\/\/.+\.share\.jpg$/.test(String(share.content.imageUrl)),
+    '카카오 공유: 표지 사진 JPEG 사본 절대 주소',
   )
   check(share.content.link.mobileWebUrl === url, '카카오 공유: 링크')
 
@@ -225,7 +225,13 @@ async function main() {
   check((await gp.getByRole('link', { name: '티맵' }).count()) === 1, '하객: 티맵 링크 (좌표 있음)')
   const html = await (await fetch(url)).text()
   check(html.includes('property="og:title" content="E2E 박도윤 ♥ 한지우 결혼합니다"'), 'OG: 제목')
-  check(/property="og:image" content="[^"]+\.webp"/.test(html), 'OG: 표지 사진')
+  const ogImage = html.match(/property="og:image" content="([^"]+)"/)?.[1] ?? ''
+  check(/\.share\.jpg$/.test(ogImage), `OG: 표지 사진이 JPEG 사본 (${ogImage.split('/').pop()})`)
+  const ogRes = await fetch(ogImage)
+  check(
+    ogRes.ok && ogRes.headers.get('content-type') === 'image/jpeg',
+    `OG 이미지가 실제로 열림 (${ogRes.status} ${ogRes.headers.get('content-type')})`,
+  )
   await gp.evaluate(async () => {
     for (let y = 0; y < document.body.scrollHeight; y += 400) {
       window.scrollTo(0, y)

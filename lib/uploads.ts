@@ -6,6 +6,7 @@ import { and, count, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { PHOTO_LIMIT, type MediaRef } from '@/shared/blocks'
+import { shareKey } from '@/shared/media'
 
 import { ApiError } from './api'
 import { signPayload, verifyPayload } from './auth/token'
@@ -15,6 +16,7 @@ import { presignPut } from './r2'
 import { storageMode, storedSize } from './storage'
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+export const MAX_SHARE_BYTES = 1 * 1024 * 1024
 
 const EXT = { 'image/webp': 'webp', 'image/jpeg': 'jpg' } as const
 
@@ -22,6 +24,8 @@ export const presignSchema = z.object({
   invitationId: z.uuid(),
   contentType: z.enum(['image/webp', 'image/jpeg']),
   size: z.number().int().positive().max(MAX_UPLOAD_BYTES, '사진이 너무 커요.'),
+  /** 카톡 미리보기용 JPEG 사본 크기 */
+  shareSize: z.number().int().positive().max(MAX_SHARE_BYTES),
 })
 
 export const completeSchema = z.object({
@@ -37,7 +41,18 @@ type UploadToken = {
   key: string
   ct: string
   size: number
+  skey: string
+  ssize: number
   exp: number
+}
+
+export type UploadPart = 'main' | 'share'
+
+/** 토큰에서 올릴 파일(원본 / 공유용 사본)의 key · 형식 · 최대 크기 */
+export function uploadTarget(t: UploadToken, part: UploadPart) {
+  return part === 'share'
+    ? { key: t.skey, ct: 'image/jpeg', size: t.ssize }
+    : { key: t.key, ct: t.ct, size: t.size }
 }
 
 async function assertOwnerAndRoom(invitationId: string, userId: string) {
@@ -73,14 +88,21 @@ export async function createUpload(userId: string, input: z.infer<typeof presign
     key,
     ct: input.contentType,
     size: input.size,
+    skey: shareKey(key),
+    ssize: input.shareSize,
     exp: Math.floor(Date.now() / 1000) + 600,
   } satisfies UploadToken)
 
-  const uploadUrl =
+  const local = (part: UploadPart) =>
+    `/api/uploads/local?part=${part}&token=${encodeURIComponent(token)}`
+  const [uploadUrl, shareUploadUrl] =
     mode === 'r2'
-      ? await presignPut(key, input.contentType, input.size)
-      : `/api/uploads/local?token=${encodeURIComponent(token)}`
-  return { uploadUrl, token }
+      ? await Promise.all([
+          presignPut(key, input.contentType, input.size),
+          presignPut(shareKey(key), 'image/jpeg', input.shareSize),
+        ])
+      : [local('main'), local('share')]
+  return { uploadUrl, shareUploadUrl, token }
 }
 
 export function readUploadToken(token: string | null, userId?: string): UploadToken {
@@ -101,6 +123,10 @@ export async function completeUpload(
   const size = await storedSize(t.key)
   if (size === null) throw new ApiError(400, '사진이 올라가지 않았어요. 다시 시도해 주세요.')
   if (size > MAX_UPLOAD_BYTES) throw new ApiError(400, '사진이 너무 커요.')
+  // 공유용 사본이 없으면 카톡 미리보기가 깨지므로 둘 다 있어야 등록
+  if ((await storedSize(t.skey)) === null) {
+    throw new ApiError(400, '사진이 다 올라가지 않았어요. 다시 시도해 주세요.')
+  }
 
   await assertOwnerAndRoom(t.inv, userId)
   const [row] = await getDb()

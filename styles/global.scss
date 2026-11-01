@@ -1,8 +1,11 @@
 @charset "utf-8";
 
 @use './reset';
+// 손글씨 폰트: 빈도 슬라이스 + unicode-range (scripts/subset-font.py로 생성)
+@use './display-font';
 
 :root {
+  --font-display: 'NanumGeumEunBoHwa';
   --font-body:
     -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR',
     'Malgun Gothic', sans-serif;

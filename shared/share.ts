@@ -1,6 +1,6 @@
 import { EVENT_TYPE_LABELS, type EventType } from './blocks'
 import { formatEventDateTime } from './date'
-import { mediaSrc } from './media'
+import { mediaSrc, shareKey } from './media'
 
 /** OG 태그와 카카오 공유 카드가 같은 제목 · 설명 · 이미지를 쓰도록 한 곳에서 만든다 */
 type ShareBlock = { type: string; visible: boolean; config: unknown }
@@ -24,7 +24,7 @@ export function shareDescription(inv: ShareInput): string {
   return text || `${EVENT_TYPE_LABELS[inv.eventType]}에 초대합니다.`
 }
 
-/** 표지 사진 → 사진첩 첫 장 → 행사 종류별 기본 이미지. 상대 경로일 수 있음 */
+/** 표지 사진 → 사진첩 첫 장 → 행사 종류별 기본 이미지(PNG). 사진은 공유용 JPEG 사본. 상대 경로일 수 있음 */
 export function shareImagePath(inv: ShareInput, mediaBaseUrl: string): string {
   for (const b of inv.blocks) {
     if (!b.visible) continue
@@ -34,12 +34,12 @@ export function shareImagePath(inv: ShareInput, mediaBaseUrl: string): string {
       images?: { key: string }[]
     }
     if (b.type === 'cover' && c.layout === 'photo' && c.image)
-      return mediaSrc(mediaBaseUrl, c.image.key)
+      return mediaSrc(mediaBaseUrl, shareKey(c.image.key))
   }
   for (const b of inv.blocks) {
     const images = (b.config as { images?: { key: string }[] }).images
     if (b.type === 'gallery' && b.visible && images?.[0])
-      return mediaSrc(mediaBaseUrl, images[0].key)
+      return mediaSrc(mediaBaseUrl, shareKey(images[0].key))
   }
   return `/og/${inv.eventType}`
 }
