@@ -28,6 +28,7 @@ export default function Preview({
     eventAt: meta.eventAt,
     mediaBaseUrl,
     kakaoJsKey,
+    preview: true,
   }
   const view = blocks.map((b, position) => ({ ...b, position }) as Block)
   return (

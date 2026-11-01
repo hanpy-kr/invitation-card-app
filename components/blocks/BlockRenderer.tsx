@@ -4,7 +4,9 @@ import { mediaSrc } from '@/shared/media'
 import Cover from './Cover'
 import Gallery from './gallery/Gallery'
 import Greeting from './Greeting'
+import Guestbook from './guestbook/Guestbook'
 import Location from './location/Location'
+import Rsvp from './rsvp/Rsvp'
 import type { BlockContext } from './types'
 
 /** 블록 하나를 타입에 맞는 컴포넌트로. 숨김 블록은 그리지 않는다. */
@@ -29,9 +31,9 @@ export function BlockView({ block, ctx }: { block: Block; ctx: BlockContext }) {
     case 'location':
       return <Location config={block.config} kakaoJsKey={ctx.kakaoJsKey} />
     case 'rsvp':
+      return <Rsvp config={block.config} ctx={ctx} />
     case 'guestbook':
-      // D3에서 구현
-      return null
+      return <Guestbook config={block.config} ctx={ctx} />
   }
 }
 

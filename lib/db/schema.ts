@@ -124,6 +124,13 @@ export const guestbookEntries = pgTable(
   (t) => [index('guestbook_invitation_idx').on(t.invitationId, t.createdAt)],
 )
 
+/** 하객 쓰기 API용 간단한 rate limit. key는 IP+slug+종류의 해시(원래 IP는 저장 안 함) */
+export const rateLimits = pgTable('rate_limits', {
+  key: text('key').primaryKey(),
+  count: integer('count').notNull(),
+  resetAt: timestamp('reset_at', { withTimezone: true }).notNull(),
+})
+
 export const usersRelations = relations(users, ({ many }) => ({
   invitations: many(invitations),
 }))

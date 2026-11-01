@@ -11,4 +11,6 @@ export type BlockContext = {
   mediaBaseUrl: string
   /** 카카오 JS 키 (지도). 비어 있으면 지도 없이 길찾기 링크만 */
   kakaoJsKey: string
+  /** 편집기 미리보기 (하객 쓰기 기능은 보내지 않음) */
+  preview?: boolean
 }
