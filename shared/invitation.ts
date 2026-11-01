@@ -1,0 +1,40 @@
+import { z } from 'zod'
+
+import { BLOCK_TYPES, blockInputSchema, EVENT_TYPES } from './blocks'
+import { THEME_KEYS } from './themes'
+
+/** 편집기 · API 공용 입력 스키마 */
+export const MAX_BLOCKS = 20
+
+export const createInvitationSchema = z.object({ eventType: z.enum(EVENT_TYPES) })
+
+export const invitationMetaSchema = z.object({
+  title: z.string().trim().max(60),
+  eventType: z.enum(EVENT_TYPES),
+  /** ISO 8601 (오프셋 포함) */
+  eventAt: z.iso.datetime({ offset: true }).nullable(),
+  theme: z.enum(THEME_KEYS as [string, ...string[]]),
+})
+export type InvitationMeta = z.infer<typeof invitationMetaSchema>
+
+export const editorBlockSchema = z.intersection(
+  z.object({ id: z.uuid(), visible: z.boolean() }),
+  blockInputSchema,
+)
+export type EditorBlock = z.infer<typeof editorBlockSchema>
+
+/** 자동 저장 본문: 메타 + 블록 전체(순서 = 배열 순서) */
+export const saveInvitationSchema = z.object({
+  meta: invitationMetaSchema,
+  blocks: z.array(editorBlockSchema).max(MAX_BLOCKS),
+})
+export type SaveInvitationInput = z.infer<typeof saveInvitationSchema>
+
+export const publishSchema = z.object({ published: z.boolean() })
+
+/** 한 초대장에 하나만 둘 수 있는 블록 */
+export const SINGLE_BLOCK_TYPES: readonly (typeof BLOCK_TYPES)[number][] = [
+  'cover',
+  'rsvp',
+  'guestbook',
+]

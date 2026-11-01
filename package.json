@@ -20,6 +20,8 @@
     "shot": "tsx scripts/screenshot.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1161.0",
+    "@aws-sdk/s3-request-presigner": "^3.1161.0",
     "classnames": "^2.5.1",
     "drizzle-orm": "^0.45.4",
     "next": "15.5.28",

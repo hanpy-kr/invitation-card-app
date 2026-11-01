@@ -13,3 +13,13 @@ export function safeNextPath(value: string | null | undefined, fallback = '/dash
     return fallback
   return value
 }
+
+/** 사이트 주소가 localhost인지 (개발용 우회 기능의 안전장치) */
+export function isLocalSite(): boolean {
+  try {
+    const host = new URL(siteUrl()).hostname
+    return host === 'localhost' || host === '127.0.0.1'
+  } catch {
+    return false
+  }
+}

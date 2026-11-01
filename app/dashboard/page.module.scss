@@ -26,6 +26,18 @@
   }
 }
 
+.create {
+  display: block;
+  text-align: center;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+
 .list {
   display: flex;
   flex-direction: column;
@@ -69,9 +81,25 @@
     }
   }
 
-  a {
-    font-size: 14px;
-    color: var(--accent);
+  .cardLink {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+
+    a {
+      font-size: 14px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: bold;
+    }
   }
 }
 

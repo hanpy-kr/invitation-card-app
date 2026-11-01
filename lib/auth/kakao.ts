@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { siteUrl } from '../site'
+import { isLocalSite, siteUrl } from '../site'
 
 const KAUTH = 'https://kauth.kakao.com'
 const KAPI = 'https://kapi.kakao.com'
@@ -11,13 +11,7 @@ export function kakaoConfigured(): boolean {
 
 /** DEV_LOGIN=1 이면서 사이트 주소가 localhost일 때만 개발용 로그인 허용 (운영 실수 방지 이중 잠금) */
 export function devLoginEnabled(): boolean {
-  if (process.env.DEV_LOGIN !== '1') return false
-  try {
-    const host = new URL(siteUrl()).hostname
-    return host === 'localhost' || host === '127.0.0.1'
-  } catch {
-    return false
-  }
+  return process.env.DEV_LOGIN === '1' && isLocalSite()
 }
 
 export function kakaoRedirectUri(): string {
