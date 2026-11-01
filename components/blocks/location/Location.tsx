@@ -1,15 +1,23 @@
 import classNames from 'classnames/bind'
 
 import type { LocationConfig } from '@/shared/blocks'
-import { kakaoMapUrl, naverMapUrl } from '@/shared/maps'
+import { kakaoMapUrl, naverMapUrl, tmapUrl } from '@/shared/maps'
 
-import Section from './common/Section'
-import Text from './common/Text'
+import Section from '../common/Section'
+import Text from '../common/Text'
+import CopyButton from './CopyButton'
+import KakaoMap from './KakaoMap'
 import styles from './Location.module.scss'
 
 const cx = classNames.bind(styles)
 
-export default function Location({ config }: { config: LocationConfig }) {
+export default function Location({
+  config,
+  kakaoJsKey,
+}: {
+  config: LocationConfig
+  kakaoJsKey: string
+}) {
   if (!config.placeName && !config.address) return null
   const place = {
     name: config.placeName,
@@ -17,6 +25,7 @@ export default function Location({ config }: { config: LocationConfig }) {
     lat: config.lat,
     lng: config.lng,
   }
+  const tmap = tmapUrl(place)
   const ways = [
     { label: '지하철', text: config.subway },
     { label: '버스', text: config.bus },
@@ -28,15 +37,24 @@ export default function Location({ config }: { config: LocationConfig }) {
       <div className={cx('wrap-place')}>
         {config.placeName ? <div className={cx('txt-name')}>{config.placeName}</div> : null}
         {config.detail ? <div className={cx('txt-detail')}>{config.detail}</div> : null}
-        {config.address ? <div className={cx('txt-address')}>{config.address}</div> : null}
+        {config.address ? (
+          <div className={cx('txt-address')}>
+            {config.address}
+            <CopyButton text={config.address} label="주소 복사" className={cx('btn-copy')} />
+          </div>
+        ) : null}
       </div>
-      <div className={cx('wrap-links')}>
+      {kakaoJsKey && config.lat != null && config.lng != null ? (
+        <KakaoMap appKey={kakaoJsKey} lat={config.lat} lng={config.lng} className={cx('map')} />
+      ) : null}
+      <div className={cx('wrap-links', { three: tmap })}>
         <a href={kakaoMapUrl(place)} target="_blank" rel="noopener noreferrer">
-          카카오맵 길찾기
+          카카오맵
         </a>
         <a href={naverMapUrl(place)} target="_blank" rel="noopener noreferrer">
           네이버지도
         </a>
+        {tmap ? <a href={tmap}>티맵</a> : null}
       </div>
       {ways.length > 0 ? (
         <ul className={cx('list-ways')}>
