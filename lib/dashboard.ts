@@ -1,13 +1,21 @@
 import 'server-only'
 
-import { and, desc, eq, sql } from 'drizzle-orm'
+import { and, desc, eq, inArray, sql } from 'drizzle-orm'
 
 import { getDb, schema } from './db/client'
 import { isUuid } from './editor'
 
 const { invitations: inv, rsvps, guestbookEntries: gb } = schema
 
-/** 내 초대장 목록 + 응답 수 (쿼리 1회) */
+/** 소유자 확인용 서브쿼리: 이 사용자의 초대장 id들 */
+const ownedInvitationIds = (userId: string) =>
+  getDb().select({ id: inv.id }).from(inv).where(eq(inv.ownerId, userId))
+
+/**
+ * 내 초대장 목록 + 응답 수 (쿼리 1회: invitations LEFT JOIN rsvps GROUP BY).
+ * 주의: 단일 테이블 select에서 sql`${inv.id}`는 테이블 이름 없이 "id"로 렌더링된다.
+ * 상관 서브쿼리 안에 넣으면 안쪽 테이블의 id로 해석되므로 join으로 집계한다.
+ */
 export async function listMyInvitations(userId: string) {
   return getDb()
     .select({
@@ -18,11 +26,13 @@ export async function listMyInvitations(userId: string) {
       eventAt: inv.eventAt,
       status: inv.status,
       updatedAt: inv.updatedAt,
-      responses: sql<number>`(select count(*)::int from rsvps r where r.invitation_id = ${inv.id})`,
-      attendees: sql<number>`(select coalesce(sum(r.party_size), 0)::int from rsvps r where r.invitation_id = ${inv.id} and r.attending)`,
+      responses: sql<number>`count(${rsvps.id})::int`,
+      attendees: sql<number>`coalesce(sum(${rsvps.partySize}) filter (where ${rsvps.attending}), 0)::int`,
     })
     .from(inv)
+    .leftJoin(rsvps, eq(rsvps.invitationId, inv.id))
     .where(eq(inv.ownerId, userId))
+    .groupBy(inv.id)
     .orderBy(desc(inv.updatedAt))
 }
 
@@ -110,7 +120,7 @@ export async function setGuestbookHidden(
       and(
         eq(gb.id, entryId),
         eq(gb.invitationId, invitationId),
-        sql`exists (select 1 from invitations i where i.id = ${gb.invitationId} and i.owner_id = ${userId})`,
+        inArray(gb.invitationId, ownedInvitationIds(userId)),
       ),
     )
     .returning({ id: gb.id })
@@ -126,7 +136,7 @@ export async function deleteRsvp(invitationId: string, rsvpId: string, userId: s
       and(
         eq(rsvps.id, rsvpId),
         eq(rsvps.invitationId, invitationId),
-        sql`exists (select 1 from invitations i where i.id = ${rsvps.invitationId} and i.owner_id = ${userId})`,
+        inArray(rsvps.invitationId, ownedInvitationIds(userId)),
       ),
     )
     .returning({ id: rsvps.id })

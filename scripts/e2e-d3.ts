@@ -172,6 +172,18 @@ async function main() {
     '응답 목록 3건 (고친 응답은 새로 안 생김)',
   )
 
+  // 대시보드 목록 카드의 응답 수 (상관 서브쿼리 버그 회귀 방지)
+  await host.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
+  check(
+    (await host
+      .locator('li')
+      .filter({ hasText: 'E2E 13기 송년회' })
+      .getByText('참석 5명 · 응답 3건')
+      .count()) >= 1,
+    '대시보드 목록: 참석 5명 · 응답 3건',
+  )
+  await host.goto(`${BASE}/dashboard/${invitationId}`, { waitUntil: 'networkidle' })
+
   await host
     .locator('li')
     .filter({ hasText: '광고봇' })
