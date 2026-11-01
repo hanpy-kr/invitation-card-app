@@ -3,7 +3,7 @@
  * 실행: pnpm db:seed  — 같은 slug가 있으면 지우고 다시 만든다.
  *
  * 사진은 storage key `samples/wedding_XX.webp`를 가리킨다.
- * R2가 없으면 public/uploads/samples/ 에 같은 이름으로 파일을 두면 로컬에서 보인다.
+ * R2가 없으면 .local/uploads/samples/ 에 같은 이름으로 파일을 두면 로컬에서 보인다.
  */
 import { drizzle } from 'drizzle-orm/postgres-js'
 import { eq, inArray } from 'drizzle-orm'

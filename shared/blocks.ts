@@ -35,6 +35,8 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
 }
 
 export const MAX_GALLERY_IMAGES = 10
+/** 무료 한도: 초대장 하나에 올릴 수 있는 사진 수 (표지 + 사진첩) */
+export const PHOTO_LIMIT = 10
 
 /** 업로드된 사진 참조. URL 대신 storage key를 저장하고, 표시할 때 공개 주소로 바꾼다. */
 export const mediaRefSchema = z.object({

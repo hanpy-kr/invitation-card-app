@@ -2,15 +2,12 @@
 
 import { useState } from 'react'
 
-import { MAX_GALLERY_IMAGES, type MediaRef } from '@/shared/blocks'
+import { MAX_GALLERY_IMAGES, PHOTO_LIMIT, type MediaRef } from '@/shared/blocks'
 import { mediaSrc } from '@/shared/media'
 
 import { useEditorEnv } from './context'
 import styles from './ImageFields.module.scss'
 import { uploadImage } from './upload'
-
-/** 초대장 하나에 올릴 수 있는 사진 수 (무료 한도) */
-export const PHOTO_LIMIT = 10
 
 function useUploader() {
   const env = useEditorEnv()

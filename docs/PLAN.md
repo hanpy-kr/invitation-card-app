@@ -23,7 +23,7 @@
 
 - [x] Drizzle 스키마 + 마이그레이션 (CLAUDE.md 데이터 모델), 로컬 Postgres(docker), seed 스크립트(결혼 · 돌잔치 · 회식 샘플 3건)
   - `docker compose up -d` → `pnpm db:migrate` → `pnpm db:seed` → `/i/demowed1`, `/i/demodol1`, `/i/demomeet`
-  - 샘플 사진 key는 `samples/wedding_XX.webp`. R2 연결 전에는 `public/uploads/samples/`(gitignore)에 두면 로컬에서 보임 ⏸ R2에 업로드 필요
+  - 샘플 사진 key는 `samples/wedding_XX.webp`. R2 연결 전에는 `.local/uploads/samples/`(gitignore)에 두면 로컬에서 보임 ⏸ R2에 업로드 필요
 - [x] `shared/blocks.ts`: 블록 6종 타입 + zod 스키마
 - [x] 레거시 → 블록 이식 + 버그 수정
   - [x] cover ← Heading. 요일을 날짜로 계산 (하드코딩 `SATURDAY` 제거)
@@ -53,7 +53,12 @@
   - 0.8초 뒤 자동 저장(메타 + 블록 전체), 저장 중 바뀐 내용은 끝난 뒤 한 번 더 저장, 저장 안 된 채 나가면 경고
   - 표지 · 참석 여부 · 방명록은 한 개씩만. 순서 변경은 ↑↓ 버튼(모바일에서 드래그보다 확실)
   - 브라우저 테스트로 생성 → 수정 → 새로고침 후 유지 확인
-- [ ] 사진 업로드: presign API → 브라우저 리사이즈 → R2 PUT → media 저장. 10장 한도. ⏸ R2 키 없으면 로컬 파일 저장으로 우회
+- [x] 사진 업로드: presign API → 브라우저 리사이즈 → R2 PUT → media 저장. 10장 한도. ⏸ R2 키 없으면 로컬 파일 저장으로 우회
+  - 흐름: `POST /api/uploads/presign` → 브라우저가 R2에 직접 PUT → `POST /api/uploads/complete`(실제 크기 확인 후 media 등록)
+  - R2 키가 없으면(localhost 한정) `/api/uploads/local`로 받아 `.local/uploads/`에 저장, `/uploads/<key>`로 보여 줌. 샘플 사진도 여기로 옮김
+  - 6MB JPG → 1600px webp 65~345KB 확인. webp 인코딩 못 하는 브라우저는 jpg로
+  - 한도 10장은 서버에서 media 행 수로 확인. 블록에서 빠진 사진은 2분 지나면 저장할 때 · 다음 업로드 때 지움
+  - ⏸ R2 실제 업로드는 키 받은 뒤 확인. 버킷 CORS에 사이트 주소의 PUT 허용 필요
 - [ ] location 블록: 카카오맵, 주소 검색(카카오 로컬 API를 서버 경유로), 카카오맵 · 네이버지도 · 티맵 길찾기 링크, 지하철 · 버스 · 주차 안내
 - [ ] 발행: draft → published, slug 발급, 링크 복사, 카카오 공유(`Kakao.Share.sendDefault` feed 템플릿)
 - 완료 기준: 로그인 → 생성 → 사진 3장 업로드 → 발행 → 공개 링크에서 확인

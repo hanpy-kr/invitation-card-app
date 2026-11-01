@@ -150,7 +150,10 @@ export default function Editor(props: EditorProps) {
             type="button"
             role="tab"
             aria-selected={tab === 'preview'}
-            onClick={() => setTab('preview')}
+            onClick={() => {
+              setTab('preview')
+              window.scrollTo(0, 0)
+            }}
           >
             미리보기
           </button>
