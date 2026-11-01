@@ -49,3 +49,9 @@ img {
   max-width: 100%;
   display: block;
 }
+
+/* reset.scss가 font: inherit로 굵기를 지우므로 되돌림 */
+strong,
+b {
+  font-weight: bold;
+}

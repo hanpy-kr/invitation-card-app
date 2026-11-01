@@ -37,5 +37,11 @@ export async function rateLimit(
       },
     })
     .returning({ count: t.count })
+  // 개인정보처리방침: IP 변환값은 최대 1일 보관 → 가끔 지난 행을 정리
+  if (Math.random() < 0.02) {
+    await getDb()
+      .delete(t)
+      .where(sql`${t.resetAt} < now() - interval '1 day'`)
+  }
   if (row.count > limit) throw new ApiError(429, '잠시 후 다시 시도해 주세요.')
 }

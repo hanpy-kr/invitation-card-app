@@ -172,6 +172,12 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
           <button type="submit" className={styles.submit} disabled={busy}>
             {busy ? '보내는 중…' : saved ? '고쳐서 보내기' : '보내기'}
           </button>
+          <p className={styles.note}>
+            보낸 내용은 초대장 주인에게만 보여요.{' '}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer">
+              개인정보처리방침
+            </a>
+          </p>
           <button type="button" className={styles.cancel} onClick={() => setOpen(false)}>
             닫기
           </button>

@@ -7,6 +7,7 @@ import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
 
 import styles from './page.module.scss'
+import WithdrawButton from './WithdrawButton'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { title: '내 초대장 — dearday', robots: { index: false } }
@@ -68,6 +69,9 @@ export default async function DashboardPage() {
           ))}
         </ul>
       )}
+      <div className={styles.withdraw}>
+        <WithdrawButton />
+      </div>
     </main>
   )
 }

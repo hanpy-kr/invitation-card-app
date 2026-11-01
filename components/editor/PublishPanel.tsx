@@ -5,6 +5,7 @@ import { useState } from 'react'
 import type { EditorBlock, InvitationMeta } from '@/shared/invitation'
 import { loadKakaoSdk } from '@/shared/kakao-sdk'
 import { absolute, shareDescription, shareImagePath, shareTitle } from '@/shared/share'
+import { hasPlaceholder } from '@/shared/templates'
 
 import { api } from '../ui/api'
 import styles from './Editor.module.scss'
@@ -180,6 +181,8 @@ export default function PublishPanel(props: Props) {
 /** 발행 전에 빠뜨리기 쉬운 것들 (발행은 막지 않음) */
 function checkBeforePublish(meta: InvitationMeta, blocks: EditorBlock[]): string[] {
   const out: string[] = []
+  const texts = [meta.title, ...blocks.filter((b) => b.visible).flatMap((b) => stringsIn(b.config))]
+  if (texts.some(hasPlaceholder)) out.push('[신랑 이름] 같은 예시 문구가 아직 남아 있어요.')
   if (!meta.eventAt) out.push('행사 날짜를 아직 정하지 않았어요.')
   for (const b of blocks) {
     if (!b.visible) continue
@@ -191,4 +194,11 @@ function checkBeforePublish(meta: InvitationMeta, blocks: EditorBlock[]): string
       out.push('사진첩에 사진이 없어요 (빈 블록은 안 보여요).')
   }
   return out
+}
+
+function stringsIn(value: unknown): string[] {
+  if (typeof value === 'string') return [value]
+  if (Array.isArray(value)) return value.flatMap(stringsIn)
+  if (value && typeof value === 'object') return Object.values(value).flatMap(stringsIn)
+  return []
 }

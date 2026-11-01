@@ -133,6 +133,12 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
           <button type="submit" className={formStyles.submit} disabled={busy}>
             {busy ? '남기는 중…' : '남기기'}
           </button>
+          <p className={formStyles.note}>
+            남긴 글은 이 초대장을 보는 모든 사람에게 보여요.{' '}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer">
+              개인정보처리방침
+            </a>
+          </p>
           <button type="button" className={formStyles.cancel} onClick={() => setOpen(false)}>
             닫기
           </button>
