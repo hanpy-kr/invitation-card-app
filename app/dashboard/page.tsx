@@ -50,8 +50,14 @@ export default async function DashboardPage() {
                   {inv.eventAt ? ` · ${formatLongDate(inv.eventAt)}` : ' · 날짜 미정'}
                 </div>
               </Link>
+              {inv.status === 'published' || inv.responses > 0 ? (
+                <div className={styles.meta}>
+                  참석 {inv.attendees}명 · 응답 {inv.responses}건
+                </div>
+              ) : null}
               <div className={styles.actions}>
                 <Link href={`/edit/${inv.id}`}>편집</Link>
+                <Link href={`/dashboard/${inv.id}`}>응답 보기</Link>
                 {inv.status === 'published' ? (
                   <Link href={`/i/${inv.slug}`} target="_blank">
                     초대장 보기
