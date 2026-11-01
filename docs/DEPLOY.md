@@ -12,7 +12,7 @@
 ## 2. Cloudflare R2 (사진)
 
 1. 버킷 `dearday-media` 만들기
-2. 공개 접근: 버킷 Settings → Custom Domain(예: `media.dearday.kr`) 연결 → 그 주소가 `R2_PUBLIC_BASE_URL`
+2. 공개 접근: 버킷 Settings → Custom Domain(예: `media.thedearday.com`) 연결 → 그 주소가 `R2_PUBLIC_BASE_URL`
 3. R2 → Manage API tokens → **Object Read & Write**, 이 버킷만 → Access Key ID / Secret → `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
 4. 계정 ID → `R2_ACCOUNT_ID`
 5. 버킷 Settings → CORS policy:
@@ -20,7 +20,7 @@
 ```json
 [
   {
-    "AllowedOrigins": ["https://dearday.kr", "http://localhost:3000"],
+    "AllowedOrigins": ["https://thedearday.com", "http://localhost:3000"],
     "AllowedMethods": ["PUT"],
     "AllowedHeaders": ["Content-Type"],
     "MaxAgeSeconds": 3600
@@ -33,8 +33,8 @@
 ## 3. 카카오 개발자 콘솔
 
 1. 앱 만들기 → 앱 키: REST API 키 → `KAKAO_REST_API_KEY`, JavaScript 키 → `NEXT_PUBLIC_KAKAO_JS_KEY`
-2. 플랫폼 → Web → 사이트 도메인: `https://dearday.kr`, `http://localhost:3000`
-3. 카카오 로그인 → 활성화 ON, Redirect URI: `https://dearday.kr/api/auth/kakao/callback`
+2. 플랫폼 → Web → 사이트 도메인: `https://thedearday.com`, `http://localhost:3000`
+3. 카카오 로그인 → 활성화 ON, Redirect URI: `https://thedearday.com/api/auth/kakao/callback`
 4. 동의항목 → 닉네임(필수)
 5. (선택) 보안 → Client Secret 사용 시 → `KAKAO_CLIENT_SECRET`
 6. 지도 · 로컬 API(주소 검색)가 앱에서 사용 설정돼 있는지 확인
@@ -47,21 +47,23 @@
 
 | 이름 | 값 |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | `https://dearday.kr` |
+| `NEXT_PUBLIC_SITE_URL` | `https://thedearday.com` |
 | `DATABASE_URL` | Neon pooled 주소 |
 | `SESSION_SECRET` | 64자 랜덤 (`openssl rand -hex 32`) |
 | `KAKAO_REST_API_KEY` | |
 | `KAKAO_CLIENT_SECRET` | 사용할 때만 |
-| `KAKAO_REDIRECT_URI` | `https://dearday.kr/api/auth/kakao/callback` |
+| `KAKAO_REDIRECT_URI` | `https://thedearday.com/api/auth/kakao/callback` |
 | `NEXT_PUBLIC_KAKAO_JS_KEY` | |
 | `R2_ACCOUNT_ID` · `R2_ACCESS_KEY_ID` · `R2_SECRET_ACCESS_KEY` | |
 | `R2_BUCKET` | `dearday-media` |
-| `R2_PUBLIC_BASE_URL` | `https://media.dearday.kr` |
+| `R2_PUBLIC_BASE_URL` | `https://media.thedearday.com` |
 
 `DEV_LOGIN`은 **넣지 않습니다**. (넣어도 amplify.yml이 런타임에 넘기지 않고, 코드도 localhost에서만 허용)
 
-4. Custom domains → 도메인 연결 (DNS 레코드 추가)
-5. 배포 후 확인: `https://dearday.kr/api/health` →
+4. Custom domains → `thedearday.com` 연결 (DNS 레코드 추가). 서브도메인은 루트(`thedearday.com`)와 `www` 둘 다 이 앱에 연결
+   - `www.thedearday.com` → `https://thedearday.com` 301 리다이렉트는 `next.config.ts`에서 처리 (경로 · 쿼리 유지)
+   - 확인: `curl -I https://www.thedearday.com/i/아무주소` → `301`, `location: https://thedearday.com/i/아무주소`
+5. 배포 후 확인: `https://thedearday.com/api/health` →
    `{"ok":true,"db":true,"session":true,"storage":"r2","kakaoLogin":true,"kakaoJs":true,"devLogin":false}`
 
 ## 5. 운영 스모크 테스트 (휴대폰으로)

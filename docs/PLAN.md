@@ -107,7 +107,7 @@
 ## ⏸ 사용자 대기 항목
 
 - [x] 개발 세션에 이 레포 쓰기 권한 연결
-- [ ] 도메인 (dearday.kr 또는 dearday.app)
+- [x] 도메인: `thedearday.com` (www → 루트 301 리다이렉트는 `next.config.ts`)
 - [ ] 카카오 개발자 앱: REST · JS 키, 카카오 로그인 활성화, 플랫폼 도메인 · Redirect URI 등록
   - 플랫폼 > Web 사이트 도메인에 운영 도메인과 `http://localhost:3000` 둘 다 (지도 · 공유 SDK가 도메인 검사)
   - 동의 항목: 닉네임(프로필) 필수
