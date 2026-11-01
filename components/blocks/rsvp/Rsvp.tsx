@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 
 import type { RsvpConfig } from '@/shared/blocks'
-import { isPastDeadline, rsvpInputSchema } from '@/shared/guest'
+import { checkName, isPastDeadline } from '@/shared/guest-rules'
 
 import styles from '../common/guestForm.module.scss'
 import Section from '../common/Section'
@@ -54,19 +54,15 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (attending === null) return setError('참석 여부를 골라 주세요.')
-    const input = { name, attending, partySize, meal, editToken: saved?.editToken }
-    const parsed = rsvpInputSchema.safeParse(input)
-    if (!parsed.success)
-      return setError(parsed.error.issues[0]?.message ?? '입력값을 확인해 주세요.')
+    const nameError = checkName(name)
+    if (nameError) return setError(nameError)
     if (ctx.preview) return setError('미리보기에서는 보낼 수 없어요.')
+    const body = { name: name.trim(), attending, partySize, meal, editToken: saved?.editToken }
     setBusy(true)
     setError('')
     try {
-      const { editToken } = await postJson<{ editToken: string }>(
-        `/api/i/${ctx.slug}/rsvp`,
-        parsed.data,
-      )
-      const next: Saved = { editToken, name: parsed.data.name, attending, partySize, meal }
+      const { editToken } = await postJson<{ editToken: string }>(`/api/i/${ctx.slug}/rsvp`, body)
+      const next: Saved = { editToken, name: body.name, attending, partySize, meal }
       writeLocal(storageKey, next)
       setSaved(next)
       setOpen(false)

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import type { GuestbookConfig } from '@/shared/blocks'
 import { formatShortDate } from '@/shared/date'
-import { guestbookInputSchema, type GuestbookEntryView } from '@/shared/guest'
+import { checkGuestbook, type GuestbookEntryView } from '@/shared/guest-rules'
 
 import formStyles from '../common/guestForm.module.scss'
 import Section from '../common/Section'
@@ -56,14 +56,17 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
-    const parsed = guestbookInputSchema.safeParse(form)
-    if (!parsed.success)
-      return setError(parsed.error.issues[0]?.message ?? '입력값을 확인해 주세요.')
+    const invalid = checkGuestbook(form)
+    if (invalid) return setError(invalid)
     if (ctx.preview) return setError('미리보기에서는 남길 수 없어요.')
     setBusy(true)
     setError('')
     try {
-      const entry = await postJson<GuestbookEntryView>(base, parsed.data)
+      const entry = await postJson<GuestbookEntryView>(base, {
+        name: form.name.trim(),
+        message: form.message.trim(),
+        password: form.password,
+      })
       setEntries((list) => [entry, ...list])
       setForm({ name: '', password: '', message: '' })
       setOpen(false)

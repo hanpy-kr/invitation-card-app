@@ -1,7 +1,13 @@
 import { z } from 'zod'
 
+import { GUEST_LIMITS } from './guest-rules'
+
 /** 하객 쓰기 API 입력 (블록 UI · API 공용). 연락처는 받지 않는다 */
-const name = z.string().trim().min(1, '이름을 적어 주세요.').max(20, '이름은 20자까지예요.')
+const name = z
+  .string()
+  .trim()
+  .min(1, '이름을 적어 주세요.')
+  .max(GUEST_LIMITS.name, `이름은 ${GUEST_LIMITS.name}자까지예요.`)
 
 export const rsvpInputSchema = z.object({
   name,
@@ -16,17 +22,15 @@ export type RsvpInput = z.infer<typeof rsvpInputSchema>
 
 export const guestbookInputSchema = z.object({
   name,
-  message: z.string().trim().min(1, '메시지를 적어 주세요.').max(300, '메시지는 300자까지예요.'),
-  password: z.string().min(4, '비밀번호는 4자 이상이에요.').max(20),
+  message: z
+    .string()
+    .trim()
+    .min(1, '메시지를 적어 주세요.')
+    .max(GUEST_LIMITS.message, `메시지는 ${GUEST_LIMITS.message}자까지예요.`),
+  password: z.string().min(GUEST_LIMITS.passwordMin).max(GUEST_LIMITS.passwordMax),
 })
 export type GuestbookInput = z.infer<typeof guestbookInputSchema>
 
 export const guestbookDeleteSchema = z.object({ password: z.string().min(1).max(20) })
 
-export type GuestbookEntryView = { id: string; name: string; message: string; createdAt: string }
-
-/** 응답 마감일(YYYY-MM-DD, 한국 시간 그날 끝까지)이 지났는지 */
-export function isPastDeadline(deadline: string | null, now = new Date()): boolean {
-  if (!deadline) return false
-  return now.getTime() > new Date(`${deadline}T23:59:59.999+09:00`).getTime()
-}
+export { isPastDeadline, type GuestbookEntryView } from './guest-rules'
