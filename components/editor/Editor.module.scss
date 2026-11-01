@@ -422,6 +422,16 @@ $wide: 960px;
   line-height: 1.6;
 }
 
+.warnings {
+  background: #fff8e8;
+  border-radius: 10px;
+  padding: 12px 14px 12px 30px;
+  font-size: 13px;
+  line-height: 1.7;
+  list-style: disc;
+  color: #7a5b16;
+}
+
 .linkBox {
   display: flex;
   gap: 6px;

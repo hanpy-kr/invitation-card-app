@@ -4,11 +4,9 @@ import { notFound } from 'next/navigation'
 
 import BlockRenderer from '@/components/blocks/BlockRenderer'
 import type { BlockContext } from '@/components/blocks/types'
-import { getPublishedInvitation, type PublicInvitation } from '@/lib/invitations'
+import { getPublishedInvitation } from '@/lib/invitations'
 import { getMediaBaseUrl } from '@/lib/media'
-import { EVENT_TYPE_LABELS } from '@/shared/blocks'
-import { formatEventDateTime } from '@/shared/date'
-import { mediaSrc } from '@/shared/media'
+import { shareDescription, shareImagePath, shareTitle } from '@/shared/share'
 import { themeStyle } from '@/shared/themes'
 
 import styles from './page.module.scss'
@@ -18,37 +16,14 @@ export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ slug: string }> }
 
-function describe(inv: PublicInvitation): string {
-  const location = inv.blocks.find((b) => b.type === 'location')
-  const place = location?.type === 'location' ? location.config.placeName : ''
-  const when = inv.eventAt ? formatEventDateTime(inv.eventAt) : ''
-  const text = [when, place].filter(Boolean).join(' · ')
-  return text || `${EVENT_TYPE_LABELS[inv.eventType]}에 초대합니다.`
-}
-
-function ogImage(inv: PublicInvitation): string {
-  const base = getMediaBaseUrl()
-  for (const b of inv.blocks) {
-    if (!b.visible) continue
-    if (b.type === 'cover' && b.config.layout === 'photo' && b.config.image) {
-      return mediaSrc(base, b.config.image.key)
-    }
-  }
-  const gallery = inv.blocks.find((b) => b.type === 'gallery' && b.visible)
-  if (gallery?.type === 'gallery' && gallery.config.images[0]) {
-    return mediaSrc(base, gallery.config.images[0].key)
-  }
-  return `/og/${inv.eventType}`
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const inv = await getPublishedInvitation(slug)
   if (!inv) return { title: '초대장을 찾을 수 없어요', robots: { index: false } }
 
-  const title = inv.title || EVENT_TYPE_LABELS[inv.eventType]
-  const description = describe(inv)
-  const image = ogImage(inv)
+  const title = shareTitle(inv)
+  const description = shareDescription(inv)
+  const image = shareImagePath(inv, getMediaBaseUrl())
   return {
     title,
     description,
