@@ -78,6 +78,7 @@ export default async function InvitationPage({ params }: Props) {
     title: inv.title,
     eventAt: inv.eventAt,
     mediaBaseUrl: getMediaBaseUrl(),
+    kakaoJsKey: process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? '',
   }
 
   return (

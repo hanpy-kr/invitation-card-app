@@ -9,4 +9,6 @@ export type BlockContext = {
   eventAt: string | null
   /** 사진 공개 주소 앞부분. 비어 있으면 /uploads */
   mediaBaseUrl: string
+  /** 카카오 JS 키 (지도). 비어 있으면 지도 없이 길찾기 링크만 */
+  kakaoJsKey: string
 }

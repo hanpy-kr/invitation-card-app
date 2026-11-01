@@ -13,10 +13,13 @@ const eslintConfig = [
     ignores: ['node_modules/**', '.next/**', 'out/**', 'build/**', 'drizzle/**', 'next-env.d.ts'],
   },
   {
+    // 사진은 이미 1600px webp로 줄여서 R2에 올림. next/image 최적화는 Amplify에서 비용·지연만 늘려서 안 씀
+    rules: { '@next/next/no-img-element': 'off' },
+  },
+  {
     // 블록 UI는 순수 표시용 — 앱인토스 미니앱으로 옮길 수 있도록 서버 · DB · Next 전용 모듈 금지
     files: ['components/blocks/**/*.{ts,tsx}'],
     rules: {
-      '@next/next/no-img-element': 'off',
       'no-restricted-imports': [
         'error',
         {

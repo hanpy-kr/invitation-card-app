@@ -2,8 +2,9 @@ import 'server-only'
 
 import { and, asc, eq, inArray, lt, sql } from 'drizzle-orm'
 
-import { toBlock, type Block, type MediaRef } from '@/shared/blocks'
+import { toBlock, type Block } from '@/shared/blocks'
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
+import { collectMediaRefs } from '@/shared/media'
 import { buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
@@ -78,7 +79,7 @@ export async function getEditableInvitation(
     },
     extras: {
       mediaCount:
-        sql<number>`(select count(*)::int from ${schema.media} where ${schema.media.invitationId} = ${schema.invitations.id})`.as(
+        sql<number>`(select count(*)::int from media m where m.invitation_id = ${schema.invitations.id})`.as(
           'media_count',
         ),
     },
@@ -102,19 +103,6 @@ export async function getEditableInvitation(
       ),
     mediaCount: Number(row.mediaCount),
   }
-}
-
-export function collectMediaRefs(blocks: { type: string; config: unknown }[]): MediaRef[] {
-  const refs: MediaRef[] = []
-  for (const b of blocks) {
-    if (b.type === 'cover') {
-      const image = (b.config as { image?: MediaRef | null }).image
-      if (image) refs.push(image)
-    } else if (b.type === 'gallery') {
-      refs.push(...((b.config as { images?: MediaRef[] }).images ?? []))
-    }
-  }
-  return refs
 }
 
 /** 자동 저장: 메타 수정 + 블록 전체 교체 (한 트랜잭션) */
