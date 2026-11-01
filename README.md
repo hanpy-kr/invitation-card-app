@@ -4,6 +4,7 @@
 
 - 개발 지침: [CLAUDE.md](./CLAUDE.md)
 - 작업 순서: [docs/PLAN.md](./docs/PLAN.md)
+- 배포: [docs/DEPLOY.md](./docs/DEPLOY.md)
 
 ## 로컬 실행
 
