@@ -101,8 +101,9 @@
 ## 리뷰 반영 (관리 세션 11/1)
 
 - [x] [버그] 대시보드 목록 응답 수가 항상 0 — 상관 서브쿼리의 `${inv.id}`가 `"id"`로만 렌더링돼 `rsvps.id`와 비교됨. `LEFT JOIN rsvps … GROUP BY`로 수정, 같은 파일의 소유자 확인 `exists(...)`도 drizzle 서브쿼리(`inArray`)로 교체. `e2e:d3`에 목록 카드 숫자 확인 추가
-- [ ] [속도] 손글씨 폰트 2.5MB → 서브셋 / unicode-range 분할
-- [ ] [확인] og:image가 webp → 카톡 미리보기용 jpg 썸네일 검토
+- [x] [속도] 손글씨 폰트 2.5MB → Google Fonts 한국어 빈도 슬라이스로 88조각(조각당 14~20KB) + unicode-range. 하객 페이지 폰트 다운로드 2,459KB → 123~158KB. 원본은 `assets/fonts/`, 생성은 `scripts/subset-font.py`
+- [x] [확인] og:image가 webp → 카카오 스크랩은 JPG/JPEG/PNG만 지원(카카오 데브톡 점검 목록)이라 수정. 업로드 때 브라우저가 공유용 JPEG 사본(`*.share.jpg`, 긴 변 1200px)도 올리고 og:image · 카카오 공유는 이 사본을 씀. 사진 지울 때 사본도 삭제
+  - ⏸ 운영 R2에 샘플 사진을 올릴 경우 `samples/wedding_XX.share.jpg`도 함께
 - [x] [다듬기] 사진첩 '넘겨 보기 (준비 중)' 선택지 숨김 (스키마 값은 유지)
 
 ## 밀리면 뺄 순서 (런칭 다음 날 추가)

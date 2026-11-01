@@ -5,7 +5,8 @@ unicode-range가 붙은 @font-face를 만든다. 브라우저는 화면에 실�
 사용:
   pip install fonttools brotli
   curl -O https://raw.githubusercontent.com/googlefonts/nam-files/main/slices/korean_default.txt
-  python3 scripts/subset-font.py <원본.woff2> korean_default.txt
+  python3 scripts/subset-font.py assets/fonts/NanumGeumEunBoHwa.woff2 korean_default.txt
+원본은 assets/fonts/ (서비스에서 직접 쓰지 않음, 다시 자를 때만 사용)
 결과: public/fonts/nanum-geumeunbohwa/*.woff2, styles/_display-font.scss
 """
 import os
