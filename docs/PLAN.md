@@ -109,13 +109,15 @@
 - [x] 개발 세션에 이 레포 쓰기 권한 연결
 - [x] 도메인: `thedearday.com` (www → 루트 301 리다이렉트는 `next.config.ts`)
 - [ ] 카카오 개발자 앱: REST · JS 키, 카카오 로그인 활성화, 플랫폼 도메인 · Redirect URI 등록
+  - Client Secret: 새 앱은 기본 사용 → `KAKAO_CLIENT_SECRET` 필수
   - 플랫폼 > Web 사이트 도메인에 운영 도메인과 `http://localhost:3000` 둘 다 (지도 · 공유 SDK가 도메인 검사)
   - 동의 항목: 닉네임(프로필) 필수
   - 카카오 JS SDK 2.8.4의 SRI 해시를 다운로드 페이지에서 복사해 주면 넣겠음 (선택)
 - [ ] Neon 프로젝트(Singapore) → `DATABASE_URL`
-- [ ] R2 버킷 `dearday-media`, 공개 도메인, API 토큰
+- [ ] R2 버킷 `dearday-media`, 공개 도메인 `media.thedearday.com`, API 토큰
   - 버킷 CORS: 사이트 주소(운영 · localhost:3000)에서 `PUT`, 헤더 `Content-Type` 허용
 - [ ] Amplify 앱(서울 리전) ↔ 이 레포 연결
+  - 커스텀 도메인: 루트 `thedearday.com`이 대표, `www`는 루트로 301. Cloudflare의 Amplify 레코드는 프록시 끄고 DNS only
 - [ ] 약관용 사업자 정보 (대표자명, 사업자등록번호, 연락처 이메일)
 
 키 · 비밀번호는 채팅에 붙이지 말고 Amplify 환경변수 / 로컬 `.env.local`에 직접 입력.
@@ -123,6 +125,7 @@
 ## 질문 (개발 세션 → 관리 세션)
 
 - 이용약관 · 개인정보처리방침은 개발 세션이 쓴 초안(`/terms`, `/privacy`). 런칭 전에 사용자가 한 번 읽어 보고, 위탁 업체 · 보관 위치(특히 Cloudflare R2 버킷 위치)가 실제 설정과 맞는지 확인 필요
+- CLAUDE.md 환경변수 설명의 `KAKAO_CLIENT_SECRET=  # 카카오 콘솔에서 사용 설정한 경우만`을 '필수(새 앱은 기본 사용)'로 고쳐 주세요 (개발 세션은 CLAUDE.md를 직접 안 고침)
 - 유료 기능을 붙일 때는 통신판매업 신고번호 · 사업장 주소도 푸터에 필요
 
 ## 런칭 이후 (이번 범위 아님)

@@ -36,6 +36,7 @@ export async function fetchKakaoProfile(code: string): Promise<KakaoProfile> {
     redirect_uri: kakaoRedirectUri(),
     code,
   })
+  // 새 앱은 Client Secret이 기본 사용(필수). 비어 있으면 카카오가 KOE010으로 거절한다
   if (process.env.KAKAO_CLIENT_SECRET) body.set('client_secret', process.env.KAKAO_CLIENT_SECRET)
 
   const tokenRes = await fetch(`${KAUTH}/oauth/token`, {

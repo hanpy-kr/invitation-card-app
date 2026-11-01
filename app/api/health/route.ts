@@ -22,6 +22,8 @@ export async function GET() {
     session: Boolean(process.env.SESSION_SECRET && process.env.SESSION_SECRET.length >= 32),
     storage: storageMode(),
     kakaoLogin: kakaoConfigured(),
+    // 새 카카오 앱은 Client Secret 기본 사용 → 없으면 로그인 실패
+    kakaoClientSecret: Boolean(process.env.KAKAO_CLIENT_SECRET),
     kakaoJs: Boolean(process.env.NEXT_PUBLIC_KAKAO_JS_KEY),
     devLogin: process.env.DEV_LOGIN === '1',
   }

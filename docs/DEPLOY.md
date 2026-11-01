@@ -12,7 +12,8 @@
 ## 2. Cloudflare R2 (사진)
 
 1. 버킷 `dearday-media` 만들기
-2. 공개 접근: 버킷 Settings → Custom Domain(예: `media.thedearday.com`) 연결 → 그 주소가 `R2_PUBLIC_BASE_URL`
+2. 공개 접근: 버킷 Settings → Custom Domain → `media.thedearday.com` 연결 → `R2_PUBLIC_BASE_URL`은 `https://media.thedearday.com`
+   - 이 레코드는 Cloudflare가 자동으로 만들고 **프록시(주황 구름)가 켜진 상태가 정상**입니다. 아래 4번의 'DNS only'는 Amplify 레코드에만 해당
 3. R2 → Manage API tokens → **Object Read & Write**, 이 버킷만 → Access Key ID / Secret → `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
 4. 계정 ID → `R2_ACCOUNT_ID`
 5. 버킷 Settings → CORS policy:
@@ -28,7 +29,6 @@
 ]
 ```
 
-(도메인은 실제 운영 도메인으로)
 
 ## 3. 카카오 개발자 콘솔
 
@@ -36,7 +36,8 @@
 2. 플랫폼 → Web → 사이트 도메인: `https://thedearday.com`, `http://localhost:3000`
 3. 카카오 로그인 → 활성화 ON, Redirect URI: `https://thedearday.com/api/auth/kakao/callback`
 4. 동의항목 → 닉네임(필수)
-5. (선택) 보안 → Client Secret 사용 시 → `KAKAO_CLIENT_SECRET`
+5. 보안 → Client Secret → 코드 발급 → `KAKAO_CLIENT_SECRET` (**필수**)
+   - 새로 만든 앱은 Client Secret이 기본으로 '사용함'이라, 이 값이 없으면 로그인 토큰 발급이 실패합니다(로그인 후 랜딩으로 돌아와 '로그인하지 못했어요')
 6. 지도 · 로컬 API(주소 검색)가 앱에서 사용 설정돼 있는지 확인
 
 ## 4. AWS Amplify
@@ -51,7 +52,7 @@
 | `DATABASE_URL` | Neon pooled 주소 |
 | `SESSION_SECRET` | 64자 랜덤 (`openssl rand -hex 32`) |
 | `KAKAO_REST_API_KEY` | |
-| `KAKAO_CLIENT_SECRET` | 사용할 때만 |
+| `KAKAO_CLIENT_SECRET` | **필수** (카카오 콘솔 → 보안 → Client Secret) |
 | `KAKAO_REDIRECT_URI` | `https://thedearday.com/api/auth/kakao/callback` |
 | `NEXT_PUBLIC_KAKAO_JS_KEY` | |
 | `R2_ACCOUNT_ID` · `R2_ACCESS_KEY_ID` · `R2_SECRET_ACCESS_KEY` | |
@@ -60,11 +61,20 @@
 
 `DEV_LOGIN`은 **넣지 않습니다**. (넣어도 amplify.yml이 런타임에 넘기지 않고, 코드도 localhost에서만 허용)
 
-4. Custom domains → `thedearday.com` 연결 (DNS 레코드 추가). 서브도메인은 루트(`thedearday.com`)와 `www` 둘 다 이 앱에 연결
-   - `www.thedearday.com` → `https://thedearday.com` 301 리다이렉트는 `next.config.ts`에서 처리 (경로 · 쿼리 유지)
-   - 확인: `curl -I https://www.thedearday.com/i/아무주소` → `301`, `location: https://thedearday.com/i/아무주소`
-5. 배포 후 확인: `https://thedearday.com/api/health` →
-   `{"ok":true,"db":true,"session":true,"storage":"r2","kakaoLogin":true,"kakaoJs":true,"devLogin":false}`
+4. Hosting → Custom domains → Add domain → `thedearday.com`
+   - **대표 주소는 루트 도메인 `thedearday.com`**, `www`는 루트로 보내는 리다이렉트용
+   - 서브도메인 목록에서 루트(`thedearday.com`)와 `www` **둘 다** `main` 브랜치에 연결
+   - Amplify가 기본으로 켜 두는 '`thedearday.com` → `www.thedearday.com` 리다이렉트' 옵션은 **끕니다** (방향이 반대 — 켜 두면 루트 ↔ www가 서로 넘기며 무한 리다이렉트)
+   - `www.thedearday.com` → `https://thedearday.com` **301**은 `next.config.ts`에서 처리 (경로 · 쿼리 유지)
+5. Cloudflare DNS에 Amplify가 알려 주는 레코드 추가 — **모두 프록시 끄고 'DNS only'(회색 구름)**
+   - SSL 인증서 확인용 CNAME (`_xxxx.thedearday.com` → `_yyyy.acm-validations.aws`)
+   - 루트 `thedearday.com` → Amplify가 준 `xxxx.cloudfront.net` (Cloudflare는 루트에도 CNAME 가능 — 자동 평탄화)
+   - `www` → 같은 `xxxx.cloudfront.net`
+   - 프록시를 켜면(주황 구름) 인증서 확인이 끝나지 않거나, Cloudflare와 CloudFront가 겹쳐 SSL 오류 · 리다이렉트 반복이 생깁니다
+   - Amplify 화면에서 도메인 상태가 'Available'이 될 때까지 대기 (보통 수십 분)
+6. 리다이렉트 확인: `curl -I https://www.thedearday.com/i/아무주소` → `301`, `location: https://thedearday.com/i/아무주소`
+7. 배포 후 확인: `https://thedearday.com/api/health` →
+   `{"ok":true,"db":true,"session":true,"storage":"r2","kakaoLogin":true,"kakaoClientSecret":true,"kakaoJs":true,"devLogin":false}`
 
 ## 5. 운영 스모크 테스트 (휴대폰으로)
 
