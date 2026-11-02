@@ -89,7 +89,7 @@
   - 사업자 정보는 `shared/business.ts` 한 곳. 대표자 · 사업자등록번호 · 이메일은 받기 전까지 '등록 예정'으로 표시 ⏸
   - 개인정보처리방침에 국외 이전(Neon 싱가포르 · Cloudflare) 명시. 하객 입력 폼에 처리방침 링크
   - 회원 탈퇴 추가(대시보드 하단): 초대장 · 응답 · 방명록 · 사진까지 삭제 — 개인정보 보호법상 탈퇴 수단 필요
-- [ ] Amplify 배포: `amplify.yml`, 런타임 환경변수 처리, 도메인 연결 ⏸
+- [x] Amplify 배포: `amplify.yml`, 런타임 환경변수 처리, 도메인 연결 — 11/1 운영 구성 완료, `/api/health` ok · www → 루트 리다이렉트 확인
   - 준비 완료: `amplify.yml`(Node 20 · pnpm, 런타임 환경변수를 `.env.production`에 기록 — DEV_LOGIN 제외, 빌드 때 `db:migrate`), `/api/health`(설정 확인용), `docs/DEPLOY.md`(Neon · R2 CORS · 카카오 콘솔 · Amplify 순서)
   - 남은 것 ⏸: Amplify 앱 연결 · 환경변수 입력 · 도메인 연결 → `/api/health`가 `ok:true`인지 확인
 - [ ] 실기기 QA: iOS Safari, 카카오톡 인앱 브라우저, 안드로이드 Chrome. 카톡 공유 미리보기 카드 확인 ⏸ 운영 배포 후 (점검 순서는 `docs/DEPLOY.md` 5번)
@@ -116,24 +116,24 @@
 
 - [x] 개발 세션에 이 레포 쓰기 권한 연결
 - [x] 도메인: `thedearday.com` (www → 루트 301 리다이렉트는 `next.config.ts`)
-- [ ] 카카오 개발자 앱: REST · JS 키, 카카오 로그인 활성화, 플랫폼 도메인 · Redirect URI 등록 — 사용자 진행 중 (11/1)
+- [x] 카카오 개발자 앱: REST · JS 키, 카카오 로그인 활성화, 플랫폼 도메인 · Redirect URI 등록 (11/1 완료)
   - Client Secret: 새 앱은 기본 사용 → `KAKAO_CLIENT_SECRET` 필수
   - 플랫폼 > Web 사이트 도메인에 운영 도메인과 `http://localhost:3000` 둘 다 (지도 · 공유 SDK가 도메인 검사)
   - 동의 항목: 닉네임(프로필) 필수
   - 카카오 JS SDK 2.8.4의 SRI 해시를 다운로드 페이지에서 복사해 주면 넣겠음 (선택)
-- [ ] Neon 프로젝트(Singapore) → `DATABASE_URL`
-- [ ] R2 버킷 `dearday-media`, 공개 도메인 `media.thedearday.com`, API 토큰
+- [x] Neon 프로젝트(Singapore) → `DATABASE_URL`
+- [x] R2 버킷 `dearday-media`(아시아 · 태평양), 공개 도메인 `media.thedearday.com`, API 토큰
   - 버킷 CORS: 사이트 주소(운영 · localhost:3000)에서 `PUT`, 헤더 `Content-Type` 허용
-- [ ] Amplify 앱(서울 리전) ↔ 이 레포 연결
+- [x] Amplify 앱(서울 리전) ↔ 이 레포 연결
   - 커스텀 도메인: 루트 `thedearday.com`이 대표, `www`는 루트로 301. Cloudflare의 Amplify 레코드는 프록시 끄고 DNS only
-- [ ] 약관용 사업자 정보 (대표자명, 사업자등록번호, 연락처 이메일)
+- [ ] 약관용 사업자 정보 (대표자명, 사업자등록번호, 연락처 이메일) — 11/2 받은 값이 `○○○` 자리 표시 그대로라 미반영, 실제 값 대기
 
 키 · 비밀번호는 채팅에 붙이지 말고 Amplify 환경변수 / 로컬 `.env.local`에 직접 입력.
 
 ## 질문 (개발 세션 → 관리 세션)
 
-- 이용약관 · 개인정보처리방침은 개발 세션이 쓴 초안(`/terms`, `/privacy`). 런칭 전에 사용자가 한 번 읽어 보고, 위탁 업체 · 보관 위치(특히 Cloudflare R2 버킷 위치)가 실제 설정과 맞는지 확인 필요
-- CLAUDE.md 환경변수 설명의 `KAKAO_CLIENT_SECRET=  # 카카오 콘솔에서 사용 설정한 경우만`을 '필수(새 앱은 기본 사용)'로 고쳐 주세요 (개발 세션은 CLAUDE.md를 직접 안 고침)
+- 이용약관 · 개인정보처리방침은 개발 세션이 쓴 초안(`/terms`, `/privacy`). 위탁 업체 · 보관 위치는 실제 구성(Amplify 서울 · Neon 싱가포르 · R2 아시아태평양 · 카카오)에 맞춤(11/2). 법률 검토는 아직
+- ~~CLAUDE.md의 `KAKAO_CLIENT_SECRET` 설명 수정~~ → 11/2 프로젝트 문서 `dearday/CLAUDE.md`로 레포 CLAUDE.md 교체(사용자 허용, 이번 한 번)
 - 유료 기능을 붙일 때는 통신판매업 신고번호 · 사업장 주소도 푸터에 필요
 
 ## 런칭 이후 (이번 범위 아님)

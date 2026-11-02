@@ -83,30 +83,34 @@ export default function PrivacyPage() {
           <tbody>
             <tr>
               <td>Amazon Web Services, Inc.</td>
-              <td>서비스 서버 운영(호스팅)</td>
-              <td>대한민국(서울 리전)</td>
+              <td>서비스 서버 운영 (AWS Amplify Hosting)</td>
+              <td>대한민국 (서울 리전)</td>
             </tr>
             <tr>
               <td>Neon, Inc.</td>
               <td>데이터베이스 보관 (위 1번의 모든 항목)</td>
-              <td>싱가포르</td>
+              <td>싱가포르 (AWS 아시아 · 태평양 싱가포르 리전)</td>
             </tr>
             <tr>
               <td>Cloudflare, Inc.</td>
-              <td>사진 파일 보관 · 전송</td>
-              <td>Cloudflare 데이터센터(국외 포함)</td>
+              <td>사진 파일 보관 (Cloudflare R2) · 전송</td>
+              <td>
+                아시아 · 태평양 지역 (R2 저장 위치). 전송 시 Cloudflare 전 세계 네트워크를 거칠 수
+                있음
+              </td>
             </tr>
             <tr>
               <td>주식회사 카카오</td>
-              <td>카카오 로그인, 지도 표시, 카카오톡 공유</td>
+              <td>카카오 로그인, 지도 표시 · 주소 검색, 카카오톡 공유</td>
               <td>대한민국</td>
             </tr>
           </tbody>
         </table>
         <p>
-          국외 이전(Neon · Cloudflare)은 서비스 이용 시 정보통신망을 통해 수시로 이루어지며, 이전
-          항목과 보유 기간은 1번과 같습니다. 국외 이전을 원하지 않으면 서비스 이용을 멈추고 탈퇴할
-          수 있으나, 이 경우 서비스를 이용할 수 없습니다.
+          국외 이전은 Neon(싱가포르, 데이터베이스)과 Cloudflare(아시아 · 태평양 지역, 사진 파일)로
+          서비스 이용 시 정보통신망을 통해 수시로 이루어지며, 이전 항목과 보유 기간은 1번과
+          같습니다. 국외 이전을 원하지 않으면 서비스 이용을 멈추고 탈퇴할 수 있으나, 이 경우
+          서비스를 이용할 수 없습니다.
         </p>
 
         <h2>3. 파기</h2>

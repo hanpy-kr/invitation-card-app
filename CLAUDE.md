@@ -77,7 +77,7 @@ NEXT_PUBLIC_SITE_URL=
 DATABASE_URL=
 SESSION_SECRET=
 KAKAO_REST_API_KEY=
-KAKAO_CLIENT_SECRET=          # 카카오 콘솔에서 사용 설정한 경우만
+KAKAO_CLIENT_SECRET=          # 필수. 새 카카오 앱은 클라이언트 시크릿이 기본 사용 상태
 KAKAO_REDIRECT_URI=
 NEXT_PUBLIC_KAKAO_JS_KEY=
 R2_ACCOUNT_ID=
@@ -89,7 +89,10 @@ DEV_LOGIN=                    # 로컬 전용. 1이면 카카오 없이 개발�
 ```
 
 Amplify 주의: 콘솔에 넣은 환경변수는 기본적으로 빌드 시점에만 보임. SSR 런타임(Route Handler)에서 쓰려면
-`amplify.yml` 빌드 단계에서 필요한 값을 `.env.production`에 써 넣어야 함 — 배포 때 AWS 문서로 확인 후 적용.
+`amplify.yml` 빌드 단계에서 필요한 값을 `.env.production`에 써 넣어야 함 (적용 완료). 환경변수를 바꾸면 반드시 재배포.
+
+운영 환경 (2026-11-01 구성 완료): 사이트 `https://thedearday.com` (www → 루트 301), 사진 `https://media.thedearday.com` (R2, 프록시 켜짐),
+Amplify 서울 리전, Neon 싱가포르, 카카오 앱 등록 완료. 배포 상태 확인은 `/api/health`.
 
 ## 작업 방식
 
