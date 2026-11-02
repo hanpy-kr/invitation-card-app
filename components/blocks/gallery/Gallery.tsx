@@ -13,7 +13,8 @@ const ImageViewer = lazy(() => import('./ImageViewer'))
 
 type Props = {
   title: string
-  images: { src: string; w: number; h: number }[]
+  /** src: 크게 보기용 원본, thumbSrc: 바둑판용 썸네일 */
+  images: { src: string; thumbSrc: string; w: number; h: number }[]
 }
 
 export default function Gallery({ title, images }: Props) {
@@ -35,7 +36,7 @@ export default function Gallery({ title, images }: Props) {
                 aria-label={`사진 ${idx + 1} 크게 보기`}
               >
                 <img
-                  src={img.src}
+                  src={img.thumbSrc}
                   width={img.w}
                   height={img.h}
                   alt=""

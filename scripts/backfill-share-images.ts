@@ -1,6 +1,8 @@
 /**
- * 일회성: 공유용 JPEG 사본(`*.share.jpg`)이 생기기 전에 올라간 사진에 사본을 만들고,
- * 블록 설정의 사진 참조에 `share: true`를 표시한다. 여러 번 돌려도 안전하다(있는 사본은 건너뜀).
+ * 일회성: 예전에 올라간 사진에 빠진 사본을 만들고, 블록 설정의 사진 참조에 표시를 붙인다.
+ *  - 공유용 JPEG 사본 `*.share.jpg` (긴 변 1200px) → `share: true`   대상: 표지 · 사진첩 사진
+ *  - 사진첩 썸네일 `*.thumb.webp` (긴 변 480px)    → `thumb: true`   대상: 사진첩 사진
+ * 여러 번 돌려도 안전하다(이미 있는 사본은 만들지 않고 표시만 붙임).
  *
  * 실행 (운영 DB · R2 값을 환경변수로 넣고 — 키는 채팅에 붙이지 말 것):
  *   pnpm backfill:share            # 미리 보기만 (아무것도 안 바꿈)
@@ -13,25 +15,55 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
-import { inArray, eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import sharp from 'sharp'
 
 import * as schema from '../lib/db/schema'
-import { shareKey } from '../shared/media'
+import { shareKey, thumbKey } from '../shared/media'
 import { requireEnv } from './env'
 
 const APPLY = process.argv.includes('--apply')
-const SHARE_SIDE = 1200 // 브라우저 업로드(components/editor/upload.ts)와 같은 크기
 
-type Ref = { id: string; key: string; w: number; h: number; share?: boolean }
+type Ref = { id: string; key: string; w: number; h: number; share?: boolean; thumb?: boolean }
+
+/** 만들 사본 종류. 크기 · 형식은 브라우저 업로드(components/editor/upload.ts)와 같게 */
+const VARIANTS = [
+  {
+    flag: 'share' as const,
+    label: '공유용 JPEG',
+    keyOf: shareKey,
+    contentType: 'image/jpeg',
+    appliesTo: (blockType: string) => blockType === 'cover' || blockType === 'gallery',
+    make: (input: Buffer) =>
+      sharp(input)
+        .rotate()
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .flatten({ background: '#ffffff' })
+        .jpeg({ quality: 80, mozjpeg: true })
+        .toBuffer(),
+  },
+  {
+    flag: 'thumb' as const,
+    label: '사진첩 썸네일',
+    keyOf: thumbKey,
+    contentType: 'image/webp',
+    appliesTo: (blockType: string) => blockType === 'gallery',
+    make: (input: Buffer) =>
+      sharp(input)
+        .rotate()
+        .resize(480, 480, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 75 })
+        .toBuffer(),
+  },
+]
 
 interface Store {
   name: string
   exists(key: string): Promise<boolean>
   read(key: string): Promise<Buffer>
-  write(key: string, data: Buffer): Promise<void>
+  write(key: string, data: Buffer, contentType: string): Promise<void>
 }
 
 function r2Store(): Store {
@@ -58,13 +90,13 @@ function r2Store(): Store {
       const res = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }))
       return Buffer.from(await res.Body!.transformToByteArray())
     },
-    async write(key, data) {
+    async write(key, data, contentType) {
       await client.send(
         new PutObjectCommand({
           Bucket: bucket,
           Key: key,
           Body: data,
-          ContentType: 'image/jpeg',
+          ContentType: contentType,
           CacheControl: 'public, max-age=31536000, immutable',
         }),
       )
@@ -108,50 +140,54 @@ async function main() {
     .from(schema.blocks)
     .where(inArray(schema.blocks.type, ['cover', 'gallery']))
 
-  const pending = new Map<string, Ref>()
-  for (const row of rows)
-    for (const ref of refsIn(row.type, row.config)) if (!ref.share) pending.set(ref.key, ref)
-  console.log(`사본 표시가 없는 사진 ${pending.size}장 (블록 ${rows.length}개 확인)`)
-
-  // 1) 사본 만들기
-  const ready = new Set<string>()
+  // 종류별로: 표시가 없는 원본 key → 사본이 준비됐는지
+  const ready: Record<'share' | 'thumb', Set<string>> = { share: new Set(), thumb: new Set() }
   let created = 0
   let failed = 0
-  for (const key of pending.keys()) {
-    const target = shareKey(key)
-    try {
-      if (await store.exists(target)) {
-        ready.add(key)
-        console.log(`  이미 있음  ${target}`)
-        continue
+
+  for (const v of VARIANTS) {
+    const pending = new Set<string>()
+    for (const row of rows) {
+      if (!v.appliesTo(row.type)) continue
+      for (const ref of refsIn(row.type, row.config)) if (!ref[v.flag]) pending.add(ref.key)
+    }
+    console.log(`\n[${v.label}] 표시가 없는 사진 ${pending.size}장`)
+    for (const key of pending) {
+      const target = v.keyOf(key)
+      try {
+        if (await store.exists(target)) {
+          ready[v.flag].add(key)
+          console.log(`  이미 있음  ${target}`)
+          continue
+        }
+        if (!APPLY) {
+          console.log(`  만들 예정  ${target}`)
+          continue
+        }
+        const data = await v.make(await store.read(key))
+        await store.write(target, data, v.contentType)
+        ready[v.flag].add(key)
+        created++
+        console.log(`  만듦        ${target} (${Math.round(data.length / 1024)}KB)`)
+      } catch (err) {
+        failed++
+        console.error(`  실패        ${key}: ${(err as Error).message}`)
       }
-      if (!APPLY) {
-        console.log(`  만들 예정  ${target}`)
-        continue
-      }
-      const jpeg = await sharp(await store.read(key))
-        .rotate()
-        .resize(SHARE_SIDE, SHARE_SIDE, { fit: 'inside', withoutEnlargement: true })
-        .flatten({ background: '#ffffff' })
-        .jpeg({ quality: 80, mozjpeg: true })
-        .toBuffer()
-      await store.write(target, jpeg)
-      ready.add(key)
-      created++
-      console.log(`  만듦        ${target} (${Math.round(jpeg.length / 1024)}KB)`)
-    } catch (err) {
-      failed++
-      console.error(`  실패        ${key}: ${(err as Error).message}`)
     }
   }
 
-  // 2) 블록 설정에 share: true 표시 (사본이 확인된 사진만)
+  // 블록 설정에 표시 붙이기 (사본이 확인된 사진만)
   let updatedBlocks = 0
-  if (APPLY && ready.size > 0) {
+  if (APPLY && (ready.share.size > 0 || ready.thumb.size > 0)) {
     await db.transaction(async (tx) => {
       for (const row of rows) {
-        const mark = (ref: Ref) =>
-          !ref.share && ready.has(ref.key) ? { ...ref, share: true } : ref
+        const mark = (ref: Ref): Ref => ({
+          ...ref,
+          ...(!ref.share && ready.share.has(ref.key) ? { share: true } : {}),
+          ...(row.type === 'gallery' && !ref.thumb && ready.thumb.has(ref.key)
+            ? { thumb: true }
+            : {}),
+        })
         const c = row.config as { image?: Ref | null; images?: Ref[] }
         const next =
           row.type === 'cover'
@@ -166,8 +202,8 @@ async function main() {
 
   console.log(
     APPLY
-      ? `완료: 사본 ${created}장 생성, 블록 ${updatedBlocks}개 갱신, 실패 ${failed}장`
-      : `미리 보기 끝: 실제로 하려면 --apply`,
+      ? `\n완료: 사본 ${created}개 생성, 블록 ${updatedBlocks}개 갱신, 실패 ${failed}개`
+      : `\n미리 보기 끝: 실제로 하려면 --apply`,
   )
   await client.end()
   if (failed > 0) process.exit(1)

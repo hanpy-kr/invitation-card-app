@@ -4,7 +4,8 @@
  *
  * 사진은 storage key `samples/wedding_XX.webp`를 가리킨다.
  * R2가 없으면 .local/uploads/samples/ 에 같은 이름으로 파일을 두면 로컬에서 보인다.
- * 카톡 미리보기용 JPEG 사본(wedding_XX.share.jpg, 긴 변 1200px)도 같은 폴더 · 버킷에 함께 둘 것.
+ * 카톡 미리보기용 JPEG 사본(wedding_XX.share.jpg, 긴 변 1200px)과 사진첩 썸네일(wedding_XX.thumb.webp, 480px)도
+ * 같은 폴더 · 버킷에 함께 둘 것.
  */
 import { drizzle } from 'drizzle-orm/postgres-js'
 import { eq, inArray } from 'drizzle-orm'
@@ -232,6 +233,7 @@ async function main() {
         w: m.width,
         h: m.height,
         share: true, // samples/wedding_XX.share.jpg를 함께 둠
+        thumb: true, // samples/wedding_XX.thumb.webp (긴 변 480px)도 함께 둠
       }))
 
       const blockRows = seed.blocks(refs).map((b, i) => ({

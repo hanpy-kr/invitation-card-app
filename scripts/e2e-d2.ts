@@ -216,6 +216,18 @@ async function main() {
   )
   check((await gp.getByText('SATURDAY').count()) === 1, '하객: 요일 계산 (12/5 토)')
   check((await gp.getByRole('button', { name: /크게 보기/ }).count()) === 3, '하객: 사진첩 3장')
+  const gridSrcs = await gp
+    .getByRole('button', { name: /크게 보기/ })
+    .locator('img')
+    .evaluateAll((imgs) => imgs.map((i) => (i as HTMLImageElement).getAttribute('src') ?? ''))
+  check(
+    gridSrcs.every((src) => src.endsWith('.thumb.webp')),
+    '하객: 사진첩 바둑판은 썸네일(.thumb.webp)',
+  )
+  await gp.getByRole('button', { name: /사진 1 크게 보기/ }).click()
+  const viewerSrc = await gp.getByRole('dialog').locator('img').first().getAttribute('src')
+  check(viewerSrc !== null && !viewerSrc.includes('.thumb.'), '하객: 크게 보기는 원본')
+  await gp.keyboard.press('Escape')
   const map = gp.getByRole('img', { name: '행사 장소 지도' })
   check(
     (await map.getAttribute('data-lat')) === '37.5663' &&

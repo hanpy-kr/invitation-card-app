@@ -1,5 +1,5 @@
 import type { Block } from '@/shared/blocks'
-import { mediaSrc } from '@/shared/media'
+import { mediaSrc, thumbKey } from '@/shared/media'
 
 import Cover from './Cover'
 import Gallery from './gallery/Gallery'
@@ -23,6 +23,8 @@ export function BlockView({ block, ctx }: { block: Block; ctx: BlockContext }) {
           title={block.config.title}
           images={block.config.images.map((m) => ({
             src: mediaSrc(ctx.mediaBaseUrl, m.key),
+            // 바둑판은 썸네일, 크게 보기는 원본. 썸네일 표시가 없는 예전 사진은 원본
+            thumbSrc: mediaSrc(ctx.mediaBaseUrl, m.thumb ? thumbKey(m.key) : m.key),
             w: m.w,
             h: m.h,
           }))}

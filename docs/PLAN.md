@@ -117,7 +117,7 @@
 측정: `pnpm perf /i/<slug> 5` — 모바일 390×844 · Fast 4G · CPU 4배 느리게, 스크롤 없이 첫 화면, 5회 중앙값
 
 - [x] 손글씨 폰트 미리 받기: 서버가 손글씨로 그릴 글자(표지 · 인사말 · 섹션 제목)를 모아 필요한 조각만 `<link rel="preload" as="font">`. 랜딩 로고도. preload한 조각 = 실제 쓰인 조각 일치 확인. `/fonts/*` 1년 immutable 캐시, 폴더 버전 `v1`
-- [ ] 사진첩 썸네일 (긴 변 480px webp)
+- [x] 사진첩 썸네일: 업로드 때 브라우저가 긴 변 480px webp(`*.thumb.webp`, 장당 약 10KB)도 올림, 바둑판은 썸네일 · 크게 보기는 원본. `thumb: true` 표시 없는 예전 사진은 원본. `pnpm backfill:share`가 썸네일도 만듦
 - [ ] 지도 · 방명록 목록은 화면에 가까워질 때 불러오기
 - [ ] dashboard · dashboard/[id] · edit/[id] loading.tsx
 

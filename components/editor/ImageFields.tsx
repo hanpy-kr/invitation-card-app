@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 import { MAX_GALLERY_IMAGES, PHOTO_LIMIT, type MediaRef } from '@/shared/blocks'
-import { mediaSrc } from '@/shared/media'
+import { mediaSrc, thumbKey } from '@/shared/media'
 
 import { useEditorEnv } from './context'
 import styles from './ImageFields.module.scss'
@@ -141,7 +141,10 @@ export function GalleryField({
         <ul className={styles.grid}>
           {images.map((img, idx) => (
             <li key={img.id}>
-              <img src={mediaSrc(env.mediaBaseUrl, img.key)} alt={`사진 ${idx + 1}`} />
+              <img
+                src={mediaSrc(env.mediaBaseUrl, img.thumb ? thumbKey(img.key) : img.key)}
+                alt={`사진 ${idx + 1}`}
+              />
               <div className={styles.tools}>
                 <button
                   type="button"

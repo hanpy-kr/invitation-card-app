@@ -6,6 +6,11 @@ export function shareKey(key: string): string {
   return key.replace(/\.[a-z0-9]+$/i, '') + '.share.jpg'
 }
 
+/** 사진첩 바둑판용 작은 webp(긴 변 480px). 예) inv/x/y.webp → inv/x/y.thumb.webp */
+export function thumbKey(key: string): string {
+  return key.replace(/\.[a-z0-9]+$/i, '') + '.thumb.webp'
+}
+
 /** storage key → 공개 주소. base가 비어 있으면 로컬 개발용 /uploads 경로 */
 export function mediaSrc(baseUrl: string, key: string): string {
   const base = baseUrl ? baseUrl.replace(/\/+$/, '') : '/uploads'

@@ -15,9 +15,10 @@ export const PUT = handle(async (req: NextRequest) => {
   if (storageMode() !== 'local') throw new ApiError(404, '없는 주소예요.')
   const session = await requireApiSession(req)
   const t = readUploadToken(req.nextUrl.searchParams.get('token'), session.userId)
+  const partParam = req.nextUrl.searchParams.get('part')
   const target = uploadTarget(
     t,
-    req.nextUrl.searchParams.get('part') === 'share' ? 'share' : 'main',
+    partParam === 'share' || partParam === 'thumb' ? partParam : 'main',
   )
   if (req.headers.get('content-type') !== target.ct) {
     throw new ApiError(400, '파일 형식이 맞지 않아요.')

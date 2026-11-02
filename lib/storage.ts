@@ -3,7 +3,7 @@ import 'server-only'
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { shareKey } from '@/shared/media'
+import { shareKey, thumbKey } from '@/shared/media'
 
 import * as r2 from './r2'
 import { isLocalSite } from './site'
@@ -57,8 +57,10 @@ export async function storedSize(key: string): Promise<number | null> {
 
 /** 실패해도 서비스에는 영향 없음 (고아 파일만 남음) */
 export async function deleteStored(keys: string[]): Promise<void> {
-  // 원본과 함께 공유용 JPEG 사본도 지운다
-  const own = keys.filter((k) => !k.startsWith('samples/')).flatMap((k) => [k, shareKey(k)])
+  // 원본과 함께 공유용 JPEG 사본 · 썸네일도 지운다
+  const own = keys
+    .filter((k) => !k.startsWith('samples/'))
+    .flatMap((k) => [k, shareKey(k), thumbKey(k)])
   if (own.length === 0) return
   try {
     const mode = storageMode()

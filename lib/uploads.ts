@@ -6,7 +6,7 @@ import { and, count, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { PHOTO_LIMIT, type MediaRef } from '@/shared/blocks'
-import { shareKey } from '@/shared/media'
+import { shareKey, thumbKey } from '@/shared/media'
 
 import { ApiError } from './api'
 import { signPayload, verifyPayload } from './auth/token'
@@ -17,6 +17,7 @@ import { storageMode, storedSize } from './storage'
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 export const MAX_SHARE_BYTES = 1 * 1024 * 1024
+export const MAX_THUMB_BYTES = 300 * 1024
 
 const EXT = { 'image/webp': 'webp', 'image/jpeg': 'jpg' } as const
 
@@ -26,6 +27,8 @@ export const presignSchema = z.object({
   size: z.number().int().positive().max(MAX_UPLOAD_BYTES, '사진이 너무 커요.'),
   /** 카톡 미리보기용 JPEG 사본 크기 */
   shareSize: z.number().int().positive().max(MAX_SHARE_BYTES),
+  /** 사진첩 썸네일(webp) 크기. webp를 못 만드는 브라우저는 생략 */
+  thumbSize: z.number().int().positive().max(MAX_THUMB_BYTES).optional(),
 })
 
 export const completeSchema = z.object({
@@ -43,16 +46,21 @@ type UploadToken = {
   size: number
   skey: string
   ssize: number
+  tkey?: string
+  tsize?: number
   exp: number
 }
 
-export type UploadPart = 'main' | 'share'
+export type UploadPart = 'main' | 'share' | 'thumb'
 
 /** 토큰에서 올릴 파일(원본 / 공유용 사본)의 key · 형식 · 최대 크기 */
 export function uploadTarget(t: UploadToken, part: UploadPart) {
-  return part === 'share'
-    ? { key: t.skey, ct: 'image/jpeg', size: t.ssize }
-    : { key: t.key, ct: t.ct, size: t.size }
+  if (part === 'share') return { key: t.skey, ct: 'image/jpeg', size: t.ssize }
+  if (part === 'thumb') {
+    if (!t.tkey || !t.tsize) throw new ApiError(400, '썸네일을 올릴 수 없는 요청이에요.')
+    return { key: t.tkey, ct: 'image/webp', size: t.tsize }
+  }
+  return { key: t.key, ct: t.ct, size: t.size }
 }
 
 async function assertOwnerAndRoom(invitationId: string, userId: string) {
@@ -90,19 +98,21 @@ export async function createUpload(userId: string, input: z.infer<typeof presign
     size: input.size,
     skey: shareKey(key),
     ssize: input.shareSize,
+    ...(input.thumbSize ? { tkey: thumbKey(key), tsize: input.thumbSize } : {}),
     exp: Math.floor(Date.now() / 1000) + 600,
   } satisfies UploadToken)
 
   const local = (part: UploadPart) =>
     `/api/uploads/local?part=${part}&token=${encodeURIComponent(token)}`
-  const [uploadUrl, shareUploadUrl] =
+  const [uploadUrl, shareUploadUrl, thumbUploadUrl] =
     mode === 'r2'
       ? await Promise.all([
           presignPut(key, input.contentType, input.size),
           presignPut(shareKey(key), 'image/jpeg', input.shareSize),
+          input.thumbSize ? presignPut(thumbKey(key), 'image/webp', input.thumbSize) : null,
         ])
-      : [local('main'), local('share')]
-  return { uploadUrl, shareUploadUrl, token }
+      : [local('main'), local('share'), input.thumbSize ? local('thumb') : null]
+  return { uploadUrl, shareUploadUrl, thumbUploadUrl, token }
 }
 
 export function readUploadToken(token: string | null, userId?: string): UploadToken {
@@ -127,6 +137,8 @@ export async function completeUpload(
   if ((await storedSize(t.skey)) === null) {
     throw new ApiError(400, '사진이 다 올라가지 않았어요. 다시 시도해 주세요.')
   }
+  // 썸네일은 있으면 쓰고, 없으면 바둑판에 원본을 쓴다 (실패해도 등록은 진행)
+  const thumb = t.tkey ? (await storedSize(t.tkey)) !== null : false
 
   await assertOwnerAndRoom(t.inv, userId)
   const [row] = await getDb()
@@ -144,5 +156,12 @@ export async function completeUpload(
     .returning()
   if (!row) throw new ApiError(409, '이미 등록된 사진이에요.')
   // 완료 전에 사본 존재를 확인했으므로 share: true
-  return { id: row.id, key: row.storageKey, w: row.width, h: row.height, share: true }
+  return {
+    id: row.id,
+    key: row.storageKey,
+    w: row.width,
+    h: row.height,
+    share: true,
+    ...(thumb ? { thumb: true } : {}),
+  }
 }
