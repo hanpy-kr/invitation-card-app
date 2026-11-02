@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import SiteFooter from '@/components/site/SiteFooter'
 import { getSession } from '@/lib/auth/session'
+import { preloadDisplayFont } from '@/lib/fonts/display-font'
 
 import styles from './page.module.scss'
 
@@ -39,6 +40,8 @@ export default async function Home({
 }) {
   const [{ login }, session] = await Promise.all([searchParams, getSession()])
   const error = login ? LOGIN_ERRORS[login] : undefined
+  // 로고 'dearday'는 손글씨 폰트 — 해당 조각만 미리 받기
+  preloadDisplayFont('dearday')
 
   return (
     <div className={styles.page}>

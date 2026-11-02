@@ -20,7 +20,8 @@
     "shot": "tsx scripts/screenshot.ts",
     "e2e:d2": "tsx scripts/e2e-d2.ts",
     "e2e:d3": "tsx scripts/e2e-d3.ts",
-    "backfill:share": "tsx scripts/backfill-share-images.ts"
+    "backfill:share": "tsx scripts/backfill-share-images.ts",
+    "perf": "tsx scripts/perf.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",

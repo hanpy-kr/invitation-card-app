@@ -7,8 +7,11 @@ unicode-range가 붙은 @font-face를 만든다. 브라우저는 화면에 실�
   curl -O https://raw.githubusercontent.com/googlefonts/nam-files/main/slices/korean_default.txt
   python3 scripts/subset-font.py assets/fonts/NanumGeumEunBoHwa.woff2 korean_default.txt
 원본은 assets/fonts/ (서비스에서 직접 쓰지 않음, 다시 자를 때만 사용)
-결과: public/fonts/nanum-geumeunbohwa/*.woff2, styles/_display-font.scss
+결과: public/fonts/nanum-geumeunbohwa/<VERSION>/*.woff2, styles/_display-font.scss,
+      lib/fonts/display-font-slices.json (서버가 미리 받을 조각을 고를 때 씀)
+폰트 · 자르는 방식이 바뀌면 VERSION을 올린다 (파일을 1년 immutable 캐시로 내보내므로 주소가 바뀌어야 함)
 """
+import json
 import os
 import re
 import sys
@@ -18,9 +21,24 @@ from fontTools import subset
 from fontTools.ttLib import TTFont
 
 FAMILY = 'NanumGeumEunBoHwa'
-OUT_DIR = 'public/fonts/nanum-geumeunbohwa'
-URL_BASE = '/fonts/nanum-geumeunbohwa'
+VERSION = 'v1'
+OUT_DIR = f'public/fonts/nanum-geumeunbohwa/{VERSION}'
+URL_BASE = f'/fonts/nanum-geumeunbohwa/{VERSION}'
 SCSS = 'styles/_display-font.scss'
+SLICES_JSON = 'lib/fonts/display-font-slices.json'
+
+
+def range_pairs(cps):
+    cps = sorted(cps)
+    out, start, prev = [], cps[0], cps[0]
+    for c in cps[1:]:
+        if c == prev + 1:
+            prev = c
+            continue
+        out.append([start, prev])
+        start = prev = c
+    out.append([start, prev])
+    return out
 
 
 def ranges(cps):
@@ -50,7 +68,7 @@ def main(src, slices_path):
     for f in os.listdir(OUT_DIR):
         os.remove(os.path.join(OUT_DIR, f))
 
-    faces, total = [], 0
+    faces, total, slice_map = [], 0, []
     # 파일 끝쪽 슬라이스가 가장 자주 쓰는 글자 → CSS에서 먼저 선언
     for idx in reversed(range(len(slices))):
         cps = slices[idx] & cmap
@@ -71,6 +89,7 @@ def main(src, slices_path):
         font.save(path)
         size = os.path.getsize(path)
         total += size
+        slice_map.append({'url': f'{URL_BASE}/{name}', 'ranges': range_pairs(cps)})
         faces.append(
             '@font-face {\n'
             f"  font-family: '{FAMILY}';\n"
@@ -86,6 +105,8 @@ def main(src, slices_path):
         '// 브라우저는 화면에 나온 글자가 든 조각만 내려받는다\n\n'
     )
     open(SCSS, 'w', encoding='utf-8').write(header + '\n'.join(faces))
+    os.makedirs(os.path.dirname(SLICES_JSON), exist_ok=True)
+    json.dump(slice_map, open(SLICES_JSON, 'w', encoding='utf-8'), separators=(',', ':'))
     print(f'{len(faces)}조각, 합계 {total // 1024}KB → {OUT_DIR}, {SCSS}')
 
 

@@ -100,6 +100,33 @@ pnpm backfill:share --apply    # 사본 만들고 초대장 설정에 표시
 - 결과 마지막 줄 `완료: 사본 N장 생성, 블록 M개 갱신, 실패 0장` 확인
 - 카톡에 이미 공유한 링크는 카카오가 미리보기를 캐시해 둡니다. 바로 바꾸려면 카카오 개발자 사이트 [도구] > [카카오톡 URL 메타정보 관리](https://developers.kakao.com/tool/debugger/sharing)에서 초대장 주소 입력 → [메타 정보 조회] → [캐시 초기화]
 
+## 7. 손글씨 폰트 캐시 헤더 확인
+
+폰트 조각(`/fonts/nanum-geumeunbohwa/v1/*.woff2`)은 1년 캐시로 내보냅니다(`next.config.ts`의 `headers()`).
+배포 후 운영에서 한 번 확인하세요.
+
+```bash
+curl -sI https://thedearday.com/fonts/nanum-geumeunbohwa/v1/119.woff2 | grep -iE '^HTTP|cache-control|content-type'
+# 기대값
+# HTTP/2 200
+# cache-control: public, max-age=31536000, immutable
+# content-type: font/woff2
+```
+
+- 초대장 HTML에 미리 받기 태그가 들어갔는지: `curl -s https://thedearday.com/i/<slug> | grep -o 'rel="preload" href="/fonts/[^"]*"'`
+- `cache-control`이 `public, max-age=0` 등으로 나오면 Amplify가 정적 파일에 `next.config` 헤더를 적용하지 않는 것입니다.
+  Amplify 콘솔 → Hosting → Custom headers에 아래를 추가하고 재배포:
+
+```yaml
+customHeaders:
+  - pattern: '/fonts/**'
+    headers:
+      - key: Cache-Control
+        value: public, max-age=31536000, immutable
+```
+
+- 폰트를 다시 자르거나 바꾸면 `scripts/subset-font.py`의 `VERSION`을 올려(v2) 주소를 바꿀 것. 같은 주소로 내용만 바꾸면 하객 휴대폰에 1년간 옛 파일이 남습니다
+
 ## 알려진 한계
 
 - 서버 런타임용 비밀값이 `.env.production`으로 배포 산출물에 들어감 (AWS 문서 방식). 산출물 접근 권한을 AWS 계정 관리자로 한정할 것. 나중에 SSM Parameter Store + IAM 역할로 옮기는 것을 검토

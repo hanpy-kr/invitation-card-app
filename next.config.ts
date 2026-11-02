@@ -3,6 +3,15 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        // 손글씨 폰트 조각: 내용이 바뀌면 폴더 버전(v1 → v2)을 올려 주소가 바뀌므로 1년 immutable 캐시
+        source: '/fonts/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
+    ]
+  },
   async redirects() {
     return [
       {

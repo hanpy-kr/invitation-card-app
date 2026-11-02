@@ -3,7 +3,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import BlockRenderer from '@/components/blocks/BlockRenderer'
+import { displayTextOf } from '@/components/blocks/displayText'
 import type { BlockContext } from '@/components/blocks/types'
+import { preloadDisplayFont } from '@/lib/fonts/display-font'
 import { getPublishedInvitation } from '@/lib/invitations'
 import { getMediaBaseUrl } from '@/lib/media'
 import { shareDescription, shareImagePath, shareTitle } from '@/shared/share'
@@ -46,6 +48,9 @@ export default async function InvitationPage({ params }: Props) {
   const { slug } = await params
   const inv = await getPublishedInvitation(slug)
   if (!inv) notFound()
+
+  // 손글씨로 그려질 글자에 필요한 폰트 조각만 HTML에서 바로 받기 시작
+  preloadDisplayFont(displayTextOf(inv.blocks, inv.eventAt))
 
   const ctx: BlockContext = {
     slug: inv.slug,
