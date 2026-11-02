@@ -143,5 +143,6 @@ export async function completeUpload(
     .onConflictDoNothing()
     .returning()
   if (!row) throw new ApiError(409, '이미 등록된 사진이에요.')
-  return { id: row.id, key: row.storageKey, w: row.width, h: row.height }
+  // 완료 전에 사본 존재를 확인했으므로 share: true
+  return { id: row.id, key: row.storageKey, w: row.width, h: row.height, share: true }
 }

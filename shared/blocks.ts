@@ -44,6 +44,8 @@ export const mediaRefSchema = z.object({
   key: z.string().min(1).max(300),
   w: z.number().int().positive(),
   h: z.number().int().positive(),
+  /** 카톡 미리보기용 JPEG 사본(`*.share.jpg`)이 있음. 이 값이 없는 사진은 사본 이전에 올라간 것 */
+  share: z.boolean().optional(),
 })
 export type MediaRef = z.infer<typeof mediaRefSchema>
 

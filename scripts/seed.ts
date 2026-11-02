@@ -231,6 +231,7 @@ async function main() {
         key: m.storageKey,
         w: m.width,
         h: m.height,
+        share: true, // samples/wedding_XX.share.jpg를 함께 둠
       }))
 
       const blockRows = seed.blocks(refs).map((b, i) => ({

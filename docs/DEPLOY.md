@@ -84,6 +84,22 @@
 4. 카톡에서 링크 열기 → 지도 · 길찾기 · 참석 응답 · 방명록
 5. 대시보드 → 응답 보기에서 집계 확인
 
+## 6. 일회성: 예전 사진에 카톡 미리보기용 JPEG 사본 만들기
+
+11/2 업데이트 전에 올라간 사진에는 `*.share.jpg` 사본이 없습니다. 사본이 없으면 공유 카드는 원본이 JPG면 원본,
+webp면 행사 종류별 기본 이미지로 대신 나갑니다. 사진이 나오게 하려면 한 번 실행하세요 (여러 번 돌려도 안전).
+
+```bash
+# 레포 클론한 내 컴퓨터에서. 운영 값은 콘솔에서 복사해 이 터미널에만 넣기 (채팅에 붙이지 말 것)
+export DATABASE_URL='Neon 주소' R2_ACCOUNT_ID=… R2_ACCESS_KEY_ID=… R2_SECRET_ACCESS_KEY=… R2_BUCKET=dearday-media
+pnpm install
+pnpm backfill:share            # 미리 보기: 몇 장을 만들지 출력만
+pnpm backfill:share --apply    # 사본 만들고 초대장 설정에 표시
+```
+
+- 결과 마지막 줄 `완료: 사본 N장 생성, 블록 M개 갱신, 실패 0장` 확인
+- 카톡에 이미 공유한 링크는 카카오가 미리보기를 캐시해 둡니다. 바로 바꾸려면 카카오 개발자 콘솔의 [스크랩 캐시 삭제](https://developers.kakao.com/tool/clear/og)에서 그 주소를 넣고 지우기
+
 ## 알려진 한계
 
 - 서버 런타임용 비밀값이 `.env.production`으로 배포 산출물에 들어감 (AWS 문서 방식). 산출물 접근 권한을 AWS 계정 관리자로 한정할 것. 나중에 SSM Parameter Store + IAM 역할로 옮기는 것을 검토
