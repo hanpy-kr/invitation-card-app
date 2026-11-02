@@ -16,7 +16,7 @@ export default function SiteFooter() {
         <br />
         사업자등록번호 {pending(BUSINESS.registrationNumber)}
         <br />
-        문의 {pending(BUSINESS.email)}
+        문의 <a href={`mailto:${BUSINESS.email}`}>{pending(BUSINESS.email)}</a>
       </p>
       <p>© 2026 {BUSINESS.tradeName}</p>
     </footer>

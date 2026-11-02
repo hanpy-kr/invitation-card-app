@@ -147,7 +147,7 @@ export default function PrivacyPage() {
         <h2>7. 개인정보 보호책임자</h2>
         <p>
           {BUSINESS.tradeName} 대표 {pending(BUSINESS.representative)} · 이메일{' '}
-          {pending(BUSINESS.email)}
+          <a href={`mailto:${BUSINESS.email}`}>{pending(BUSINESS.email)}</a>
         </p>
         <p>
           개인정보 침해 신고 · 상담: 개인정보침해신고센터(privacy.kisa.or.kr, 국번 없이 118),
