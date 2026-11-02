@@ -250,8 +250,11 @@ async function main() {
     '하객: 카카오맵이 선택한 좌표로, 끌기 꺼진 채 그려짐',
   )
   check((await gp.getByRole('link', { name: '티맵' }).count()) === 1, '하객: 티맵 링크 (좌표 있음)')
+  const guestbookLoaded = gp
+    .waitForResponse((r) => r.url().includes('/guestbook'), { timeout: 10000 })
+    .catch(() => null)
   await gp.getByRole('button', { name: '축하 글 남기기' }).scrollIntoViewIfNeeded()
-  await gp.waitForLoadState('networkidle')
+  await guestbookLoaded
   check(lazy.guestbook >= 1, '하객: 방명록 근처로 스크롤하면 목록을 불러옴')
   const html = await (await fetch(url)).text()
   check(html.includes('property="og:title" content="E2E 박도윤 ♥ 한지우 결혼합니다"'), 'OG: 제목')
