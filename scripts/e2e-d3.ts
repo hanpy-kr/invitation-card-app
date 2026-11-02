@@ -197,6 +197,8 @@ async function main() {
   await host.screenshot({ path: `${OUT}/4-responses.png`, fullPage: true })
 
   await g2.reload({ waitUntil: 'networkidle' })
+  // 방명록 목록은 가까이 스크롤해야 불러옴
+  await g2.getByRole('button', { name: '축하 글 남기기' }).scrollIntoViewIfNeeded()
   await g2.getByText('올해도 고생했어! 그날 봐요').waitFor()
   check((await g2.getByText('최저가 판매').count()) === 0, '주최자가 숨긴 글은 하객에게 안 보임')
 

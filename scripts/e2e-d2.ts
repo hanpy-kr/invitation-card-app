@@ -208,8 +208,18 @@ async function main() {
   const gp = await guest.newPage()
   gp.on('pageerror', (e) => errors.push(e.message))
   await stubKakao(gp)
+  // 지도 SDK · 방명록 목록은 화면에 가까워질 때만 불러와야 함
+  const lazy = { map: 0, guestbook: 0 }
+  gp.on('request', (r) => {
+    if (r.url().includes('dapi.kakao.com/v2/maps/sdk.js')) lazy.map++
+    if (r.url().includes('/guestbook')) lazy.guestbook++
+  })
   const res = await gp.goto(url, { waitUntil: 'networkidle' })
   check(res?.status() === 200, '하객: 공개 링크 200')
+  check(
+    lazy.map === 0 && lazy.guestbook === 0,
+    '하객: 첫 화면에서는 지도 SDK · 방명록 목록을 안 불러옴',
+  )
   check(
     (await gp.getByRole('heading', { name: '박도윤 · 한지우' }).count()) === 1,
     '하객: 표지 제목',
@@ -229,12 +239,20 @@ async function main() {
   check(viewerSrc !== null && !viewerSrc.includes('.thumb.'), '하객: 크게 보기는 원본')
   await gp.keyboard.press('Escape')
   const map = gp.getByRole('img', { name: '행사 장소 지도' })
+  await map.scrollIntoViewIfNeeded()
+  await gp.waitForFunction(() =>
+    document.querySelector('[aria-label="행사 장소 지도"]')?.getAttribute('data-lat'),
+  )
+  check(lazy.map === 1, '하객: 지도 근처로 스크롤하면 지도 SDK를 그때 한 번 불러옴')
   check(
     (await map.getAttribute('data-lat')) === '37.5663' &&
       (await map.getAttribute('data-draggable')) === 'false',
     '하객: 카카오맵이 선택한 좌표로, 끌기 꺼진 채 그려짐',
   )
   check((await gp.getByRole('link', { name: '티맵' }).count()) === 1, '하객: 티맵 링크 (좌표 있음)')
+  await gp.getByRole('button', { name: '축하 글 남기기' }).scrollIntoViewIfNeeded()
+  await gp.waitForLoadState('networkidle')
+  check(lazy.guestbook >= 1, '하객: 방명록 근처로 스크롤하면 목록을 불러옴')
   const html = await (await fetch(url)).text()
   check(html.includes('property="og:title" content="E2E 박도윤 ♥ 한지우 결혼합니다"'), 'OG: 제목')
   const ogImage = html.match(/property="og:image" content="([^"]+)"/)?.[1] ?? ''

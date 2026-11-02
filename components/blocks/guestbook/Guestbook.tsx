@@ -11,6 +11,7 @@ import formStyles from '../common/guestForm.module.scss'
 import Section from '../common/Section'
 import { postJson } from '../common/storage'
 import Text from '../common/Text'
+import { useNearViewport } from '../common/useNearViewport'
 import type { BlockContext } from '../types'
 import styles from './Guestbook.module.scss'
 
@@ -37,6 +38,8 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
   const [deleting, setDeleting] = useState<{ id: string; password: string; error: string } | null>(
     null,
   )
+  // 목록은 방명록이 화면에 300px 안으로 가까워질 때 불러온다 (첫 화면 요청에서 제외)
+  const [listRef, near] = useNearViewport<HTMLDivElement>('300px')
 
   const load = useCallback(
     async (before?: string) => {
@@ -51,8 +54,8 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
   )
 
   useEffect(() => {
-    if (!ctx.preview) void load()
-  }, [ctx.preview, load])
+    if (!ctx.preview && near) void load()
+  }, [ctx.preview, near, load])
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -152,6 +155,7 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
         </button>
       )}
 
+      <div ref={listRef} style={{ minHeight: 1 }} aria-hidden />
       {loaded && entries.length === 0 ? <p className={cx('empty')}>첫 글을 남겨 주세요.</p> : null}
       {entries.length > 0 ? (
         <ul className={cx('list')}>
