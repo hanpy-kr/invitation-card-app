@@ -100,10 +100,22 @@ pnpm backfill:share --apply    # 사본 만들고 초대장 설정에 표시
 - 결과 마지막 줄 `완료: 사본 N장 생성, 블록 M개 갱신, 실패 0장` 확인
 - 카톡에 이미 공유한 링크는 카카오가 미리보기를 캐시해 둡니다. 바로 바꾸려면 카카오 개발자 사이트 [도구] > [카카오톡 URL 메타정보 관리](https://developers.kakao.com/tool/debugger/sharing)에서 초대장 주소 입력 → [메타 정보 조회] → [캐시 초기화]
 
-## 7. 손글씨 폰트 캐시 헤더 확인
+## 7. 손글씨 폰트 캐시 헤더
 
-폰트 조각(`/fonts/nanum-geumeunbohwa/v1/*.woff2`)은 1년 캐시로 내보냅니다(`next.config.ts`의 `headers()`).
-배포 후 운영에서 한 번 확인하세요.
+폰트 조각(`/fonts/nanum-geumeunbohwa/v1/*.woff2`)은 1년 캐시로 내보냅니다.
+Amplify는 정적 파일에 `next.config.ts`의 `headers()`를 적용하지 않으므로(11/3 운영에서 `max-age=5, stale-while-revalidate`로 나옴 확인),
+**운영 헤더는 레포 루트의 `customHttp.yml`이 정합니다.** `next.config.ts`의 `headers()`는 로컬(`next start`)용으로 남겨 둠.
+
+```yaml
+# customHttp.yml (레포 루트)
+customHeaders:
+  - pattern: '**/*.woff2'
+    headers:
+      - key: Cache-Control
+        value: public, max-age=31536000, immutable
+```
+
+배포 후 확인:
 
 ```bash
 curl -sI https://thedearday.com/fonts/nanum-geumeunbohwa/v1/119.woff2 | grep -iE '^HTTP|cache-control|content-type'
@@ -113,19 +125,11 @@ curl -sI https://thedearday.com/fonts/nanum-geumeunbohwa/v1/119.woff2 | grep -iE
 # content-type: font/woff2
 ```
 
+- 그대로 `max-age=5`로 나오면: Amplify 콘솔 → Hosting → Custom headers에 다른 설정이 들어가 있는지 확인(콘솔 설정이 있으면 그걸 쓰는 경우가 있음). 콘솔에 같은 내용을 넣거나 비우고 재배포
+- CloudFront에 예전 응답이 남아 있을 수 있으니, 바로 확인하려면 `?v=check` 같은 쿼리를 붙여 한 번 더 확인
 - 초대장 HTML에 미리 받기 태그가 들어갔는지: `curl -s https://thedearday.com/i/<slug> | grep -o 'rel="preload" href="/fonts/[^"]*"'`
-- `cache-control`이 `public, max-age=0` 등으로 나오면 Amplify가 정적 파일에 `next.config` 헤더를 적용하지 않는 것입니다.
-  Amplify 콘솔 → Hosting → Custom headers에 아래를 추가하고 재배포:
-
-```yaml
-customHeaders:
-  - pattern: '/fonts/**'
-    headers:
-      - key: Cache-Control
-        value: public, max-age=31536000, immutable
-```
-
 - 폰트를 다시 자르거나 바꾸면 `scripts/subset-font.py`의 `VERSION`을 올려(v2) 주소를 바꿀 것. 같은 주소로 내용만 바꾸면 하객 휴대폰에 1년간 옛 파일이 남습니다
+- 헤더를 바꿀 때는 `customHttp.yml`과 `next.config.ts`의 `headers()`를 같이 고칠 것
 
 ## 알려진 한계
 

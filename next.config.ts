@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     return [
       {
         // 손글씨 폰트 조각: 내용이 바뀌면 폴더 버전(v1 → v2)을 올려 주소가 바뀌므로 1년 immutable 캐시
+        // 로컬(next start)용. 운영(Amplify)은 정적 파일에 이 설정을 안 써서 레포 루트 customHttp.yml이 정함 — 같이 고칠 것
         source: '/fonts/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
