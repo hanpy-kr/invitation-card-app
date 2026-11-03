@@ -92,11 +92,11 @@
 - [x] Amplify 배포: `amplify.yml`, 런타임 환경변수 처리, 도메인 연결 — 11/1 운영 구성 완료, `/api/health` ok · www → 루트 리다이렉트 확인
   - 준비 완료: `amplify.yml`(Node 20 · pnpm, 런타임 환경변수를 `.env.production`에 기록 — DEV_LOGIN 제외, 빌드 때 `db:migrate`), `/api/health`(설정 확인용), `docs/DEPLOY.md`(Neon · R2 CORS · 카카오 콘솔 · Amplify 순서)
   - 남은 것 ⏸: Amplify 앱 연결 · 환경변수 입력 · 도메인 연결 → `/api/health`가 `ok:true`인지 확인
-- [ ] 실기기 QA: iOS Safari, 카카오톡 인앱 브라우저, 안드로이드 Chrome. 카톡 공유 미리보기 카드 확인 ⏸ 운영 배포 후 (점검 순서는 `docs/DEPLOY.md` 5번)
+- [x] 실기기 QA: iOS Safari, 카카오톡 인앱 브라우저, 안드로이드 Chrome. 카톡 공유 미리보기 카드 확인 — 11/3 사용자 실기기 QA 통과 (점검 순서는 `docs/DEPLOY.md` 5번)
 - 완료 기준: 운영 도메인에서 만들기 → 공유 → 하객 응답 → 대시보드 집계까지 전체 흐름 동작
   - 로컬 ✅ 11/1 — `pnpm e2e:d3` 16개 항목 통과(자리 표시 문구 안내 → 발행 → 하객 3명 응답 · 고치기 → 방명록 · 비밀번호 확인 → 집계 → 주최자 숨김 → 마감 차단), `pnpm e2e:d2` 회귀 통과
   - 공개 초대장 첫 로딩 JS 113kB (하객 폼에서 zod를 빼서 140kB → 113kB)
-  - 운영 도메인 ⏸ 배포 후
+  - 운영 도메인 ✅ 11/3 — 사용자 실기기 QA(`docs/DEPLOY.md` 5번: 만들기 → 카톡 공유 → 하객 응답 · 방명록 → 대시보드 집계) 통과
 
 ## 리뷰 반영 (관리 세션 11/1)
 
