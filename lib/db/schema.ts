@@ -109,6 +109,8 @@ export const rsvps = pgTable(
     answers: jsonb('answers').notNull().default({}),
     /** (2차) 하객 수정 토큰의 SHA-256 해시. 원문은 하객 브라우저에만 */
     editTokenHash: text('edit_token_hash'),
+    /** (2차) 회비 입금 확인 — 주최자만 체크 */
+    paid: boolean('paid').notNull().default(false),
     createdAt: createdAt(),
   },
   (t) => [

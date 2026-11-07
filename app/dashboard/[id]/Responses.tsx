@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { api } from '@/components/ui/api'
@@ -15,6 +16,7 @@ type Rsvp = {
   partySize: number
   meal: boolean | null
   answers: Answers
+  paid: boolean
   createdAt: string
 }
 type Entry = { id: string; name: string; message: string; hidden: boolean; createdAt: string }
@@ -27,13 +29,30 @@ export function RsvpList({
   initial,
   askMeal,
   questions,
+  dues,
 }: {
   invitationId: string
   initial: Rsvp[]
   askMeal: boolean
   questions: RsvpQuestion[]
+  /** 1인 회비가 있으면 입금 체크를 보여 줌 */
+  dues: boolean
 }) {
+  const router = useRouter()
   const [rows, setRows] = useState(initial)
+  async function setPaid(r: Rsvp, paid: boolean) {
+    setRows((list) => list.map((x) => (x.id === r.id ? { ...x, paid } : x)))
+    try {
+      await api(`/api/invitations/${invitationId}/rsvps/${r.id}`, {
+        method: 'PATCH',
+        body: { paid },
+      })
+      router.refresh()
+    } catch (err) {
+      setRows((list) => list.map((x) => (x.id === r.id ? { ...x, paid: !paid } : x)))
+      window.alert((err as Error).message)
+    }
+  }
   if (rows.length === 0)
     return <p className={styles.empty}>아직 받은 응답이 없어요. 초대장을 공유해 보세요.</p>
   return (
@@ -46,6 +65,17 @@ export function RsvpList({
           </span>
           {askMeal && r.attending ? <span className={styles.meta}>{mealLabel(r.meal)}</span> : null}
           <span className={styles.meta}>{formatShortDate(r.createdAt)}</span>
+          {dues && r.attending ? (
+            <label className={styles.paid}>
+              <input
+                type="checkbox"
+                checked={r.paid}
+                aria-label={`${r.name} 회비 입금`}
+                onChange={(e) => void setPaid(r, e.target.checked)}
+              />
+              입금
+            </label>
+          ) : null}
           {questions.some((q) => r.answers[q.id] !== undefined) ? (
             <span className={styles.answers}>
               {questions

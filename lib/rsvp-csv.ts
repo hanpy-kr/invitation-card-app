@@ -19,6 +19,7 @@ export function rsvpCsv(data: ResponsesData): string {
     '인원',
     ...(data.askMeal ? ['식사'] : []),
     ...data.questions.map((q) => q.label),
+    ...(data.dues ? ['입금'] : []),
     '응답 시각',
   ]
   const rows = [...data.rsvps]
@@ -31,6 +32,7 @@ export function rsvpCsv(data: ResponsesData): string {
         ? [r.attending ? (r.meal === true ? '함' : r.meal === false ? '안 함' : '미정') : '']
         : []),
       ...data.questions.map((q) => r.answers[q.id] ?? ''),
+      ...(data.dues ? [r.attending ? (r.paid ? '입금' : '') : ''] : []),
       `${toKstDateString(r.createdAt)} ${toKstTimeString(r.createdAt)}`,
     ])
   return '﻿' + [header, ...rows].map((row) => row.map(cell).join(',')).join('\r\n') + '\r\n'

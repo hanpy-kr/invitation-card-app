@@ -50,6 +50,13 @@
       "when": 1794044910920,
       "tag": "0006_poll_votes",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794045106676,
+      "tag": "0007_rsvp_paid",
+      "breakpoints": true
     }
   ]
 }

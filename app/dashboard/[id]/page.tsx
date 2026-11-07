@@ -6,6 +6,7 @@ import { requireSession } from '@/lib/auth/session'
 import { getResponses } from '@/lib/dashboard'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
+import { formatWon } from '@/shared/money'
 
 import styles from './page.module.scss'
 import { GuestbookList, RsvpList } from './Responses'
@@ -68,6 +69,25 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
         <div style={{ height: 20 }} />
       )}
 
+      {data.dues ? (
+        <div className={styles.dues}>
+          <div>
+            <span>예상 회비</span>
+            <strong>{formatWon(data.dues.expected)}</strong>
+            <small>
+              참석 {s.attendees}명 × {formatWon(data.dues.perPerson)}
+            </small>
+          </div>
+          <div>
+            <span>입금 확인</span>
+            <strong>{data.dues.paidPeople}명</strong>
+            <small>
+              {formatWon(data.dues.paidAmount)} · 응답 {data.dues.paidResponses}건
+            </small>
+          </div>
+        </div>
+      ) : null}
+
       {data.vote ? (
         <VotePanel
           invitationId={data.id}
@@ -106,6 +126,7 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
           initial={data.rsvps}
           askMeal={data.askMeal}
           questions={data.questions}
+          dues={Boolean(data.dues)}
         />
       </section>
 

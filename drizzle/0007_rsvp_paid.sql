@@ -1,0 +1,1 @@
+ALTER TABLE "rsvps" ADD COLUMN "paid" boolean DEFAULT false NOT NULL;

@@ -95,6 +95,24 @@ export async function getResponses(id: string, userId: string) {
   }
   const rsvpRow = row.blocks.find((b) => b.type === 'rsvp')
   const rsvpBlock = rsvpRow ? parseBlockConfig('rsvp', rsvpRow.config) : null
+  const accountRow = row.blocks.find((b) => b.type === 'account' && b.visible)
+  const perPerson = accountRow ? parseBlockConfig('account', accountRow.config).perPerson : null
+  // 회비: 예상 = 참석 인원 × 1인 회비, 입금 = 입금 체크한 응답의 인원
+  const dues =
+    perPerson && perPerson > 0
+      ? (() => {
+          const going = row.rsvps.filter((r) => r.attending)
+          const paidRows = going.filter((r) => r.paid)
+          const paidPeople = paidRows.reduce((n, r) => n + r.partySize, 0)
+          return {
+            perPerson,
+            expected: summary.attendees * perPerson,
+            paidResponses: paidRows.length,
+            paidPeople,
+            paidAmount: paidPeople * perPerson,
+          }
+        })()
+      : null
   const voteRow = row.blocks.find((b) => b.type === 'vote')
   const voteConfig = voteRow ? parseBlockConfig('vote', voteRow.config) : null
   const vote = voteConfig
@@ -132,6 +150,7 @@ export async function getResponses(id: string, userId: string) {
     eventAt: row.eventAt?.toISOString() ?? null,
     status: row.status,
     askMeal,
+    dues,
     vote,
     questions,
     choiceStats,
@@ -143,6 +162,7 @@ export async function getResponses(id: string, userId: string) {
       partySize: r.partySize,
       meal: r.meal,
       answers: (r.answers ?? {}) as Answers,
+      paid: r.paid,
       createdAt: r.createdAt.toISOString(),
     })),
     guestbook: row.guestbookEntries.map((g) => ({ ...g, createdAt: g.createdAt.toISOString() })),
@@ -178,6 +198,28 @@ export async function deleteRsvp(invitationId: string, rsvpId: string, userId: s
   if (!isUuid(invitationId) || !isUuid(rsvpId)) return false
   const rows = await getDb()
     .delete(rsvps)
+    .where(
+      and(
+        eq(rsvps.id, rsvpId),
+        eq(rsvps.invitationId, invitationId),
+        inArray(rsvps.invitationId, ownedInvitationIds(userId)),
+      ),
+    )
+    .returning({ id: rsvps.id })
+  return rows.length > 0
+}
+
+/** 주최자: 회비 입금 체크 */
+export async function setRsvpPaid(
+  invitationId: string,
+  rsvpId: string,
+  userId: string,
+  paid: boolean,
+) {
+  if (!isUuid(invitationId) || !isUuid(rsvpId)) return false
+  const rows = await getDb()
+    .update(rsvps)
+    .set({ paid })
     .where(
       and(
         eq(rsvps.id, rsvpId),

@@ -146,6 +146,58 @@ async function voteFlow(browser: Browser) {
   return { host, url, slug, invitationId, g3 }
 }
 
+/** 회비 입금 체크: 시드 demomeet(1인 회비 3만 원) */
+async function duesFlow(browser: Browser) {
+  const post = (name: string, partySize: number, ip: string) =>
+    fetch(`${BASE}/api/i/demomeet/rsvp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
+      body: JSON.stringify({
+        name,
+        attending: true,
+        partySize,
+        meal: null,
+        answers: { menu01: '고기' },
+      }),
+    })
+  await post('회비둘', 2, '203.0.113.31')
+  await post('회비하나', 1, '203.0.113.32')
+  const { ctx, page: host } = await login(browser, '/dashboard')
+  await host.waitForURL(/\/dashboard/)
+  const href = await host
+    .locator('li')
+    .filter({ hasText: '디어고 12기 송년회' })
+    .getByRole('link', { name: '응답 보기' })
+    .getAttribute('href')
+  await host.goto(`${BASE}${href}`, { waitUntil: 'networkidle' })
+  check((await host.getByText('90,000원').count()) === 1, '예상 회비 = 참석 3명 × 3만 원')
+  await host.getByLabel('회비둘 회비 입금').check()
+  await host.getByText('2명', { exact: true }).waitFor()
+  check(
+    (await host.getByText('60,000원 · 응답 1건').count()) === 1,
+    '입금 체크 → 입금 2명 · 6만 원',
+  )
+  await host.reload({ waitUntil: 'networkidle' })
+  check(await host.getByLabel('회비둘 회비 입금').isChecked(), '입금 체크 저장됨')
+  const csv = await (
+    await ctx.request.get(`${BASE}/api${href!.replace('/dashboard', '/invitations')}/rsvps.csv`)
+  ).text()
+  check(
+    csv.split('\r\n')[0].includes('입금') && csv.includes('회비둘,참석,2,고기,,입금'),
+    'CSV 입금 열',
+  )
+  const g = await guest(browser)
+  const res = await g.request.patch(
+    `${BASE}/api${href!.replace('/dashboard', '/invitations')}/rsvps/00000000-0000-4000-8000-000000000000`,
+    {
+      data: { paid: true },
+      headers: { origin: BASE },
+    },
+  )
+  check(res.status() === 401, '로그인 안 한 사람은 입금 체크 못 함')
+  await host.screenshot({ path: `${OUT}/p1-dues.png`, fullPage: true })
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -177,6 +229,8 @@ async function main() {
     await v.g3.getByText('참석 예정 0명').waitFor()
     check(true, '응답 취소 → 명단에서 빠짐')
   }
+
+  if (run('dues')) await duesFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()
