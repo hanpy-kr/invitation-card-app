@@ -511,3 +511,19 @@ $wide: 960px;
   color: var(--muted);
   margin-left: 6px;
 }
+
+.helpLink {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #e3dcdc;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--muted);
+  text-decoration: none;
+  margin-right: 6px;
+}

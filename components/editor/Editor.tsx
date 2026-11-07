@@ -133,6 +133,9 @@ export default function Editor(props: EditorProps) {
               ) : null}
             </span>
           </div>
+          <Link href="/help" className={styles.helpLink} target="_blank" aria-label="도움말">
+            ?
+          </Link>
           <button type="button" className={styles.publishBtn} onClick={() => setShowPublish(true)}>
             {status === 'published' ? '공유하기' : '발행하기'}
           </button>

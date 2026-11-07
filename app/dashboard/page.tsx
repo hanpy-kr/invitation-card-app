@@ -20,9 +20,12 @@ export default async function DashboardPage() {
     <main className={styles.page}>
       <header className={styles.header}>
         <h1>{session.nickname ? `${session.nickname}님의 초대장` : '내 초대장'}</h1>
-        <form action="/api/auth/kakao/logout" method="post">
-          <button type="submit">로그아웃</button>
-        </form>
+        <div className={styles.headerTools}>
+          <Link href="/help">도움말</Link>
+          <form action="/api/auth/kakao/logout" method="post">
+            <button type="submit">로그아웃</button>
+          </form>
+        </div>
       </header>
 
       <Link href="/new" className={styles.create}>

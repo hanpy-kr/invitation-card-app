@@ -1,0 +1,107 @@
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+  font-size: 15px;
+  line-height: 1.7;
+
+  h1 {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 16px 0 4px;
+  }
+}
+
+.back {
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.section {
+  margin-top: 24px;
+
+  h2 {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+}
+
+.faq {
+  border-bottom: 1px solid var(--line);
+
+  summary {
+    list-style: none;
+    padding: 14px 24px 14px 0;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::after {
+      content: '+';
+      position: absolute;
+      right: 4px;
+      top: 12px;
+      color: var(--muted);
+      font-weight: normal;
+      font-size: 18px;
+    }
+  }
+
+  &[open] summary::after {
+    content: '−';
+  }
+}
+
+.answer {
+  padding: 0 0 16px;
+  font-size: 14px;
+  color: var(--text);
+
+  a {
+    color: var(--accent);
+  }
+}
+
+.contact {
+  margin-top: 36px;
+  padding: 20px 16px;
+  border-radius: 14px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  h2 {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  a {
+    display: block;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+  }
+}

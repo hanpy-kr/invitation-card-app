@@ -122,3 +122,14 @@
     cursor: pointer;
   }
 }
+
+.headerTools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  a {
+    font-size: 13px;
+    color: var(--muted);
+  }
+}

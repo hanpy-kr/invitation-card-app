@@ -8,6 +8,7 @@ export default function SiteFooter() {
   return (
     <footer className={styles.footer}>
       <nav>
+        <Link href="/help">도움말</Link>
         <Link href="/terms">이용약관</Link>
         <Link href="/privacy">개인정보처리방침</Link>
       </nav>
