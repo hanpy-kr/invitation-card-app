@@ -95,6 +95,42 @@ const seeds: SeedInvitation[] = [
           deadline: '2026-11-14',
         },
       },
+      {
+        type: 'account',
+        config: {
+          message: '참석이 어려우신 분들을 위해\n계좌번호를 함께 적어 두었습니다.',
+          groups: [
+            {
+              label: '신랑 측',
+              accounts: [
+                {
+                  relation: '신랑 김민준',
+                  bank: '카카오뱅크',
+                  number: '3333-00-0000001',
+                  holder: '김민준',
+                },
+                {
+                  relation: '신랑 아버지',
+                  bank: 'KB국민',
+                  number: '000000-00-000002',
+                  holder: '김철수',
+                },
+              ],
+            },
+            {
+              label: '신부 측',
+              accounts: [
+                {
+                  relation: '신부 이서연',
+                  bank: '토스뱅크',
+                  number: '1000-0000-0003',
+                  holder: '이서연',
+                },
+              ],
+            },
+          ],
+        },
+      },
       { type: 'guestbook', config: { message: '두 사람에게 축하 한마디를 남겨 주세요.' } },
     ],
   },
@@ -171,6 +207,26 @@ const seeds: SeedInvitation[] = [
         },
       },
       { type: 'rsvp', config: { askMeal: false, maxPartySize: 2, deadline: '2026-12-12' } },
+      {
+        type: 'account',
+        config: {
+          title: '회비 안내',
+          perPerson: 30000,
+          groups: [
+            {
+              label: '회비 계좌',
+              accounts: [
+                {
+                  relation: '총무 김하나',
+                  bank: '카카오뱅크',
+                  number: '3333-00-0000004',
+                  holder: '김하나',
+                },
+              ],
+            },
+          ],
+        },
+      },
       {
         type: 'guestbook',
         config: { title: '한마디', message: '못 오는 친구도 한마디 남겨 주세요.' },

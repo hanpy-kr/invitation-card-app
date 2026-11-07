@@ -1,0 +1,128 @@
+@use '../../../styles/utils' as *;
+
+.container {
+  .message {
+    @include txt-content;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .per-person {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    background: var(--surface);
+
+    span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    strong {
+      font-size: 26px;
+      color: var(--accent);
+    }
+  }
+
+  .group {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+
+    & + .group {
+      margin-top: 10px;
+    }
+  }
+
+  .group-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 15px 16px;
+    border: 0;
+    background: var(--bg);
+    font: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text);
+    cursor: pointer;
+
+    .chevron {
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+  }
+
+  .open .chevron {
+    transform: rotate(180deg);
+  }
+
+  .list {
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .row {
+    padding: 14px 16px;
+
+    & + .row {
+      border-top: 1px solid var(--line);
+    }
+  }
+
+  .relation {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .number {
+    font-size: 15px;
+    font-weight: bold;
+    word-break: break-all;
+  }
+
+  .holder {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .btn {
+    flex: 1;
+    display: block;
+    padding: 9px 6px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    font: inherit;
+    font-size: 13px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text);
+    cursor: pointer;
+
+    &.toss {
+      border-color: #3182f6;
+      color: #3182f6;
+    }
+
+    &.kakaopay {
+      border-color: #fee500;
+      background: #fee500;
+      color: #191919;
+    }
+  }
+}

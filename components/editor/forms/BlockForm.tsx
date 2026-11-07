@@ -3,6 +3,7 @@
 import type { BlockConfigMap, BlockType } from '@/shared/blocks'
 import type { EditorBlock } from '@/shared/invitation'
 
+import AccountForm from './AccountForm'
 import CoverForm from './CoverForm'
 import GalleryForm from './GalleryForm'
 import GreetingForm from './GreetingForm'
@@ -30,5 +31,7 @@ export default function BlockForm({ block, update }: { block: EditorBlock; updat
       return <RsvpForm config={block.config} update={as<'rsvp'>(update)} />
     case 'guestbook':
       return <GuestbookForm config={block.config} update={as<'guestbook'>(update)} />
+    case 'account':
+      return <AccountForm config={block.config} update={as<'account'>(update)} />
   }
 }

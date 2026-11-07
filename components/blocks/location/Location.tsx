@@ -5,7 +5,7 @@ import { kakaoMapUrl, naverMapUrl, tmapUrl } from '@/shared/maps'
 
 import Section from '../common/Section'
 import Text from '../common/Text'
-import CopyButton from './CopyButton'
+import CopyButton from '../common/CopyButton'
 import KakaoMap from './KakaoMap'
 import styles from './Location.module.scss'
 

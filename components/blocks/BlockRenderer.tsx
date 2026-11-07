@@ -1,6 +1,7 @@
 import type { Block } from '@/shared/blocks'
 import { mediaSrc, thumbKey } from '@/shared/media'
 
+import Account from './account/Account'
 import Cover from './Cover'
 import Gallery from './gallery/Gallery'
 import Greeting from './Greeting'
@@ -36,6 +37,8 @@ export function BlockView({ block, ctx }: { block: Block; ctx: BlockContext }) {
       return <Rsvp config={block.config} ctx={ctx} />
     case 'guestbook':
       return <Guestbook config={block.config} ctx={ctx} />
+    case 'account':
+      return <Account config={block.config} />
   }
 }
 

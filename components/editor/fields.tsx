@@ -156,3 +156,78 @@ export function Toggle({
 export function FieldRow({ children }: { children: React.ReactNode }) {
   return <div className={styles.row}>{children}</div>
 }
+
+/** 반복 항목 카드: 제목 + 위/아래/빼기 */
+export function ItemCard({
+  title,
+  index,
+  count,
+  onMove,
+  onRemove,
+  children,
+}: {
+  title: string
+  index: number
+  count: number
+  onMove: (from: number, to: number) => void
+  onRemove: (index: number) => void
+  children: React.ReactNode
+}) {
+  return (
+    <div className={styles.item} role="group" aria-label={title}>
+      <div className={styles['item-head']}>
+        <strong>{title}</strong>
+        <button
+          type="button"
+          aria-label={`${title} 위로`}
+          disabled={index === 0}
+          onClick={() => onMove(index, index - 1)}
+        >
+          ↑
+        </button>
+        <button
+          type="button"
+          aria-label={`${title} 아래로`}
+          disabled={index === count - 1}
+          onClick={() => onMove(index, index + 1)}
+        >
+          ↓
+        </button>
+        <button type="button" aria-label={`${title} 빼기`} onClick={() => onRemove(index)}>
+          ✕
+        </button>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+export function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button type="button" className={styles.add} onClick={onClick}>
+      + {label}
+    </button>
+  )
+}
+
+/** 공개 범위 안내 (계좌 · 연락처) */
+export function PublicNotice({ children }: { children: React.ReactNode }) {
+  return <p className={styles.notice}>{children}</p>
+}
+
+/** 배열 도우미 */
+export const list = {
+  move<T>(arr: T[], from: number, to: number): T[] {
+    if (to < 0 || to >= arr.length) return arr
+    const next = [...arr]
+    const [x] = next.splice(from, 1)
+    next.splice(to, 0, x)
+    return next
+  },
+  set<T>(arr: T[], i: number, patch: Partial<T>): T[] {
+    return arr.map((x, j) => (j === i ? { ...x, ...patch } : x))
+  },
+  remove<T>(arr: T[], i: number): T[] {
+    return arr.filter((_, j) => j !== i)
+  },
+}

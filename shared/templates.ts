@@ -43,6 +43,17 @@ const TEMPLATES: Record<EventType, Template> = {
         },
       },
       {
+        type: 'account',
+        config: {
+          title: '마음 전하실 곳',
+          message: '참석이 어려우신 분들을 위해\n계좌번호를 함께 적어 두었습니다.',
+          groups: [
+            { label: '신랑 측', accounts: [{ relation: '신랑' }] },
+            { label: '신부 측', accounts: [{ relation: '신부' }] },
+          ],
+        },
+      },
+      {
         type: 'guestbook',
         config: { title: '축하 메시지', message: '두 사람에게 축하 한마디를 남겨 주세요.' },
       },
@@ -77,6 +88,13 @@ const TEMPLATES: Record<EventType, Template> = {
         type: 'rsvp',
         config: { message: '식사 준비를 위해\n참석 인원을 알려 주세요.', maxPartySize: 6 },
       },
+      {
+        type: 'account',
+        config: {
+          title: '마음 전하실 곳',
+          groups: [{ label: '아기 부모', accounts: [{ relation: '아빠' }, { relation: '엄마' }] }],
+        },
+      },
     ],
   },
   meetup: {
@@ -104,6 +122,14 @@ const TEMPLATES: Record<EventType, Template> = {
           title: '참석 여부',
           message: '자리 예약을 위해 미리 알려 주세요.',
           maxPartySize: 2,
+        },
+      },
+      {
+        type: 'account',
+        config: {
+          title: '회비 안내',
+          message: '당일 정산이 편하도록 미리 보내 주세요.',
+          groups: [{ label: '회비 계좌', accounts: [{ relation: '총무' }] }],
         },
       },
       {

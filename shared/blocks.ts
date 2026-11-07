@@ -24,6 +24,7 @@ export const BLOCK_TYPES = [
   'location',
   'rsvp',
   'guestbook',
+  'account',
 ] as const
 export type BlockType = (typeof BLOCK_TYPES)[number]
 
@@ -34,6 +35,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   location: '오시는 길',
   rsvp: '참석 여부',
   guestbook: '방명록',
+  account: '계좌 · 회비',
 }
 
 /** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
@@ -109,6 +111,43 @@ export const guestbookConfigSchema = z.object({
   message: shortText(200).default(''),
 })
 
+export const MAX_ACCOUNT_GROUPS = 4
+export const MAX_ACCOUNTS_PER_GROUP = 4
+
+export const accountItemSchema = z.object({
+  /** 관계 · 이름 (예: 신랑, 신랑 아버지 김철수) */
+  relation: shortText(30).default(''),
+  bank: shortText(20).default(''),
+  number: z
+    .string()
+    .trim()
+    .max(30)
+    .regex(/^[0-9\- ]*$/, '계좌번호는 숫자와 - 만 넣어 주세요.')
+    .default(''),
+  holder: shortText(20).default(''),
+  /**
+   * 카카오페이 송금 링크. 입력 중에도 자동 저장되도록 형식은 여기서 막지 않고,
+   * 하객 화면에서 https://qr.kakaopay.com/ 으로 시작할 때만 버튼을 보여 준다(shared/money.ts isKakaoPayUrl).
+   */
+  kakaopay: z.string().trim().max(200).default(''),
+})
+export type AccountItem = z.infer<typeof accountItemSchema>
+
+export const accountGroupSchema = z.object({
+  /** 그룹 이름 (예: 신랑 측, 신부 측, 회비) */
+  label: shortText(20).default(''),
+  accounts: z.array(accountItemSchema).max(MAX_ACCOUNTS_PER_GROUP).default([]),
+})
+export type AccountGroup = z.infer<typeof accountGroupSchema>
+
+export const accountConfigSchema = z.object({
+  title: shortText(30).default('마음 전하실 곳'),
+  message: shortText(300).default(''),
+  /** 1인 회비(원). 있으면 크게 보여 주고 토스 송금 금액에 채움 */
+  perPerson: z.number().int().min(0).max(10_000_000).nullable().default(null),
+  groups: z.array(accountGroupSchema).max(MAX_ACCOUNT_GROUPS).default([]),
+})
+
 export const blockConfigSchemas = {
   cover: coverConfigSchema,
   greeting: greetingConfigSchema,
@@ -116,6 +155,7 @@ export const blockConfigSchemas = {
   location: locationConfigSchema,
   rsvp: rsvpConfigSchema,
   guestbook: guestbookConfigSchema,
+  account: accountConfigSchema,
 } as const satisfies Record<BlockType, z.ZodType>
 
 export type BlockConfigMap = { [K in BlockType]: z.infer<(typeof blockConfigSchemas)[K]> }
@@ -125,6 +165,7 @@ export type GalleryConfig = BlockConfigMap['gallery']
 export type LocationConfig = BlockConfigMap['location']
 export type RsvpConfig = BlockConfigMap['rsvp']
 export type GuestbookConfig = BlockConfigMap['guestbook']
+export type AccountConfig = BlockConfigMap['account']
 
 export type Block = {
   [K in BlockType]: {
@@ -177,5 +218,6 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('location'), config: locationConfigSchema }),
   z.object({ type: z.literal('rsvp'), config: rsvpConfigSchema }),
   z.object({ type: z.literal('guestbook'), config: guestbookConfigSchema }),
+  z.object({ type: z.literal('account'), config: accountConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>
