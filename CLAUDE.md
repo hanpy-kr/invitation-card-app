@@ -6,11 +6,13 @@
 ## 서비스 한 줄
 
 dearday(디어데이) — 누구나 만들어 카톡 링크로 보내는 모바일 모임 초대장 웹 서비스.
-첫 템플릿은 결혼 · 돌잔치 · 회식/동창회. 런칭 목표 2026-11-02(월) 밤.
+1차 런칭 2026-11-03 완료(결혼 · 돌잔치 · 회식/동창회 · 기타). 2차 목표는 모임 기능으로 연말 시즌을 선점하는 것 —
+송년회·신년회 · 청첩장 모임 · 생일 · 집들이를 더하고, 경쟁사에 없는 투표 · 명단 공개 · 회비 체크로 차별화.
 
 - 만드는 사람: 카카오 로그인 → 행사 종류 선택 → 블록 편집 → 발행 → 카톡 공유 → 대시보드(응답 집계)
 - 받는 사람(하객): 로그인 없이 `/i/[slug]` 열람 → 참석 응답 · 방명록 작성 · 지도 앱으로 길 찾기
 - 기획서(결정 근거): https://claude.ai/artifact/H4VzAD1pvjyQs21UuUUtXv — 이 파일과 충돌하면 이 파일이 우선
+- 2차 근거: 유저 케이스 https://claude.ai/artifact/9jKUXatPc6bBaUdZABjJQ9 , 경쟁사 비교(프로젝트 문서 `dearday/COMPETITORS.md`)
 
 ## 고정 결정 (바꾸려면 사용자 확인 필요)
 
@@ -24,7 +26,8 @@ dearday(디어데이) — 누구나 만들어 카톡 링크로 보내는 모바�
 | 지도·공유 | 카카오 JS SDK (지도, `Kakao.Share`)는 클라이언트 컴포넌트에서만 로드 |  |
 | 스타일 | SCSS Modules + CSS 변수(테마). Tailwind 쓰지 않음 | 기존 레거시 스타일을 그대로 이식 |
 | 패키지 | pnpm, Node 20 |  |
-| 결제 | 이번 런칭 범위 아님 (런칭 다음 주) |  |
+| 결제 · 유료 | 아직 없음. 2차 기능을 전부 만든 뒤 사용자가 유료 범위를 정함 | 가격 레버(사진 한도, 하단 문구)는 `shared/entitlements.ts` 한 곳에서만 읽음. 기능마다 따로 잠그지 말 것 |
+| 돈 | dearday는 돈을 받거나 보관하지 않음 | 계좌 표시 · 복사 · 송금 앱(토스 · 카카오페이) 연결 · 주최자의 입금 체크까지만. 대신 받아 나눠 주는 기능은 만들지 말 것 |
 
 ## 폴더 구조
 
@@ -39,6 +42,9 @@ app/
   api/invitations/...           초대장 · 블록 CRUD (소유자만)
   api/uploads/presign/route.ts  R2 업로드 주소 발급
   api/i/[slug]/{rsvp,guestbook}/route.ts   하객 쓰기 API (로그인 없음)
+  i/[slug]/event.ics            캘린더 저장 (2차)
+  help/                         도움말 · 문의 (2차)
+  admin/stats/                  운영 지표, ADMIN_KAKAO_IDS만 (2차)
 components/blocks/              블록 UI. 순수 표시용 — DB · 서버 · next/headers import 금지
                                 (나중에 앱인토스 미니앱으로 그대로 옮기기 위함)
 components/editor/              편집기 UI
@@ -56,7 +62,15 @@ shared/blocks.ts                블록 타입 + zod 스키마 (웹 · API 공용
 - `rsvps` id, invitation_id, name, attending(bool), party_size, meal(bool|null), answers(jsonb), created_at
 - `guestbook_entries` id, invitation_id, name, message, password_hash, hidden, created_at
 
+2차에서 추가 (자세한 건 `docs/PLAN.md`):
+- `invitations` + `share`(jsonb: 카톡 카드 제목 · 설명 · 사진), `created_from`(원본 slug, '나도 만들기' 지표)
+- `rsvps` + `edit_token_hash`(하객이 자기 응답 수정), `paid`(회비 입금 체크, 주최자만)
+- `poll_votes`(투표), `invitation_editors`(공동 편집), `invitation_views_daily`(일별 열람 수)
+- `users.kakao_id` nullable + `anonymous`(로그인 없이 시작)
+- event_type 추가: `yearend`, `prewedding`, `birthday`, `housewarming`, (P2) `thanks`
+
 런칭 블록 6종: `cover`, `greeting`, `gallery`, `location`, `rsvp`, `guestbook`.
+2차 블록: `account`(계좌), `calendar`(캘린더 · D-day), `notice`(안내), `contact`(연락하기), `vote`(투표), (P2) `video`, `music`, `album`.
 블록 config는 `shared/blocks.ts`의 zod 스키마로 저장 전에 반드시 검증.
 
 ## 코드 규칙
@@ -64,8 +78,15 @@ shared/blocks.ts                블록 타입 + zod 스키마 (웹 · API 공용
 - 공개 초대장 `/i/[slug]`는 invitation + blocks를 **쿼리 1회**(join)로 읽음. 발행 직후 수정이 바로 보여야 하므로 동적 렌더링.
 - 모든 API 입력은 zod로 검증. 소유자 API는 세션의 user id와 owner_id 일치 확인.
 - 하객 쓰기 API(RSVP · 방명록): 길이 제한(이름 20자, 메시지 300자), IP+slug 기준 간단한 rate limit, 방명록 비밀번호는 bcrypt 해시.
-- 하객에게 전화번호 · 주소 등 연락처를 받지 않음 (이름 · 참석 여부 · 인원 · 식사 여부만).
-- 사진은 브라우저에서 긴 변 1600px · webp(q≈0.8)로 줄인 뒤 업로드. 무료 한도 10장/초대장.
+- 하객에게 전화번호 · 주소 등 연락처를 받지 않음 (이름 · 참석 여부 · 인원 · 식사 여부 · 주최자가 만든 질문의 답만).
+  주최자가 만드는 질문에도 전화번호 · 주소를 묻는 예시 문구를 넣지 말 것.
+- 연락하기 · 계좌 블록은 주최자가 직접 넣은 정보만 보여 줌. 편집기에 "링크를 받은 누구나 볼 수 있어요" 안내.
+- 참석자 명단 공개는 모임형 행사 기본 켜짐, 결혼 · 돌 기본 꺼짐. 켜져 있으면 응답 폼에 이름이 공개된다고 안내.
+- 하객이 자기 응답 · 투표를 고치는 건 브라우저 localStorage의 토큰으로만. DB에는 토큰 해시만 저장.
+- '나도 만들기'와 복제로 새 초대장을 만들 때 다른 사람의 글 · 사진 · 계좌 · 연락처를 절대 가져오지 않음 (본인 초대장 복제만 예외).
+- 공개 초대장 성능 예산: 서버 쿼리 1회, `/i/[slug]` First Load JS 140kB 이하. 새 블록 데이터(명단 · 투표 결과 · 방명록)와 무거운 SDK는 화면 근처에서 불러오기.
+- 사진은 브라우저에서 긴 변 1600px · webp(q≈0.8)로 줄인 뒤 업로드. 한도는 `shared/entitlements.ts`(지금 10장/초대장).
+- DB 마이그레이션은 추가만(테이블 · 컬럼 · enum 값). 삭제 · 이름 변경은 사용자 승인 후.
 - UI 문구는 한국어. 모바일 우선(375px 기준), 데스크톱은 가운데 480px 컬럼.
 - 비밀값은 환경변수로만. `.env.example`은 최신 유지, `.env*`는 절대 커밋 금지.
 - 영상 · 사진 · 폰트 원본 등 큰 바이너리를 레포에 커밋하지 않음 (폰트는 woff2만, 샘플 사진은 R2).
@@ -86,6 +107,7 @@ R2_SECRET_ACCESS_KEY=
 R2_BUCKET=dearday-media
 R2_PUBLIC_BASE_URL=
 DEV_LOGIN=                    # 로컬 전용. 1이면 카카오 없이 개발용 로그인 허용. 운영에서 비워둘 것
+ADMIN_KAKAO_IDS=              # (2차) /admin/stats를 볼 수 있는 카카오 회원번호, 쉼표로 구분
 ```
 
 Amplify 주의: 콘솔에 넣은 환경변수는 기본적으로 빌드 시점에만 보임. SSR 런타임(Route Handler)에서 쓰려면
@@ -96,7 +118,7 @@ Amplify 서울 리전, Neon 싱가포르, 카카오 앱 등록 완료. 배포 �
 
 ## 작업 방식
 
-- 순서는 `docs/PLAN.md`를 따름. 작업 단위로 작게 커밋 · 푸시하고, 같은 커밋에서 PLAN.md 체크박스를 갱신.
+- 순서는 `docs/PLAN.md`(2차)를 따름. 1차 기록은 `docs/archive/PLAN-1차.md`. 작업 단위로 작게 커밋 · 푸시하고, 같은 커밋에서 PLAN.md 체크박스를 갱신.
 - 완료 기준: `pnpm lint && pnpm typecheck && pnpm build` 통과 + 해당 화면을 Playwright 모바일 뷰포트(390×844)로 열어 스크린샷 확인.
 - 사용자 계정 · 키가 필요해 막히면: 로컬 Postgres · `DEV_LOGIN` · 가짜 업로드 등으로 우회하고 PLAN.md에 ⏸ 표시 후 다음 작업으로.
 - 되돌릴 수 없는 작업(강제 푸시, DB 삭제, 운영 배포 설정 변경)은 PLAN.md에 사용자 승인이 기록된 것만 실행.

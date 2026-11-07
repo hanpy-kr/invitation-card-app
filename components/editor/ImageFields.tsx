@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 
-import { MAX_GALLERY_IMAGES, PHOTO_LIMIT, type MediaRef } from '@/shared/blocks'
+import { MAX_GALLERY_IMAGES, type MediaRef } from '@/shared/blocks'
+import { getEntitlements } from '@/shared/entitlements'
+
+const PHOTO_LIMIT = getEntitlements().photoLimit
 import { mediaSrc, thumbKey } from '@/shared/media'
 
 import { useEditorEnv } from './context'

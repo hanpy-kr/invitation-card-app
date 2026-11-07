@@ -8,6 +8,7 @@ import type { BlockContext } from '@/components/blocks/types'
 import { preloadDisplayFont } from '@/lib/fonts/display-font'
 import { getPublishedInvitation } from '@/lib/invitations'
 import { getMediaBaseUrl } from '@/lib/media'
+import { getEntitlements } from '@/shared/entitlements'
 import { shareDescription, shareImagePath, shareTitle } from '@/shared/share'
 import { themeStyle } from '@/shared/themes'
 
@@ -65,9 +66,11 @@ export default async function InvitationPage({ params }: Props) {
     <div className={styles.page} style={themeStyle(inv.theme)}>
       <main className={styles.column}>
         <BlockRenderer blocks={inv.blocks} ctx={ctx} />
-        <footer className={styles.footer}>
-          <Link href="/">dearday</Link>로 만든 초대장
-        </footer>
+        {getEntitlements().showMadeWith && (
+          <footer className={styles.footer}>
+            <Link href="/">dearday</Link>로 만든 초대장
+          </footer>
+        )}
       </main>
     </div>
   )

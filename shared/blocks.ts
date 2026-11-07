@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { PHOTO_LIMIT_CAP } from './entitlements'
+
 /**
  * 블록 타입 + zod 스키마. 웹(편집기 · 공개 페이지)과 API가 함께 씀.
  * 블록 config는 DB에 저장하기 전에 반드시 `parseBlockConfig`로 검증한다.
@@ -34,9 +36,8 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   guestbook: '방명록',
 }
 
-export const MAX_GALLERY_IMAGES = 10
-/** 무료 한도: 초대장 하나에 올릴 수 있는 사진 수 (표지 + 사진첩) */
-export const PHOTO_LIMIT = 10
+/** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
+export const MAX_GALLERY_IMAGES = PHOTO_LIMIT_CAP
 
 /** 업로드된 사진 참조. URL 대신 storage key를 저장하고, 표시할 때 공개 주소로 바꾼다. */
 export const mediaRefSchema = z.object({

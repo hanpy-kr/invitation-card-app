@@ -5,7 +5,8 @@ import { randomUUID } from 'node:crypto'
 import { and, count, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-import { PHOTO_LIMIT, type MediaRef } from '@/shared/blocks'
+import { type MediaRef } from '@/shared/blocks'
+import { getEntitlements } from '@/shared/entitlements'
 import { shareKey, thumbKey } from '@/shared/media'
 
 import { ApiError } from './api'
@@ -74,8 +75,9 @@ async function assertOwnerAndRoom(invitationId: string, userId: string) {
     .select({ n: count() })
     .from(schema.media)
     .where(eq(schema.media.invitationId, invitationId))
-  if (n >= PHOTO_LIMIT)
-    throw new ApiError(409, `사진은 초대장당 ${PHOTO_LIMIT}장까지 올릴 수 있어요.`)
+  const { photoLimit } = getEntitlements()
+  if (n >= photoLimit)
+    throw new ApiError(409, `사진은 초대장당 ${photoLimit}장까지 올릴 수 있어요.`)
 }
 
 /** 업로드 주소 발급. R2면 presigned PUT, 로컬 우회면 우리 서버의 /api/uploads/local */
