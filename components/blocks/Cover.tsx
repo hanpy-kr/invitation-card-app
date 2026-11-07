@@ -16,6 +16,7 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
 
   return (
     <Section className={cx('container', { text: !photo })}>
+      {config.showDate && ctx.dateVoting ? <div className={cx('txt-day')}>날짜 투표 중</div> : null}
       {showDate ? (
         <>
           <div className={cx('txt-date')}>{formatShortDate(ctx.eventAt!)}</div>

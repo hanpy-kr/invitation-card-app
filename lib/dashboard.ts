@@ -1,12 +1,14 @@
 import 'server-only'
 
-import { and, desc, eq, inArray, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
 
 import { parseBlockConfig } from '@/shared/blocks'
 import { choiceOptions, type Answers, type RsvpQuestion } from '@/shared/rsvp-questions'
+import { usableOptions } from '@/shared/vote'
 
 import { getDb, schema } from './db/client'
 import { isUuid } from './editor'
+import { tallyVotes } from './vote'
 
 const { invitations: inv, rsvps, guestbookEntries: gb } = schema
 
@@ -60,7 +62,14 @@ export async function getResponses(id: string, userId: string) {
         columns: { id: true, name: true, message: true, hidden: true, createdAt: true },
         orderBy: [desc(gb.createdAt)],
       },
-      blocks: { columns: { type: true, config: true }, where: eq(schema.blocks.type, 'rsvp') },
+      blocks: {
+        columns: { type: true, config: true, visible: true },
+        where: inArray(schema.blocks.type, ['rsvp', 'vote', 'account']),
+      },
+      pollVotes: {
+        columns: { name: true, choices: true },
+        orderBy: [asc(schema.pollVotes.createdAt)],
+      },
     },
   })
   if (!row) return null
@@ -84,7 +93,18 @@ export async function getResponses(id: string, userId: string) {
     else if (r.meal === false) summary.mealNo += r.partySize
     else summary.mealUndecided += r.partySize
   }
-  const rsvpBlock = row.blocks[0] ? parseBlockConfig('rsvp', row.blocks[0].config) : null
+  const rsvpRow = row.blocks.find((b) => b.type === 'rsvp')
+  const rsvpBlock = rsvpRow ? parseBlockConfig('rsvp', rsvpRow.config) : null
+  const voteRow = row.blocks.find((b) => b.type === 'vote')
+  const voteConfig = voteRow ? parseBlockConfig('vote', voteRow.config) : null
+  const vote = voteConfig
+    ? {
+        config: voteConfig,
+        visible: voteRow!.visible,
+        options: usableOptions(voteConfig),
+        ...tallyVotes(voteConfig, row.pollVotes),
+      }
+    : null
   const askMeal = Boolean(rsvpBlock?.askMeal)
   const questions: RsvpQuestion[] = (rsvpBlock?.questions ?? []).filter((q) => q.label.trim())
   // 선택형 질문: 보기별 응답 수 (보기 문구를 나중에 바꾸면 예전 답은 '기타'로)
@@ -112,6 +132,7 @@ export async function getResponses(id: string, userId: string) {
     eventAt: row.eventAt?.toISOString() ?? null,
     status: row.status,
     askMeal,
+    vote,
     questions,
     choiceStats,
     summary,

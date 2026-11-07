@@ -2,6 +2,7 @@ import { getPublishedInvitation } from '@/lib/invitations'
 import { siteUrl } from '@/lib/site'
 import { buildIcs, firstPlace } from '@/shared/calendar'
 import { shareTitle } from '@/shared/share'
+import { isDateVoting } from '@/shared/vote'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -10,7 +11,8 @@ export const dynamic = 'force-dynamic'
 export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const inv = await getPublishedInvitation(slug)
-  if (!inv || !inv.eventAt) return new Response('초대장을 찾을 수 없어요.', { status: 404 })
+  if (!inv || !inv.eventAt || isDateVoting(inv.blocks))
+    return new Response('초대장을 찾을 수 없어요.', { status: 404 })
   const ics = buildIcs({
     uid: `${inv.slug}@thedearday.com`,
     title: shareTitle({ ...inv, share: undefined }),

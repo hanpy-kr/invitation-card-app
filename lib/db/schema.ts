@@ -140,6 +140,27 @@ export const rateLimits = pgTable('rate_limits', {
   resetAt: timestamp('reset_at', { withTimezone: true }).notNull(),
 })
 
+/** (2차) 날짜 · 장소 투표. 초대장당 투표 블록 1개라 invitation_id로 묶는다 */
+export const pollVotes = pgTable(
+  'poll_votes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    invitationId: uuid('invitation_id')
+      .notNull()
+      .references(() => invitations.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 20 }).notNull(),
+    /** 고른 후보 id 목록 */
+    choices: jsonb('choices').notNull().default([]),
+    /** 하객 수정 토큰의 SHA-256 해시 */
+    editTokenHash: text('edit_token_hash'),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index('poll_votes_invitation_idx').on(t.invitationId),
+    index('poll_votes_edit_token_idx').on(t.editTokenHash),
+  ],
+)
+
 export const usersRelations = relations(users, ({ many }) => ({
   invitations: many(invitations),
 }))
@@ -149,6 +170,7 @@ export const invitationsRelations = relations(invitations, ({ one, many }) => ({
   blocks: many(blocks),
   rsvps: many(rsvps),
   guestbookEntries: many(guestbookEntries),
+  pollVotes: many(pollVotes),
   coverMedia: one(media, { fields: [invitations.coverMediaId], references: [media.id] }),
 }))
 
@@ -165,6 +187,10 @@ export const guestbookEntriesRelations = relations(guestbookEntries, ({ one }) =
     fields: [guestbookEntries.invitationId],
     references: [invitations.id],
   }),
+}))
+
+export const pollVotesRelations = relations(pollVotes, ({ one }) => ({
+  invitation: one(invitations, { fields: [pollVotes.invitationId], references: [invitations.id] }),
 }))
 
 export type User = typeof users.$inferSelect

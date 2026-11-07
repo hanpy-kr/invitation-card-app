@@ -12,6 +12,7 @@ import GreetingForm from './GreetingForm'
 import GuestbookForm from './GuestbookForm'
 import LocationForm from './LocationForm'
 import NoticeForm from './NoticeForm'
+import VoteForm from './VoteForm'
 import RsvpForm from './RsvpForm'
 
 type AnyUpdater = (fn: (c: EditorBlock['config']) => EditorBlock['config']) => void
@@ -42,5 +43,7 @@ export default function BlockForm({ block, update }: { block: EditorBlock; updat
       return <CalendarForm config={block.config} update={as<'calendar'>(update)} />
     case 'contact':
       return <ContactForm config={block.config} update={as<'contact'>(update)} />
+    case 'vote':
+      return <VoteForm config={block.config} update={as<'vote'>(update)} />
   }
 }

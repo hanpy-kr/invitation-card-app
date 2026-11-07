@@ -14,6 +14,7 @@ import {
   shareTitle,
 } from '@/shared/share'
 import { hasPlaceholder } from '@/shared/templates'
+import { isDateVoting, usableOptions } from '@/shared/vote'
 
 import { api } from '../ui/api'
 import styles from './Editor.module.scss'
@@ -203,7 +204,7 @@ function checkBeforePublish(meta: InvitationMeta, blocks: EditorBlock[]): string
   const out: string[] = []
   const texts = [meta.title, ...blocks.filter((b) => b.visible).flatMap((b) => stringsIn(b.config))]
   if (texts.some(hasPlaceholder)) out.push('[신랑 이름] 같은 예시 문구가 아직 남아 있어요.')
-  if (!meta.eventAt) out.push('행사 날짜를 아직 정하지 않았어요.')
+  if (!meta.eventAt && !isDateVoting(blocks)) out.push('행사 날짜를 아직 정하지 않았어요.')
   for (const b of blocks) {
     if (!b.visible) continue
     if (b.type === 'cover' && b.config.layout === 'photo' && !b.config.image) {
@@ -214,6 +215,8 @@ function checkBeforePublish(meta: InvitationMeta, blocks: EditorBlock[]): string
       out.push('사진첩에 사진이 없어요 (빈 블록은 안 보여요).')
     if (b.type === 'account' && !b.config.groups.some((g) => g.accounts.some((a) => a.number)))
       out.push('계좌 블록에 계좌번호가 없어요 (빈 블록은 안 보여요).')
+    if (b.type === 'vote' && usableOptions(b.config).length < 2)
+      out.push('투표 후보가 2개보다 적어요.')
     if (b.type === 'contact' && !b.config.people.some((p) => p.phone))
       out.push('연락하기 블록에 전화번호가 없어요 (빈 블록은 안 보여요).')
     if (b.type === 'notice' && !b.config.items.some((it) => it.title || it.body))

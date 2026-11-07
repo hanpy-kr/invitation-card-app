@@ -11,6 +11,8 @@ export type BlockContext = {
   mediaBaseUrl: string
   /** 카카오 JS 키 (지도). 비어 있으면 지도 없이 길찾기 링크만 */
   kakaoJsKey: string
+  /** 날짜 투표 중 (표지 날짜 자리에 '날짜 투표 중', 날짜를 쓰는 블록은 숨김) */
+  dateVoting?: boolean
   /** 편집기 미리보기 (하객 쓰기 기능은 보내지 않음) */
   preview?: boolean
 }

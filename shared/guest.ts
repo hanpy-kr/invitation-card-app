@@ -38,6 +38,16 @@ export type GuestbookInput = z.infer<typeof guestbookInputSchema>
 
 export const rsvpCancelSchema = z.object({ editToken: z.string().min(1).max(500) })
 
+export const voteInputSchema = z.object({
+  name,
+  choices: z.array(z.string().max(12)).min(1).max(6),
+  editToken: z.string().max(500).optional(),
+})
+export type VoteInput = z.infer<typeof voteInputSchema>
+
+export const voteCancelSchema = rsvpCancelSchema
+export type VoteCancelInput = z.infer<typeof voteCancelSchema>
+
 export const guestbookDeleteSchema = z.object({ password: z.string().min(1).max(20) })
 
 export { isPastDeadline, type GuestbookEntryView } from './guest-rules'

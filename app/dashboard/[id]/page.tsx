@@ -9,6 +9,7 @@ import { formatLongDate } from '@/shared/date'
 
 import styles from './page.module.scss'
 import { GuestbookList, RsvpList } from './Responses'
+import VotePanel from './VotePanel'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { title: '응답 확인 — dearday', robots: { index: false } }
@@ -66,6 +67,16 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
       ) : (
         <div style={{ height: 20 }} />
       )}
+
+      {data.vote ? (
+        <VotePanel
+          invitationId={data.id}
+          config={data.vote.config}
+          options={data.vote.options}
+          results={data.vote.results}
+          voters={data.vote.voters}
+        />
+      ) : null}
 
       {data.choiceStats.map((q) => (
         <div key={q.id} className={styles.choice}>

@@ -126,7 +126,8 @@ async function main() {
 
   await host.getByRole('button', { name: '참석 여부', exact: true }).click()
   check(
-    (await host.getByRole('textbox', { name: '질문 1', exact: true }).inputValue()) === '메뉴를 골라 주세요',
+    (await host.getByRole('textbox', { name: '질문 1', exact: true }).inputValue()) ===
+      '메뉴를 골라 주세요',
     '참석 질문 예시: 메뉴 선택',
   )
   await host.getByRole('button', { name: '참석 여부', exact: true }).click()

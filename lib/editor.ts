@@ -4,6 +4,7 @@ import { and, asc, eq, inArray, lt, sql } from 'drizzle-orm'
 
 import {
   isBlockType,
+  parseBlockConfig,
   parseShareOverride,
   toBlock,
   type Block,
@@ -183,10 +184,25 @@ export async function saveInvitation(
       .returning({ updatedAt: schema.invitations.updatedAt })
     if (!inv) throw new ApiError(404, '초대장을 찾을 수 없어요.')
 
+    // 투표 확정 상태는 대시보드에서만 바뀜 — 편집기가 보낸 값 대신 DB 값을 유지
+    const [prevVote] = await tx
+      .select({ config: schema.blocks.config })
+      .from(schema.blocks)
+      .where(and(eq(schema.blocks.invitationId, id), eq(schema.blocks.type, 'vote')))
+      .limit(1)
+    const voteState = prevVote
+      ? (({ status, confirmedId }) => ({ status, confirmedId }))(
+          parseBlockConfig('vote', prevVote.config),
+        )
+      : { status: 'open' as const, confirmedId: null }
+    const blocksToSave = input.blocks.map((b) =>
+      b.type === 'vote' ? { ...b, config: { ...b.config, ...voteState } } : b,
+    )
+
     await tx.delete(schema.blocks).where(eq(schema.blocks.invitationId, id))
-    if (input.blocks.length > 0) {
+    if (blocksToSave.length > 0) {
       await tx.insert(schema.blocks).values(
-        input.blocks.map((b, position) => ({
+        blocksToSave.map((b, position) => ({
           id: b.id,
           invitationId: id,
           type: b.type,

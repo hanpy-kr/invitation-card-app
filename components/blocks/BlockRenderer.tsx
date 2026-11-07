@@ -1,11 +1,13 @@
 import type { Block } from '@/shared/blocks'
 import { firstPlace } from '@/shared/calendar'
+import { isDateVoting } from '@/shared/vote'
 import { mediaSrc, thumbKey } from '@/shared/media'
 
 import Account from './account/Account'
 import Calendar from './calendar/Calendar'
 import Contact from './contact/Contact'
 import Cover from './Cover'
+import Vote from './vote/Vote'
 import Gallery from './gallery/Gallery'
 import Greeting from './Greeting'
 import Guestbook from './guestbook/Guestbook'
@@ -58,17 +60,21 @@ export function BlockView({
       return <Calendar config={block.config} ctx={ctx} place={place} />
     case 'contact':
       return <Contact config={block.config} />
+    case 'vote':
+      return <Vote config={block.config} ctx={ctx} />
   }
 }
 
 export default function BlockRenderer({ blocks, ctx }: { blocks: Block[]; ctx: BlockContext }) {
   const place = firstPlace(blocks)
+  // 날짜 투표 중이면 아직 날짜가 없는 것처럼 (캘린더 · 인사말 날짜 숨김)
+  const view = isDateVoting(blocks) ? { ...ctx, eventAt: null, dateVoting: true } : ctx
   return (
     <>
       {[...blocks]
         .sort((a, b) => a.position - b.position)
         .map((block) => (
-          <BlockView key={block.id} block={block} ctx={ctx} place={place} />
+          <BlockView key={block.id} block={block} ctx={view} place={place} />
         ))}
     </>
   )

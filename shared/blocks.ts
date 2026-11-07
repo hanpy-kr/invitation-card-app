@@ -60,6 +60,7 @@ export const BLOCK_TYPES = [
   'notice',
   'calendar',
   'contact',
+  'vote',
 ] as const
 export type BlockType = (typeof BLOCK_TYPES)[number]
 
@@ -74,6 +75,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   notice: '안내',
   calendar: '캘린더',
   contact: '연락하기',
+  vote: '날짜 · 장소 투표',
 }
 
 /** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
@@ -256,6 +258,31 @@ export const contactConfigSchema = z.object({
     .default([]),
 })
 
+export const MAX_VOTE_OPTIONS = 6
+
+export const voteOptionSchema = z.object({
+  id: z.string().regex(/^[a-z0-9]{4,12}$/),
+  /** 날짜 투표: 메모(예: 저녁) · 장소 투표: 장소 이름 · 자유 투표: 후보 글 */
+  label: shortText(40).default(''),
+  /** 날짜 투표의 후보 일시 (ISO, 오프셋 포함) */
+  at: z.iso.datetime({ offset: true }).nullable().default(null),
+  /** 장소 투표의 주소 */
+  address: shortText(200).default(''),
+})
+export type VoteOption = z.infer<typeof voteOptionSchema>
+
+export const voteConfigSchema = z.object({
+  title: shortText(30).default('날짜 투표'),
+  message: shortText(200).default(''),
+  kind: z.enum(['date', 'place', 'text']).default('date'),
+  options: z.array(voteOptionSchema).max(MAX_VOTE_OPTIONS).default([]),
+  /** 여러 개 고르기 */
+  multiple: z.boolean().default(true),
+  /** 확정 상태 — 편집기가 아니라 대시보드 [확정]으로만 바뀜 (저장할 때 서버가 DB 값을 유지) */
+  status: z.enum(['open', 'closed']).default('open'),
+  confirmedId: z.string().max(12).nullable().default(null),
+})
+
 export const blockConfigSchemas = {
   cover: coverConfigSchema,
   greeting: greetingConfigSchema,
@@ -267,6 +294,7 @@ export const blockConfigSchemas = {
   notice: noticeConfigSchema,
   calendar: calendarConfigSchema,
   contact: contactConfigSchema,
+  vote: voteConfigSchema,
 } as const satisfies Record<BlockType, z.ZodType>
 
 export type BlockConfigMap = { [K in BlockType]: z.infer<(typeof blockConfigSchemas)[K]> }
@@ -280,6 +308,7 @@ export type AccountConfig = BlockConfigMap['account']
 export type NoticeConfig = BlockConfigMap['notice']
 export type CalendarConfig = BlockConfigMap['calendar']
 export type ContactConfig = BlockConfigMap['contact']
+export type VoteConfig = BlockConfigMap['vote']
 
 export type Block = {
   [K in BlockType]: {
@@ -336,5 +365,6 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('notice'), config: noticeConfigSchema }),
   z.object({ type: z.literal('calendar'), config: calendarConfigSchema }),
   z.object({ type: z.literal('contact'), config: contactConfigSchema }),
+  z.object({ type: z.literal('vote'), config: voteConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>

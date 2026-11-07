@@ -1,6 +1,7 @@
 import { EVENT_TYPE_LABELS, type EventType } from './blocks'
 import { formatEventDateTime } from './date'
 import { mediaSrc, shareKey } from './media'
+import { isDateVoting } from './vote'
 
 /** OG 태그와 카카오 공유 카드가 같은 제목 · 설명 · 이미지를 쓰도록 한 곳에서 만든다 */
 type ShareBlock = { type: string; visible: boolean; config: unknown }
@@ -22,7 +23,11 @@ export function shareDescription(inv: ShareInput): string {
   if (inv.share?.description) return inv.share.description
   const location = inv.blocks.find((b) => b.type === 'location' && b.visible)
   const place = location ? (location.config as { placeName?: string }).placeName : ''
-  const when = inv.eventAt ? formatEventDateTime(inv.eventAt) : ''
+  const when = isDateVoting(inv.blocks)
+    ? '날짜 투표 중'
+    : inv.eventAt
+      ? formatEventDateTime(inv.eventAt)
+      : ''
   const text = [when, place].filter(Boolean).join(' · ')
   return text || `${EVENT_TYPE_LABELS[inv.eventType]}에 초대합니다.`
 }
