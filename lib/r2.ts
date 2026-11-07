@@ -1,6 +1,7 @@
 import 'server-only'
 
 import {
+  CopyObjectCommand,
   DeleteObjectsCommand,
   HeadObjectCommand,
   PutObjectCommand,
@@ -68,4 +69,26 @@ export async function deleteKeys(keys: string[]): Promise<void> {
       Delete: { Objects: keys.map((Key) => ({ Key })) },
     }),
   )
+}
+
+/** 서버 측 복사 (파일을 서버로 내려받지 않음). 없는 원본은 건너뜀 → 복사된 key 목록 */
+export async function copyKeys(pairs: [from: string, to: string][]): Promise<string[]> {
+  const done: string[] = []
+  for (const [from, to] of pairs) {
+    try {
+      await r2().send(
+        new CopyObjectCommand({
+          Bucket: bucket(),
+          Key: to,
+          CopySource: `${bucket()}/${from.split('/').map(encodeURIComponent).join('/')}`,
+          MetadataDirective: 'COPY',
+        }),
+      )
+      done.push(to)
+    } catch (err) {
+      const name = (err as { name?: string }).name
+      if (name !== 'NoSuchKey' && name !== 'NotFound') throw err
+    }
+  }
+  return done
 }

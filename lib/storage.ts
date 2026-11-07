@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { shareKey, thumbKey } from '@/shared/media'
@@ -68,5 +68,32 @@ export async function deleteStored(keys: string[]): Promise<void> {
     else if (mode === 'local') await Promise.all(own.map((k) => rm(localPath(k), { force: true })))
   } catch (err) {
     console.error('[storage] delete failed', err)
+  }
+}
+
+/**
+ * 사진 복사 (원본 + 공유용 JPEG 사본 + 썸네일). R2는 서버 측 CopyObject라 파일을 나르지 않는다.
+ * 한쪽 초대장을 지워도 다른 쪽 사진이 남도록 항상 새 key로 복사. 없는 사본은 건너뜀
+ */
+export async function copyStored(pairs: [from: string, to: string][]): Promise<void> {
+  const all = pairs.flatMap(([a, b]): [string, string][] => [
+    [a, b],
+    [shareKey(a), shareKey(b)],
+    [thumbKey(a), thumbKey(b)],
+  ])
+  const mode = storageMode()
+  if (mode === 'r2') {
+    await r2.copyKeys(all)
+  } else if (mode === 'local') {
+    for (const [a, b] of all) {
+      try {
+        await mkdir(path.dirname(localPath(b)), { recursive: true })
+        await copyFile(localPath(a), localPath(b))
+      } catch (err) {
+        if ((err as { code?: string }).code !== 'ENOENT') throw err
+      }
+    }
+  } else {
+    throw new Error('사진 저장소가 설정되지 않았어요.')
   }
 }

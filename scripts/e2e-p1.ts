@@ -9,6 +9,7 @@ import { chromium, type Browser, type BrowserContext, type Page } from 'playwrig
 
 const BASE = process.env.E2E_BASE ?? 'http://localhost:3001'
 const OUT = 'screenshots/e2e'
+const PHOTOS = process.env.E2E_PHOTOS ?? '.local/e2e-photos'
 const ONLY = process.env.ONLY?.split(',')
 
 let failures = 0
@@ -76,10 +77,55 @@ async function publish(page: Page): Promise<string> {
 
 /** 날짜 투표 → 확정 → 같은 링크에서 참석 · 명단 */
 async function voteFlow(browser: Browser) {
+  // 결혼 초대장(표지 사진 · 이름) → 대시보드 [청첩장 모임 만들기]
   const { page: host } = await login(browser, '/new')
-  await host.getByRole('button', { name: /청첩장 모임/ }).click()
+  await host.getByRole('button', { name: /결혼식/ }).click()
+  await host.waitForURL(/\/edit\//)
+  const weddingId = host.url().split('/').pop()!
+  await host.getByLabel('초대장 제목').fill('E2E 민준 ♥ 서연 결혼합니다')
+  await host.getByRole('button', { name: '표지', exact: true }).click()
+  await host.locator('input[type=file]').first().setInputFiles(`${PHOTOS}/photo_1.jpg`)
+  await host.getByAltText('표지 사진 미리보기').waitFor({ timeout: 30000 })
+  const weddingCover = await host.getByAltText('표지 사진 미리보기').getAttribute('src')
+  await host.getByRole('button', { name: '인사말', exact: true }).click()
+  await host.getByRole('textbox', { name: '보내는 사람 1' }).fill('민준')
+  await host.getByRole('textbox', { name: '보내는 사람 2' }).fill('서연')
+  await waitSaved(host)
+
+  await host.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
+  await host
+    .locator('li')
+    .filter({ hasText: 'E2E 민준 ♥ 서연 결혼합니다' })
+    .getByRole('button', { name: '청첩장 모임 만들기' })
+    .click()
   await host.waitForURL(/\/edit\//)
   const invitationId = host.url().split('/').pop()!
+  check(
+    (await host.getByLabel('초대장 제목').inputValue()) === '민준 · 서연 청첩장 모임',
+    '청첩장 모임 만들기: 이름 채워진 제목',
+  )
+  check(
+    (await host.getByLabel('행사 종류').inputValue()) === 'prewedding',
+    '청첩장 모임 만들기: 행사 종류 prewedding',
+  )
+  await host.getByRole('button', { name: '표지', exact: true }).click()
+  const newCover = await host.getByAltText('표지 사진 미리보기').getAttribute('src')
+  check(
+    newCover &&
+      weddingCover &&
+      newCover !== weddingCover &&
+      newCover.includes(`/inv/${invitationId}/`),
+    '표지 사진은 새 key로 복사',
+  )
+  const coverRes = await host.request.get(`${BASE}${newCover}`)
+  check(coverRes.ok(), '복사한 표지 사진 열림')
+  // 결혼 초대장을 지워도 청첩장 모임 사진은 남음
+  await host.request.delete(`${BASE}/api/invitations/${weddingId}`, { headers: { origin: BASE } })
+  check(
+    (await host.request.get(`${BASE}${weddingCover}`)).status() === 404,
+    '원본 초대장 삭제 → 원본 사진 지워짐',
+  )
+  check((await host.request.get(`${BASE}${newCover}`)).ok(), '복사본 사진은 그대로')
   await host.getByLabel('초대장 제목').fill('E2E 민준 · 서연 청첩장 모임')
   await host.getByRole('button', { name: '+ 날짜 · 장소 투표' }).click()
   for (const [i, d] of ['2026-12-04', '2026-12-11'].entries()) {
@@ -238,6 +284,31 @@ async function resendFlow(browser: Browser) {
   )
 }
 
+/** 내 초대장 복제 (시드 demomeet) */
+async function copyFlow(browser: Browser) {
+  const { page: host } = await login(browser, '/dashboard')
+  await host.waitForURL(/\/dashboard/)
+  await host
+    .locator('li')
+    .filter({ hasText: '디어고 12기 송년회' })
+    .getByRole('button', { name: '복제' })
+    .first()
+    .click()
+  await host.waitForURL(/\/edit\//)
+  check(
+    (await host.getByLabel('초대장 제목').inputValue()) === '디어고 12기 송년회 (복사본)',
+    '복제: 제목 (복사본)',
+  )
+  await host.getByRole('button', { name: '계좌 · 회비', exact: true }).click()
+  check(
+    (await host.getByLabel('그룹 1 계좌 1 계좌번호').inputValue()) === '3333-00-0000004',
+    '복제: 내 초대장은 계좌까지 그대로',
+  )
+  const id = host.url().split('/').pop()!
+  await host.goto(`${BASE}/dashboard/${id}`, { waitUntil: 'networkidle' })
+  check((await host.getByText('참석 응답 0건').count()) === 1, '복제: 응답은 안 가져옴')
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -272,6 +343,7 @@ async function main() {
 
   if (run('dues')) await duesFlow(browser)
   if (run('resend')) await resendFlow(browser)
+  if (run('copy')) await copyFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

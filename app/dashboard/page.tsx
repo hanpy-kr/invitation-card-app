@@ -6,6 +6,7 @@ import { listMyInvitations } from '@/lib/dashboard'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
 
+import DuplicateButtons from './DuplicateButtons'
 import styles from './page.module.scss'
 import WithdrawButton from './WithdrawButton'
 
@@ -67,6 +68,7 @@ export default async function DashboardPage() {
                     초대장 보기
                   </Link>
                 ) : null}
+                <DuplicateButtons id={inv.id} wedding={inv.eventType === 'wedding'} />
               </div>
             </li>
           ))}
