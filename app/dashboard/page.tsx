@@ -58,8 +58,14 @@ export default async function DashboardPage() {
               {inv.status === 'published' || inv.responses > 0 ? (
                 <div className={styles.meta}>
                   참석 {inv.attendees}명 · 응답 {inv.responses}건
+                  {inv.newResponses > 0 ? (
+                    <Link href={`/dashboard/${inv.id}`} className={styles.newCount}>
+                      새 응답 {inv.newResponses}
+                    </Link>
+                  ) : null}
                 </div>
               ) : null}
+              {!inv.isOwner ? <div className={styles.meta}>함께 편집 중인 초대장</div> : null}
               <div className={styles.actions}>
                 <Link href={`/edit/${inv.id}`}>편집</Link>
                 <Link href={`/dashboard/${inv.id}`}>응답 보기</Link>
@@ -68,7 +74,9 @@ export default async function DashboardPage() {
                     초대장 보기
                   </Link>
                 ) : null}
-                <DuplicateButtons id={inv.id} wedding={inv.eventType === 'wedding'} />
+                {inv.isOwner ? (
+                  <DuplicateButtons id={inv.id} wedding={inv.eventType === 'wedding'} />
+                ) : null}
               </div>
             </li>
           ))}

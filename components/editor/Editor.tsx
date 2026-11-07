@@ -29,6 +29,8 @@ export type EditorProps = {
   siteUrl: string
   uploadEnabled: boolean
   geoSearchEnabled: boolean
+  /** 편집자는 초대장을 지울 수 없음 */
+  isOwner: boolean
 }
 
 const SAVE_LABEL: Record<SaveState, string> = {
@@ -249,11 +251,13 @@ export default function Editor(props: EditorProps) {
               </div>
             ) : null}
 
-            <div className={styles.danger}>
-              <button type="button" onClick={removeInvitation}>
-                초대장 지우기
-              </button>
-            </div>
+            {props.isOwner ? (
+              <div className={styles.danger}>
+                <button type="button" onClick={removeInvitation}>
+                  초대장 지우기
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <aside

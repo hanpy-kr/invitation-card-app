@@ -6,6 +6,7 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   smallint,
   text,
   timestamp,
@@ -161,6 +162,39 @@ export const pollVotes = pgTable(
     index('poll_votes_invitation_idx').on(t.invitationId),
     index('poll_votes_edit_token_idx').on(t.editTokenHash),
   ],
+)
+
+/** (2차) 공동 편집자. 삭제 · 편집자 관리는 소유자만 */
+export const invitationEditors = pgTable(
+  'invitation_editors',
+  {
+    invitationId: uuid('invitation_id')
+      .notNull()
+      .references(() => invitations.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.invitationId, t.userId] }),
+    index('invitation_editors_user_idx').on(t.userId),
+  ],
+)
+
+/** (2차) 사람별로 응답 화면을 마지막으로 본 시각 → 대시보드 '새 응답 n' */
+export const invitationSeen = pgTable(
+  'invitation_seen',
+  {
+    invitationId: uuid('invitation_id')
+      .notNull()
+      .references(() => invitations.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    seenAt: timestamp('seen_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.invitationId, t.userId] })],
 )
 
 export const usersRelations = relations(users, ({ many }) => ({

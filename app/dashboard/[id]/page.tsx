@@ -3,7 +3,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { requireSession } from '@/lib/auth/session'
-import { getResponses } from '@/lib/dashboard'
+import { getResponses, markSeen } from '@/lib/dashboard'
+import { listEditors } from '@/lib/editors'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
 import { getMediaBaseUrl } from '@/lib/media'
@@ -13,6 +14,7 @@ import { absolute, acceptsRsvp, shareImagePath } from '@/shared/share'
 
 import styles from './page.module.scss'
 import { GuestbookList, RsvpList } from './Responses'
+import EditorsPanel from './EditorsPanel'
 import ResendCards from './ResendCards'
 import VotePanel from './VotePanel'
 
@@ -24,6 +26,10 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
   const session = await requireSession(`/dashboard/${id}`)
   const data = await getResponses(id, session.userId)
   if (!data) notFound()
+  const [prevSeen, editors] = await Promise.all([
+    markSeen(data.id, session.userId),
+    data.isOwner ? listEditors(data.id) : Promise.resolve(null),
+  ])
   const s = data.summary
 
   return (
@@ -142,8 +148,11 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
           askMeal={data.askMeal}
           questions={data.questions}
           dues={Boolean(data.dues)}
+          seenAt={prevSeen?.toISOString() ?? null}
         />
       </section>
+
+      {editors ? <EditorsPanel invitationId={data.id} editors={editors} /> : null}
 
       <section className={styles.section}>
         <h2>방명록 {data.guestbook.length}개</h2>

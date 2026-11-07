@@ -16,7 +16,11 @@ export async function GET(req: NextRequest) {
   const next = safeNextPath(req.nextUrl.searchParams.get('next'))
 
   if (devLoginEnabled() && (!kakaoConfigured() || req.nextUrl.searchParams.get('dev') === '1')) {
-    const session = await upsertKakaoUser('dev-1', '개발자')
+    // 개발용: ?as=2 로 두 번째 사용자 (공동 편집 테스트)
+    const n = /^[2-9]$/.test(req.nextUrl.searchParams.get('as') ?? '')
+      ? req.nextUrl.searchParams.get('as')
+      : '1'
+    const session = await upsertKakaoUser(`dev-${n}`, n === '1' ? '개발자' : `개발자${n}`)
     const res = NextResponse.redirect(absoluteUrl(next))
     setSessionCookie(res, session)
     return res

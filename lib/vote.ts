@@ -7,6 +7,7 @@ import type { VoteCancelInput, VoteInput } from '@/shared/guest'
 import { usableOptions, type VoteResults } from '@/shared/vote'
 
 import { ApiError } from './api'
+import { editableInvitationIds } from './access'
 import { getDb, schema } from './db/client'
 import { hashGuestToken, isGuestToken, newGuestToken } from './guest-token'
 
@@ -209,10 +210,5 @@ export async function reopenVote(
     .where(eq(blocks.id, vote.id))
 }
 
-/** 소유자 확인용 서브쿼리 (lib/dashboard와 같은 방식) */
-export function ownedFilter(userId: string) {
-  return getDb()
-    .select({ id: invitations.id })
-    .from(invitations)
-    .where(eq(invitations.ownerId, userId))
-}
+/** 소유자 또는 편집자 확인용 서브쿼리 */
+export const ownedFilter = editableInvitationIds

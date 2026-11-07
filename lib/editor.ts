@@ -15,6 +15,7 @@ import { collectMediaRefs } from '@/shared/media'
 import { buildFromLayout, buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
+import { canEditWhere } from './access'
 import { ApiError } from './api'
 import { getDb, schema } from './db/client'
 import { randomSlug } from './slug'
@@ -30,6 +31,8 @@ export type EditableInvitation = {
   meta: InvitationMeta
   blocks: EditorBlock[]
   mediaCount: number
+  /** 소유자인지 (편집자는 삭제 · 편집자 관리 못 함) */
+  isOwner: boolean
 }
 
 function isUniqueViolation(err: unknown): boolean {
@@ -112,7 +115,7 @@ export async function getEditableInvitation(
 ): Promise<EditableInvitation | null> {
   if (!isUuid(id)) return null
   const row = await getDb().query.invitations.findFirst({
-    where: and(eq(schema.invitations.id, id), eq(schema.invitations.ownerId, userId)),
+    where: and(eq(schema.invitations.id, id), canEditWhere(userId)),
     with: {
       blocks: { orderBy: [asc(schema.blocks.position)] },
     },
@@ -142,6 +145,7 @@ export async function getEditableInvitation(
         (b) => ({ id: b.id, type: b.type, visible: b.visible, config: b.config }) as EditorBlock,
       ),
     mediaCount: Number(row.mediaCount),
+    isOwner: row.ownerId === userId,
   }
 }
 
@@ -180,7 +184,7 @@ export async function saveInvitation(
           ? sql`(select ${schema.media.id} from ${schema.media} where ${schema.media.id} = ${coverMediaId} and ${schema.media.invitationId} = ${id})`
           : null,
       })
-      .where(and(eq(schema.invitations.id, id), eq(schema.invitations.ownerId, userId)))
+      .where(and(eq(schema.invitations.id, id), canEditWhere(userId)))
       .returning({ updatedAt: schema.invitations.updatedAt })
     if (!inv) throw new ApiError(404, '초대장을 찾을 수 없어요.')
 
@@ -269,7 +273,7 @@ export async function setPublished(
   const [row] = await getDb()
     .update(schema.invitations)
     .set({ status: published ? 'published' : 'draft' })
-    .where(and(eq(schema.invitations.id, id), eq(schema.invitations.ownerId, userId)))
+    .where(and(eq(schema.invitations.id, id), canEditWhere(userId)))
     .returning({ slug: schema.invitations.slug, status: schema.invitations.status })
   if (!row) throw new ApiError(404, '초대장을 찾을 수 없어요.')
   return row

@@ -2,13 +2,14 @@ import 'server-only'
 
 import { randomUUID } from 'node:crypto'
 
-import { and, count, eq } from 'drizzle-orm'
+import { count, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { type MediaRef } from '@/shared/blocks'
 import { getEntitlements } from '@/shared/entitlements'
 import { shareKey, thumbKey } from '@/shared/media'
 
+import { getAccess } from './access'
 import { ApiError } from './api'
 import { signPayload, verifyPayload } from './auth/token'
 import { getDb, schema } from './db/client'
@@ -66,11 +67,8 @@ export function uploadTarget(t: UploadToken, part: UploadPart) {
 
 async function assertOwnerAndRoom(invitationId: string, userId: string) {
   const db = getDb()
-  const [inv] = await db
-    .select({ id: schema.invitations.id })
-    .from(schema.invitations)
-    .where(and(eq(schema.invitations.id, invitationId), eq(schema.invitations.ownerId, userId)))
-  if (!inv) throw new ApiError(404, '초대장을 찾을 수 없어요.')
+  const access = await getAccess(invitationId, userId)
+  if (!access) throw new ApiError(404, '초대장을 찾을 수 없어요.')
   const [{ n }] = await db
     .select({ n: count() })
     .from(schema.media)
@@ -78,6 +76,7 @@ async function assertOwnerAndRoom(invitationId: string, userId: string) {
   const { photoLimit } = getEntitlements()
   if (n >= photoLimit)
     throw new ApiError(409, `사진은 초대장당 ${photoLimit}장까지 올릴 수 있어요.`)
+  return { ownerId: access.ownerId }
 }
 
 /** 업로드 주소 발급. R2면 presigned PUT, 로컬 우회면 우리 서버의 /api/uploads/local */
@@ -142,12 +141,13 @@ export async function completeUpload(
   // 썸네일은 있으면 쓰고, 없으면 바둑판에 원본을 쓴다 (실패해도 등록은 진행)
   const thumb = t.tkey ? (await storedSize(t.tkey)) !== null : false
 
-  await assertOwnerAndRoom(t.inv, userId)
+  const { ownerId } = await assertOwnerAndRoom(t.inv, userId)
   const [row] = await getDb()
     .insert(schema.media)
     .values({
       id: t.mid,
-      ownerId: userId,
+      // 편집자가 올려도 초대장 소유자 것으로 (소유자 탈퇴 때 함께 지워지게)
+      ownerId,
       invitationId: t.inv,
       storageKey: t.key,
       width: input.width,

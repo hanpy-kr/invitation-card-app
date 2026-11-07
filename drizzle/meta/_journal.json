@@ -57,6 +57,13 @@
       "when": 1794045106676,
       "tag": "0007_rsvp_paid",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794045784374,
+      "tag": "0008_editors_seen",
+      "breakpoints": true
     }
   ]
 }

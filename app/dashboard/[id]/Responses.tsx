@@ -30,6 +30,7 @@ export function RsvpList({
   askMeal,
   questions,
   dues,
+  seenAt,
 }: {
   invitationId: string
   initial: Rsvp[]
@@ -37,6 +38,8 @@ export function RsvpList({
   questions: RsvpQuestion[]
   /** 1인 회비가 있으면 입금 체크를 보여 줌 */
   dues: boolean
+  /** 지난번에 본 시각 — 그 뒤 응답에 '새' 표시 */
+  seenAt: string | null
 }) {
   const router = useRouter()
   const [rows, setRows] = useState(initial)
@@ -59,7 +62,10 @@ export function RsvpList({
     <ul className={styles.rows}>
       {rows.map((r) => (
         <li key={r.id}>
-          <span className={styles.name}>{r.name}</span>
+          <span className={styles.name}>
+            {seenAt && r.createdAt > seenAt ? <em className={styles.newBadge}>새</em> : null}
+            {r.name}
+          </span>
           <span className={`${styles.tag} ${r.attending ? styles.yes : ''}`}>
             {r.attending ? `참석 ${r.partySize}명` : '불참'}
           </span>

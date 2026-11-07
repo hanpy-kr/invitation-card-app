@@ -30,6 +30,7 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
       siteUrl={siteUrl()}
       uploadEnabled={storageMode() !== 'none'}
       geoSearchEnabled={kakaoConfigured()}
+      isOwner={inv.isOwner}
     />
   )
 }

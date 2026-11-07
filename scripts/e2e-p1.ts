@@ -1,6 +1,6 @@
 /**
  * 2차 P1 확인(로컬): 투표 · 명단 공개 · 응답 수정/취소 · 회비 체크 · 복제 · 공동 편집 · 방문 통계 · 익명 시작
- * 준비는 e2e-d2.ts와 같음 (운영 빌드, DEV_LOGIN=1, 서버 E2E_BASE). 실행: pnpm e2e:p1
+ * 준비는 e2e-d2.ts와 같음 (운영 빌드, DEV_LOGIN=1, 서버 E2E_BASE) + 시드 새로(pnpm db:seed). 실행: pnpm e2e:p1
  * 완료 기준: 결혼 초대장에서 청첩장 모임을 만들어 날짜 투표 → 확정 → 같은 링크에서 참석 응답 · 명단 공개
  */
 import { mkdirSync } from 'node:fs'
@@ -212,7 +212,7 @@ async function duesFlow(browser: Browser) {
   await host.waitForURL(/\/dashboard/)
   const href = await host
     .locator('li')
-    .filter({ hasText: '디어고 12기 송년회' })
+    .filter({ has: host.getByText('디어고 12기 송년회', { exact: true }) })
     .getByRole('link', { name: '응답 보기' })
     .getAttribute('href')
   await host.goto(`${BASE}${href}`, { waitUntil: 'networkidle' })
@@ -250,7 +250,7 @@ async function resendFlow(browser: Browser) {
   await host.waitForURL(/\/dashboard/)
   const href = await host
     .locator('li')
-    .filter({ hasText: '디어고 12기 송년회' })
+    .filter({ has: host.getByText('디어고 12기 송년회', { exact: true }) })
     .getByRole('link', { name: '응답 보기' })
     .getAttribute('href')
   await host.goto(`${BASE}${href}`, { waitUntil: 'networkidle' })
@@ -290,7 +290,7 @@ async function copyFlow(browser: Browser) {
   await host.waitForURL(/\/dashboard/)
   await host
     .locator('li')
-    .filter({ hasText: '디어고 12기 송년회' })
+    .filter({ has: host.getByText('디어고 12기 송년회', { exact: true }) })
     .getByRole('button', { name: '복제' })
     .first()
     .click()
@@ -307,6 +307,96 @@ async function copyFlow(browser: Browser) {
   const id = host.url().split('/').pop()!
   await host.goto(`${BASE}/dashboard/${id}`, { waitUntil: 'networkidle' })
   check((await host.getByText('참석 응답 0건').count()) === 1, '복제: 응답은 안 가져옴')
+}
+
+/** 공동 편집: 초대 링크 → 두 번째 사용자가 편집 · 응답 보기, 삭제 · 편집자 관리는 못 함 + 새 응답 n */
+async function editorsFlow(browser: Browser) {
+  const { page: owner } = await login(browser, '/dashboard')
+  await owner.waitForURL(/\/dashboard/)
+  const href = (await owner
+    .locator('li')
+    .filter({ has: owner.getByText('디어고 12기 송년회', { exact: true }) })
+    .getByRole('link', { name: '응답 보기' })
+    .first()
+    .getAttribute('href'))!
+  const id = href.split('/').pop()!
+  await owner.goto(`${BASE}${href}`, { waitUntil: 'networkidle' })
+  await owner.getByRole('button', { name: '초대 링크 만들기' }).click()
+  const link = await owner.getByLabel('공동 편집 초대 링크').inputValue()
+  check(/\/join\/.+/.test(link), '초대 링크 만들기')
+
+  const { page: ed } = await login(browser, new URL(link).pathname, '2')
+  await ed.waitForURL(new RegExp(`/edit/${id}`))
+  check(true, '두 번째 사용자: 링크 → 로그인 → 편집기')
+  check(
+    (await ed.getByRole('button', { name: '초대장 지우기' }).count()) === 0,
+    '편집자: 삭제 버튼 없음',
+  )
+  await ed.getByRole('button', { name: '인사말', exact: true }).click()
+  await ed.getByLabel('제목', { exact: true }).fill('편집자가 고친 제목')
+  await waitSaved(ed)
+  check(true, '편집자: 고치고 자동 저장')
+  const del = await ed.request.delete(`${BASE}/api/invitations/${id}`, {
+    headers: { origin: BASE },
+  })
+  check(del.status() === 404, '편집자: 초대장 삭제 API 막힘')
+  const inv2 = await ed.request.post(`${BASE}/api/invitations/${id}/editors`, {
+    headers: { origin: BASE },
+    data: {},
+  })
+  check(inv2.status() === 403, '편집자: 초대 링크 만들기 막힘')
+  await ed.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
+  check((await ed.getByText('함께 편집 중인 초대장').count()) >= 1, '편집자 대시보드에 공유 초대장')
+
+  // 새 응답 n: 주인이 응답 화면을 본 뒤 응답 2건 → 목록에 '새 응답 2'
+  await owner.goto(`${BASE}${href}`, { waitUntil: 'networkidle' })
+  for (const [i, n] of ['새손님1', '새손님2'].entries()) {
+    await fetch(`${BASE}/api/i/demomeet/rsvp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': `203.0.113.4${i}` },
+      body: JSON.stringify({
+        name: n,
+        attending: true,
+        partySize: 1,
+        meal: null,
+        answers: { menu01: '채식' },
+      }),
+    })
+  }
+  await owner.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
+  check(
+    (await owner
+      .locator('li')
+      .filter({ has: owner.getByText('디어고 12기 송년회', { exact: true }) })
+      .first()
+      .getByText('새 응답 2')
+      .count()) === 1,
+    "대시보드: '새 응답 2'",
+  )
+  await owner.goto(`${BASE}${href}`, { waitUntil: 'networkidle' })
+  check(
+    (await owner.getByText('새', { exact: true }).count()) === 2,
+    '응답 목록: 새 응답 2건에 표시',
+  )
+  await owner.screenshot({ path: `${OUT}/p1-editors.png`, fullPage: true })
+  await owner.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
+  check((await owner.getByText(/새 응답/).count()) === 0, '확인 뒤 새 응답 표시 사라짐')
+  // 편집자 빼기
+  await owner.goto(`${BASE}${href}`, { waitUntil: 'networkidle' })
+  await owner.getByRole('button', { name: '개발자2 편집자 빼기' }).click()
+  await owner.getByRole('button', { name: '개발자2 편집자 빼기' }).waitFor({ state: 'detached' })
+  // 로딩 화면(loading.tsx) 때문에 상태 코드는 200일 수 있어 내용으로 확인
+  await ed.goto(`${BASE}/edit/${id}`, { waitUntil: 'networkidle' })
+  check(
+    (await ed.getByText('찾으시는 페이지가 없어요').count()) === 1 &&
+      (
+        await ed.request.put(`${BASE}/api/invitations/${id}`, {
+          headers: { origin: BASE },
+          data: {},
+        })
+      ).status() !== 200,
+    '편집자에서 빠지면 편집기 못 염',
+  )
 }
 
 async function main() {
@@ -344,6 +434,7 @@ async function main() {
   if (run('dues')) await duesFlow(browser)
   if (run('resend')) await resendFlow(browser)
   if (run('copy')) await copyFlow(browser)
+  if (run('editors')) await editorsFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

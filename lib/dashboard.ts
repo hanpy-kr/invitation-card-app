@@ -6,15 +6,15 @@ import { parseBlockConfig, parseShareOverride } from '@/shared/blocks'
 import { choiceOptions, type Answers, type RsvpQuestion } from '@/shared/rsvp-questions'
 import { usableOptions } from '@/shared/vote'
 
+import { canEditWhere, editableInvitationIds } from './access'
 import { getDb, schema } from './db/client'
 import { isUuid } from './editor'
 import { tallyVotes } from './vote'
 
-const { invitations: inv, rsvps, guestbookEntries: gb } = schema
+const { invitations: inv, rsvps, guestbookEntries: gb, invitationSeen: seen } = schema
 
-/** 소유자 확인용 서브쿼리: 이 사용자의 초대장 id들 */
-const ownedInvitationIds = (userId: string) =>
-  getDb().select({ id: inv.id }).from(inv).where(eq(inv.ownerId, userId))
+/** 소유자 또는 편집자 확인용 서브쿼리 */
+const ownedInvitationIds = editableInvitationIds
 
 /**
  * 내 초대장 목록 + 응답 수 (쿼리 1회: invitations LEFT JOIN rsvps GROUP BY).
@@ -33,11 +33,15 @@ export async function listMyInvitations(userId: string) {
       updatedAt: inv.updatedAt,
       responses: sql<number>`count(${rsvps.id})::int`,
       attendees: sql<number>`coalesce(sum(${rsvps.partySize}) filter (where ${rsvps.attending}), 0)::int`,
+      // 응답 화면을 마지막으로 본 뒤 들어온 응답 (본 적 없으면 전부)
+      newResponses: sql<number>`count(${rsvps.id}) filter (where ${rsvps.createdAt} > coalesce(${seen.seenAt}, 'epoch'))::int`,
+      isOwner: sql<boolean>`${inv.ownerId} = ${userId}`,
     })
     .from(inv)
     .leftJoin(rsvps, eq(rsvps.invitationId, inv.id))
-    .where(eq(inv.ownerId, userId))
-    .groupBy(inv.id)
+    .leftJoin(seen, and(eq(seen.invitationId, inv.id), eq(seen.userId, userId)))
+    .where(canEditWhere(userId))
+    .groupBy(inv.id, seen.seenAt)
     .orderBy(desc(inv.updatedAt))
 }
 
@@ -54,7 +58,7 @@ export type ResponseSummary = {
 export async function getResponses(id: string, userId: string) {
   if (!isUuid(id)) return null
   const row = await getDb().query.invitations.findFirst({
-    where: and(eq(inv.id, id), eq(inv.ownerId, userId)),
+    where: and(eq(inv.id, id), canEditWhere(userId)),
     columns: {
       id: true,
       slug: true,
@@ -63,6 +67,7 @@ export async function getResponses(id: string, userId: string) {
       eventAt: true,
       status: true,
       share: true,
+      ownerId: true,
     },
     with: {
       rsvps: { orderBy: [desc(rsvps.createdAt)] },
@@ -159,6 +164,7 @@ export async function getResponses(id: string, userId: string) {
     eventAt: row.eventAt?.toISOString() ?? null,
     status: row.status,
     askMeal,
+    isOwner: row.ownerId === userId,
     dues,
     shareInput: {
       title: row.title,
@@ -246,4 +252,18 @@ export async function setRsvpPaid(
     )
     .returning({ id: rsvps.id })
   return rows.length > 0
+}
+
+/** 응답 화면을 본 시각 기록 → 이전 값 (처음이면 null). '새 응답' 표시에 씀 */
+export async function markSeen(invitationId: string, userId: string): Promise<Date | null> {
+  const db = getDb()
+  const [prev] = await db
+    .select({ seenAt: seen.seenAt })
+    .from(seen)
+    .where(and(eq(seen.invitationId, invitationId), eq(seen.userId, userId)))
+  await db
+    .insert(seen)
+    .values({ invitationId, userId, seenAt: new Date() })
+    .onConflictDoUpdate({ target: [seen.invitationId, seen.userId], set: { seenAt: new Date() } })
+  return prev?.seenAt ?? null
 }
