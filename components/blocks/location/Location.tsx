@@ -35,6 +35,7 @@ export default function Location({
   return (
     <Section title={config.title} className={cx('container')}>
       <div className={cx('wrap-place')}>
+        {config.time ? <div className={cx('txt-time')}>{config.time}</div> : null}
         {config.placeName ? <div className={cx('txt-name')}>{config.placeName}</div> : null}
         {config.detail ? <div className={cx('txt-detail')}>{config.detail}</div> : null}
         {config.address ? (

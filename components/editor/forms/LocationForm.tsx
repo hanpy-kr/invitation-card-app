@@ -126,9 +126,18 @@ export default function LocationForm({ config, update }: FormProps<'location'>) 
       )}
       <TextField
         label="제목"
+        hint="장소가 여러 개면 1차 · 2차처럼 구분"
         value={config.title}
         maxLength={30}
         onChange={(title) => set({ title })}
+      />
+      <TextField
+        label="시간"
+        hint="선택"
+        value={config.time}
+        maxLength={30}
+        placeholder="예) 오후 9시부터"
+        onChange={(time) => set({ time })}
       />
       <TextField
         label="장소 이름"

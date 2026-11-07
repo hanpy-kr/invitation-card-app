@@ -198,12 +198,25 @@ const seeds: SeedInvitation[] = [
       {
         type: 'location',
         config: {
+          title: '1차',
           placeName: '디어 다이닝',
+          time: '오후 7시',
           detail: '단체석 (예약자명: 12기)',
           address: '서울특별시 강남구 테헤란로 152',
           lat: 37.5001,
           lng: 127.0365,
           subway: '2호선 역삼역 1번 출구 도보 3분',
+        },
+      },
+      {
+        type: 'location',
+        config: {
+          title: '2차',
+          placeName: '디어 펍',
+          time: '오후 9시부터',
+          address: '서울특별시 강남구 테헤란로 146',
+          lat: 37.4997,
+          lng: 127.0355,
         },
       },
       { type: 'rsvp', config: { askMeal: false, maxPartySize: 2, deadline: '2026-12-12' } },

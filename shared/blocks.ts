@@ -85,6 +85,8 @@ export const galleryConfigSchema = z.object({
 export const locationConfigSchema = z.object({
   title: shortText(30).default('오시는 길'),
   placeName: shortText(60).default(''),
+  /** 이 장소의 시간 (예: '오후 9시부터'). 1차 · 2차처럼 장소가 여러 개일 때 */
+  time: shortText(30).default(''),
   address: shortText(200).default(''),
   /** 층 · 홀 등 상세 위치 */
   detail: shortText(100).default(''),
