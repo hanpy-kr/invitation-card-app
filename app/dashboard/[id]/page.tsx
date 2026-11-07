@@ -67,9 +67,35 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
         <div style={{ height: 20 }} />
       )}
 
+      {data.choiceStats.map((q) => (
+        <div key={q.id} className={styles.choice}>
+          <h3>{q.label}</h3>
+          <ul>
+            {q.rows.map((r) => (
+              <li key={r.label}>
+                <span>{r.label}</span>
+                <strong>{r.count}건</strong>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
       <section className={styles.section}>
-        <h2>참석 응답 {data.rsvps.length}건</h2>
-        <RsvpList invitationId={data.id} initial={data.rsvps} askMeal={data.askMeal} />
+        <div className={styles.sectionHead}>
+          <h2>참석 응답 {data.rsvps.length}건</h2>
+          {data.rsvps.length > 0 ? (
+            <a href={`/api/invitations/${data.id}/rsvps.csv`} download className={styles.csv}>
+              엑셀로 받기
+            </a>
+          ) : null}
+        </div>
+        <RsvpList
+          invitationId={data.id}
+          initial={data.rsvps}
+          askMeal={data.askMeal}
+          questions={data.questions}
+        />
       </section>
 
       <section className={styles.section}>

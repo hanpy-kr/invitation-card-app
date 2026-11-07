@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { api } from '@/components/ui/api'
 import { formatShortDate } from '@/shared/date'
+import type { Answers, RsvpQuestion } from '@/shared/rsvp-questions'
 
 import styles from './page.module.scss'
 
@@ -13,6 +14,7 @@ type Rsvp = {
   attending: boolean
   partySize: number
   meal: boolean | null
+  answers: Answers
   createdAt: string
 }
 type Entry = { id: string; name: string; message: string; hidden: boolean; createdAt: string }
@@ -24,10 +26,12 @@ export function RsvpList({
   invitationId,
   initial,
   askMeal,
+  questions,
 }: {
   invitationId: string
   initial: Rsvp[]
   askMeal: boolean
+  questions: RsvpQuestion[]
 }) {
   const [rows, setRows] = useState(initial)
   if (rows.length === 0)
@@ -42,6 +46,14 @@ export function RsvpList({
           </span>
           {askMeal && r.attending ? <span className={styles.meta}>{mealLabel(r.meal)}</span> : null}
           <span className={styles.meta}>{formatShortDate(r.createdAt)}</span>
+          {questions.some((q) => r.answers[q.id] !== undefined) ? (
+            <span className={styles.answers}>
+              {questions
+                .filter((q) => r.answers[q.id] !== undefined)
+                .map((q) => `${q.label}: ${r.answers[q.id]}`)
+                .join(' · ')}
+            </span>
+          ) : null}
           <button
             type="button"
             aria-label={`${r.name} 응답 지우기`}

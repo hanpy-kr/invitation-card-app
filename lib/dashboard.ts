@@ -2,6 +2,9 @@ import 'server-only'
 
 import { and, desc, eq, inArray, sql } from 'drizzle-orm'
 
+import { parseBlockConfig } from '@/shared/blocks'
+import { choiceOptions, type Answers, type RsvpQuestion } from '@/shared/rsvp-questions'
+
 import { getDb, schema } from './db/client'
 import { isUuid } from './editor'
 
@@ -81,7 +84,26 @@ export async function getResponses(id: string, userId: string) {
     else if (r.meal === false) summary.mealNo += r.partySize
     else summary.mealUndecided += r.partySize
   }
-  const askMeal = Boolean((row.blocks[0]?.config as { askMeal?: boolean } | undefined)?.askMeal)
+  const rsvpBlock = row.blocks[0] ? parseBlockConfig('rsvp', row.blocks[0].config) : null
+  const askMeal = Boolean(rsvpBlock?.askMeal)
+  const questions: RsvpQuestion[] = (rsvpBlock?.questions ?? []).filter((q) => q.label.trim())
+  // 선택형 질문: 보기별 응답 수 (보기 문구를 나중에 바꾸면 예전 답은 '기타'로)
+  const choiceStats = questions
+    .filter((q) => q.kind === 'choice')
+    .map((q) => {
+      const opts = choiceOptions(q)
+      const counts = new Map<string, number>(opts.map((o) => [o, 0]))
+      let other = 0
+      for (const r of row.rsvps) {
+        const v = (r.answers as Answers | null)?.[q.id]
+        if (typeof v !== 'string') continue
+        if (counts.has(v)) counts.set(v, counts.get(v)! + 1)
+        else other++
+      }
+      const rows = [...counts].map(([label, count]) => ({ label, count }))
+      if (other > 0) rows.push({ label: '기타(바뀐 보기)', count: other })
+      return { id: q.id, label: q.label, rows }
+    })
   return {
     id: row.id,
     slug: row.slug,
@@ -90,6 +112,8 @@ export async function getResponses(id: string, userId: string) {
     eventAt: row.eventAt?.toISOString() ?? null,
     status: row.status,
     askMeal,
+    questions,
+    choiceStats,
     summary,
     rsvps: row.rsvps.map((r) => ({
       id: r.id,
@@ -97,6 +121,7 @@ export async function getResponses(id: string, userId: string) {
       attending: r.attending,
       partySize: r.partySize,
       meal: r.meal,
+      answers: (r.answers ?? {}) as Answers,
       createdAt: r.createdAt.toISOString(),
     })),
     guestbook: row.guestbookEntries.map((g) => ({ ...g, createdAt: g.createdAt.toISOString() })),

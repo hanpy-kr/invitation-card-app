@@ -96,6 +96,19 @@
   }
 }
 
+.choices[data-wrap] {
+  flex-wrap: wrap;
+
+  button {
+    flex: 1 1 calc(50% - 3px);
+  }
+}
+
+.optional {
+  font-weight: normal;
+  color: var(--muted);
+}
+
 .row {
   display: flex;
   gap: 8px;

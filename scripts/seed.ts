@@ -219,7 +219,25 @@ const seeds: SeedInvitation[] = [
           lng: 127.0355,
         },
       },
-      { type: 'rsvp', config: { askMeal: false, maxPartySize: 2, deadline: '2026-12-12' } },
+      {
+        type: 'rsvp',
+        config: {
+          askMeal: false,
+          maxPartySize: 2,
+          deadline: '2026-12-12',
+          questions: [
+            {
+              id: 'menu01',
+              kind: 'choice',
+              label: '메뉴를 골라 주세요',
+              options: ['고기', '해산물', '채식'],
+              required: true,
+              target: 'attending',
+            },
+            { id: 'late01', kind: 'text', label: '늦게 오시면 몇 시쯤?', target: 'attending' },
+          ],
+        },
+      },
       {
         type: 'account',
         config: {

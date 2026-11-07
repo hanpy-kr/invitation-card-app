@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { PHOTO_LIMIT_CAP } from './entitlements'
+import { QUESTION_LIMITS } from './rsvp-questions'
 
 /**
  * 블록 타입 + zod 스키마. 웹(편집기 · 공개 페이지)과 API가 함께 씀.
@@ -97,6 +98,15 @@ export const locationConfigSchema = z.object({
   parking: shortText(500).default(''),
 })
 
+export const rsvpQuestionSchema = z.object({
+  id: z.string().regex(/^[a-z0-9]{4,12}$/),
+  kind: z.enum(['choice', 'text', 'number']).default('choice'),
+  label: shortText(40).default(''),
+  options: z.array(shortText(30)).max(QUESTION_LIMITS.options).default([]),
+  required: z.boolean().default(false),
+  target: z.enum(['attending', 'absent', 'all']).default('attending'),
+})
+
 export const rsvpConfigSchema = z.object({
   title: shortText(30).default('참석 의사 전달'),
   message: shortText(200).default(''),
@@ -108,6 +118,8 @@ export const rsvpConfigSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .nullable()
     .default(null),
+  /** 주최자가 만든 질문 (최대 5개). 답은 rsvps.answers에 {질문id: 값} */
+  questions: z.array(rsvpQuestionSchema).max(QUESTION_LIMITS.count).default([]),
 })
 
 export const guestbookConfigSchema = z.object({

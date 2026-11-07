@@ -15,6 +15,11 @@ export const rsvpInputSchema = z.object({
   partySize: z.number().int().min(1).max(10),
   /** 식사 여부: 예 / 아니오 / 미정(null). 주최자가 묻지 않으면 무시 */
   meal: z.boolean().nullable(),
+  /** 주최자가 만든 질문의 답 {질문id: 값}. 질문에 맞는지는 서버가 config로 다시 확인 */
+  answers: z
+    .record(z.string().max(12), z.union([z.string().max(200), z.number()]))
+    .refine((a) => Object.keys(a).length <= 10)
+    .default({}),
   /** 같은 기기에서 다시 보내면 이전 응답을 고친다 */
   editToken: z.string().max(500).optional(),
 })

@@ -4,6 +4,13 @@ import { useEffect, useState } from 'react'
 
 import type { RsvpConfig } from '@/shared/blocks'
 import { checkName, isPastDeadline } from '@/shared/guest-rules'
+import {
+  choiceOptions,
+  cleanAnswers,
+  visibleQuestions,
+  type Answers,
+  type RsvpQuestion,
+} from '@/shared/rsvp-questions'
 
 import styles from '../common/guestForm.module.scss'
 import Section from '../common/Section'
@@ -17,6 +24,58 @@ type Saved = {
   attending: boolean
   partySize: number
   meal: boolean | null
+  answers?: Answers
+}
+
+function QuestionField({
+  q,
+  value,
+  onChange,
+}: {
+  q: RsvpQuestion
+  value: string | number | undefined
+  onChange: (v: string) => void
+}) {
+  const label = (
+    <>
+      {q.label}
+      {q.required ? null : <small className={styles.optional}> (선택)</small>}
+    </>
+  )
+  if (q.kind === 'choice') {
+    return (
+      <div className={styles.label} role="group" aria-label={q.label}>
+        <span>{label}</span>
+        <div className={styles.choices} data-wrap>
+          {choiceOptions(q).map((o) => (
+            <button
+              key={o}
+              type="button"
+              aria-pressed={value === o}
+              onClick={() => onChange(value === o ? '' : o)}
+            >
+              {o}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+  return (
+    <label className={styles.label}>
+      <span>{label}</span>
+      <input
+        className={styles.input}
+        inputMode={q.kind === 'number' ? 'numeric' : undefined}
+        value={value ?? ''}
+        maxLength={q.kind === 'number' ? 3 : 100}
+        aria-label={q.label}
+        onChange={(e) =>
+          onChange(q.kind === 'number' ? e.target.value.replace(/\D/g, '') : e.target.value)
+        }
+      />
+    </label>
+  )
 }
 
 function deadlineLabel(deadline: string): string {
@@ -32,6 +91,7 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
   const [attending, setAttending] = useState<boolean | null>(null)
   const [partySize, setPartySize] = useState(1)
   const [meal, setMeal] = useState<boolean | null>(null)
+  const [answers, setAnswers] = useState<Record<string, string | number>>({})
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const closed = isPastDeadline(config.deadline)
@@ -46,6 +106,7 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
       setAttending(saved.attending)
       setPartySize(Math.max(1, saved.partySize))
       setMeal(saved.meal)
+      setAnswers(saved.answers ?? {})
     }
     setError('')
     setOpen(true)
@@ -56,13 +117,29 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
     if (attending === null) return setError('참석 여부를 골라 주세요.')
     const nameError = checkName(name)
     if (nameError) return setError(nameError)
+    const cleaned = cleanAnswers(config.questions, attending, answers)
+    if ('error' in cleaned) return setError(cleaned.error)
     if (ctx.preview) return setError('미리보기에서는 보낼 수 없어요.')
-    const body = { name: name.trim(), attending, partySize, meal, editToken: saved?.editToken }
+    const body = {
+      name: name.trim(),
+      attending,
+      partySize,
+      meal,
+      answers: cleaned.answers,
+      editToken: saved?.editToken,
+    }
     setBusy(true)
     setError('')
     try {
       const { editToken } = await postJson<{ editToken: string }>(`/api/i/${ctx.slug}/rsvp`, body)
-      const next: Saved = { editToken, name: body.name, attending, partySize, meal }
+      const next: Saved = {
+        editToken,
+        name: body.name,
+        attending,
+        partySize,
+        meal,
+        answers: cleaned.answers,
+      }
       writeLocal(storageKey, next)
       setSaved(next)
       setOpen(false)
@@ -160,6 +237,14 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
               ) : null}
             </>
           ) : null}
+          {visibleQuestions(config.questions, attending).map((q) => (
+            <QuestionField
+              key={q.id}
+              q={q}
+              value={answers[q.id]}
+              onChange={(v) => setAnswers((a) => ({ ...a, [q.id]: v }))}
+            />
+          ))}
           {error ? (
             <p className={styles.error} role="alert">
               {error}

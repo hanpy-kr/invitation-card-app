@@ -10,6 +10,7 @@ import {
   type GuestbookInput,
   type RsvpInput,
 } from '@/shared/guest'
+import { cleanAnswers } from '@/shared/rsvp-questions'
 
 import { ApiError } from './api'
 import { signPayload, verifyPayload } from './auth/token'
@@ -43,11 +44,14 @@ export async function submitRsvp(slug: string, input: RsvpInput): Promise<{ edit
   if (input.attending && input.partySize > config.maxPartySize) {
     throw new ApiError(400, `한 번에 ${config.maxPartySize}명까지 알려 주실 수 있어요.`)
   }
+  const cleaned = cleanAnswers(config.questions, input.attending, input.answers)
+  if ('error' in cleaned) throw new ApiError(400, cleaned.error)
   const values = {
     name: input.name,
     attending: input.attending,
     partySize: input.attending ? input.partySize : 0,
     meal: input.attending && config.askMeal ? input.meal : null,
+    answers: cleaned.answers,
   }
 
   const db = getDb()
