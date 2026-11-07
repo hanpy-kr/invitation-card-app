@@ -153,6 +153,17 @@ export default function RsvpForm({ config, update }: FormProps<'rsvp'>) {
         />
       </FieldRow>
       <Toggle
+        label="참석자 명단 공개 (이름만)"
+        checked={config.showAttendees}
+        onChange={(showAttendees) => set({ showAttendees })}
+      />
+      {config.showAttendees ? (
+        <p className={fieldStyles.hint} style={{ marginTop: -8, marginBottom: 16 }}>
+          참석한다고 답한 분의 이름만 초대장에 보여요(인원 · 답변은 안 보임). 켜기 전에 응답한 분의
+          이름도 함께 보여요.
+        </p>
+      ) : null}
+      <Toggle
         label="식사 여부도 묻기"
         checked={config.askMeal}
         onChange={(askMeal) => set({ askMeal })}

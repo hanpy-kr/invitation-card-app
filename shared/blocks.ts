@@ -32,6 +32,11 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   housewarming: '집들이',
 }
 
+/** 참석자 명단 공개 기본값: 모임형 켜짐, 결혼 · 돌 꺼짐 */
+export function defaultShowAttendees(eventType: EventType): boolean {
+  return eventType !== 'wedding' && eventType !== 'dol'
+}
+
 /** 화면에 보여 줄 순서 (/new 선택 · 편집기) */
 export const EVENT_TYPE_ORDER: readonly EventType[] = [
   'wedding',
@@ -161,6 +166,11 @@ export const rsvpConfigSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .nullable()
     .default(null),
+  /**
+   * 참석자 명단 공개 (이름만). 새 블록은 행사 종류별 기본값(defaultShowAttendees)으로 채우고,
+   * 값이 없는 1차 블록은 꺼짐 — 안내 없이 응답한 하객 이름이 갑자기 공개되지 않게
+   */
+  showAttendees: z.boolean().default(false),
   /** 주최자가 만든 질문 (최대 5개). 답은 rsvps.answers에 {질문id: 값} */
   questions: z.array(rsvpQuestionSchema).max(QUESTION_LIMITS.count).default([]),
 })

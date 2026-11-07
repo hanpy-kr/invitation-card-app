@@ -1,4 +1,10 @@
-import { parseBlockConfig, type BlockInput, type BlockType, type EventType } from './blocks'
+import {
+  defaultShowAttendees,
+  parseBlockConfig,
+  type BlockInput,
+  type BlockType,
+  type EventType,
+} from './blocks'
 import type { ThemeKey } from './themes'
 
 /**
@@ -347,6 +353,15 @@ const TEMPLATES: Record<EventType, Template> = {
   },
 }
 
+/** 행사 종류에 따라 달라지는 블록 기본값 (명단 공개 등). 편집기에서 블록을 새로 넣을 때도 씀 */
+export function withEventDefaults(eventType: EventType, type: BlockType, config: unknown): unknown {
+  if (type === 'rsvp') {
+    const c = (config ?? {}) as { showAttendees?: boolean }
+    return { ...c, showAttendees: c.showAttendees ?? defaultShowAttendees(eventType) }
+  }
+  return config
+}
+
 export function buildTemplate(eventType: EventType): {
   title: string
   theme: ThemeKey
@@ -357,7 +372,11 @@ export function buildTemplate(eventType: EventType): {
     title: t.title,
     theme: t.theme,
     blocks: t.blocks.map(
-      (b) => ({ type: b.type, config: parseBlockConfig(b.type, b.config) }) as BlockInput,
+      (b) =>
+        ({
+          type: b.type,
+          config: parseBlockConfig(b.type, withEventDefaults(eventType, b.type, b.config)),
+        }) as BlockInput,
     ),
   }
 }
@@ -374,7 +393,10 @@ export function buildFromLayout(
   const pool = [...t.blocks]
   const blocks = layout.map((b) => {
     const i = pool.findIndex((x) => x.type === b.type)
-    const config = i >= 0 ? pool.splice(i, 1)[0].config : parseBlockConfig(b.type, {})
+    const config =
+      i >= 0
+        ? pool.splice(i, 1)[0].config
+        : parseBlockConfig(b.type, withEventDefaults(eventType, b.type, {}))
     return { type: b.type, config, visible: b.visible } as BlockInput & { visible: boolean }
   })
   return { title: t.title, blocks }

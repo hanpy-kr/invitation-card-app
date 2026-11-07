@@ -16,6 +16,7 @@ import styles from '../common/guestForm.module.scss'
 import Section from '../common/Section'
 import { postJson, readLocal, removeLocal, writeLocal } from '../common/storage'
 import Text from '../common/Text'
+import Attendees from './Attendees'
 import type { BlockContext } from '../types'
 
 type Saved = {
@@ -93,6 +94,8 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
   const [meal, setMeal] = useState<boolean | null>(null)
   const [answers, setAnswers] = useState<Record<string, string | number>>({})
   const [busy, setBusy] = useState(false)
+  // 응답을 보내거나 취소하면 명단을 다시 불러오게
+  const [version, setVersion] = useState(0)
   const [error, setError] = useState('')
   const closed = isPastDeadline(config.deadline)
 
@@ -131,6 +134,7 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
       await postJson(`/api/i/${ctx.slug}/rsvp`, { editToken: saved.editToken }, 'DELETE')
       removeLocal(storageKey)
       setSaved(null)
+      setVersion((v) => v + 1)
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -169,6 +173,7 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
       writeLocal(storageKey, next)
       setSaved(next)
       setOpen(false)
+      setVersion((v) => v + 1)
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -276,11 +281,16 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
               {error}
             </p>
           ) : null}
+          {config.showAttendees ? (
+            <p className={styles.notice}>참석하시면 참석자 명단에 이름이 보여요.</p>
+          ) : null}
           <button type="submit" className={styles.submit} disabled={busy}>
             {busy ? '보내는 중…' : saved ? '고쳐서 보내기' : '보내기'}
           </button>
           <p className={styles.note}>
-            보낸 내용은 초대장 주인에게만 보여요.{' '}
+            {config.showAttendees
+              ? '이름 말고 보낸 내용은 초대장 주인에게만 보여요.'
+              : '보낸 내용은 초대장 주인에게만 보여요.'}{' '}
             <a href="/privacy" target="_blank" rel="noopener noreferrer">
               개인정보처리방침
             </a>
@@ -311,6 +321,9 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
           참석 의사 전달하기
         </button>
       )}
+      {config.showAttendees && !ctx.preview ? (
+        <Attendees slug={ctx.slug} version={version} />
+      ) : null}
     </Section>
   )
 }

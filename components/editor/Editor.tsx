@@ -4,9 +4,10 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
 
-import { BLOCK_LABELS, BLOCK_TYPES, defaultBlockConfig, type BlockType } from '@/shared/blocks'
+import { BLOCK_LABELS, BLOCK_TYPES, parseBlockConfig, type BlockType } from '@/shared/blocks'
 import { collectMediaRefs } from '@/shared/media'
 import { SINGLE_BLOCK_TYPES, type EditorBlock, type InvitationMeta } from '@/shared/invitation'
+import { withEventDefaults } from '@/shared/templates'
 
 import { api } from '../ui/api'
 import { EditorEnvProvider, type EditorEnv } from './context'
@@ -95,7 +96,7 @@ export default function Editor(props: EditorProps) {
       id: crypto.randomUUID(),
       type,
       visible: true,
-      config: defaultBlockConfig(type),
+      config: parseBlockConfig(type, withEventDefaults(meta.eventType, type, {})),
     } as EditorBlock
     setBlocks((list) => [...list, block])
     setOpenId(block.id)

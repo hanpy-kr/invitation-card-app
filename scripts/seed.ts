@@ -235,6 +235,7 @@ const seeds: SeedInvitation[] = [
           askMeal: false,
           maxPartySize: 2,
           deadline: '2026-12-12',
+          showAttendees: true,
           questions: [
             {
               id: 'menu01',

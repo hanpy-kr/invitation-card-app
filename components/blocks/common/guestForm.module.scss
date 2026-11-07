@@ -171,3 +171,43 @@
   color: var(--muted);
   text-align: center;
 }
+
+.attendees {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  text-align: center;
+
+  strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  li {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 13px;
+  }
+}
+
+.notice {
+  font-size: 13px;
+  text-align: center;
+  color: var(--accent);
+  font-weight: bold;
+}

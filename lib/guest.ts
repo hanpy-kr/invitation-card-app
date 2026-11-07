@@ -1,7 +1,7 @@
 import 'server-only'
 
 import bcrypt from 'bcryptjs'
-import { and, desc, eq, lt } from 'drizzle-orm'
+import { and, asc, desc, eq, lt } from 'drizzle-orm'
 
 import { parseBlockConfig, type BlockConfigMap, type BlockType } from '@/shared/blocks'
 import {
@@ -105,6 +105,19 @@ export async function cancelRsvp(slug: string, editToken: string): Promise<void>
   await getDb()
     .delete(schema.rsvps)
     .where(and(eq(schema.rsvps.id, id), eq(schema.rsvps.invitationId, invitationId)))
+}
+
+/** 참석자 명단 (이름만, 응답 순). 주최자가 명단 공개를 켰을 때만 */
+export async function listAttendees(slug: string): Promise<{ names: string[] }> {
+  const { invitationId, config } = await getTarget(slug, 'rsvp')
+  if (!config.showAttendees) throw new ApiError(404, '명단을 공개하지 않는 초대장이에요.')
+  const rows = await getDb()
+    .select({ name: schema.rsvps.name })
+    .from(schema.rsvps)
+    .where(and(eq(schema.rsvps.invitationId, invitationId), eq(schema.rsvps.attending, true)))
+    .orderBy(asc(schema.rsvps.createdAt))
+    .limit(500)
+  return { names: rows.map((r) => r.name) }
 }
 
 const PAGE = 20
