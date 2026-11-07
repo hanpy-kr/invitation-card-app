@@ -97,8 +97,19 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
   const closed = isPastDeadline(config.deadline)
 
   useEffect(() => {
-    if (!ctx.preview) setSaved(readLocal<Saved>(storageKey))
-  }, [storageKey, ctx.preview])
+    if (ctx.preview) return
+    const prev = readLocal<Saved>(storageKey)
+    setSaved(prev)
+    // 카톡 카드의 [참석 여부 알리기] → /i/[slug]?go=rsvp: 참석 칸으로 스크롤 (아직 안 보냈으면 폼 열기)
+    if (new URLSearchParams(window.location.search).get('go') === 'rsvp') {
+      if (!prev && !isPastDeadline(config.deadline)) setOpen(true)
+      const go = () =>
+        document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      requestAnimationFrame(go)
+      // 위쪽 사진이 늦게 뜨며 자리가 밀리면 한 번 더
+      window.addEventListener('load', go, { once: true })
+    }
+  }, [storageKey, ctx.preview, config.deadline])
 
   function startEdit() {
     if (saved) {
@@ -151,7 +162,7 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
   }
 
   return (
-    <Section title={config.title}>
+    <Section title={config.title} id={ctx.preview ? undefined : 'rsvp'}>
       {config.message ? <Text className={styles.intro}>{config.message}</Text> : null}
       {!open && config.deadline && !closed ? (
         <p className={styles.note}>{deadlineLabel(config.deadline)}</p>

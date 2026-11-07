@@ -3,7 +3,13 @@ import 'server-only'
 import { asc, eq } from 'drizzle-orm'
 import { cache } from 'react'
 
-import { toBlock, type Block, type EventType } from '@/shared/blocks'
+import {
+  parseShareOverride,
+  toBlock,
+  type Block,
+  type EventType,
+  type ShareOverride,
+} from '@/shared/blocks'
 
 import { getDb, schema } from './db/client'
 
@@ -14,6 +20,7 @@ export type PublicInvitation = {
   title: string
   eventAt: string | null
   theme: string
+  share: ShareOverride
   blocks: Block[]
 }
 
@@ -34,6 +41,7 @@ export const getPublishedInvitation = cache(
         eventAt: true,
         theme: true,
         status: true,
+        share: true,
       },
       with: {
         blocks: {
@@ -50,6 +58,7 @@ export const getPublishedInvitation = cache(
       title: row.title,
       eventAt: row.eventAt ? row.eventAt.toISOString() : null,
       theme: row.theme,
+      share: parseShareOverride(row.share),
       blocks: row.blocks.map(toBlock).filter((b): b is Block => b !== null),
     }
   },

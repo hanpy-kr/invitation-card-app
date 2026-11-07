@@ -56,9 +56,13 @@ export default function Editor(props: EditorProps) {
       kakaoJsKey: props.kakaoJsKey,
       uploadEnabled: props.uploadEnabled,
       geoSearchEnabled: props.geoSearchEnabled,
-      photoCount: new Set(collectMediaRefs(blocks).map((r) => r.id)).size,
+      photoCount: new Set(
+        [...collectMediaRefs(blocks), ...(meta.share.image ? [meta.share.image] : [])].map(
+          (r) => r.id,
+        ),
+      ).size,
     }),
-    [props, blocks],
+    [props, blocks, meta.share.image],
   )
 
   const updateBlock = useCallback(
@@ -277,6 +281,7 @@ export default function Editor(props: EditorProps) {
             kakaoJsKey={props.kakaoJsKey}
             flush={save.flush}
             onStatus={setStatus}
+            onShare={(fn) => setMeta((m) => ({ ...m, share: fn(m.share) }))}
             onClose={() => setShowPublish(false)}
           />
         ) : null}

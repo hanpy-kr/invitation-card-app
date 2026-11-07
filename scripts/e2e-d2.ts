@@ -158,6 +158,16 @@ async function main() {
     '주소 검색 결과 선택 → 장소 · 주소 채워짐',
   )
   await page.getByLabel('지하철').fill('1 · 2호선 시청역 5번 출구')
+
+  // 6-1. 계좌 (2차): 신랑 측 계좌번호 넣기 — 신부 측은 비워 둬도 빈 계좌는 안 보임
+  await page.getByRole('button', { name: '계좌 · 회비', exact: true }).click()
+  await page.getByLabel('그룹 1 계좌 1 은행').fill('카카오뱅크')
+  await page.getByLabel('그룹 1 계좌 1 계좌번호').fill('3333-01-2345678')
+  await page.getByLabel('예금주').first().fill('박도윤')
+
+  // 6-2. 안내 (2차): 자리 표시 문구 바꾸기
+  await page.getByRole('button', { name: '안내', exact: true }).click()
+  await page.getByLabel('안내 2 내용').fill('지하 주차장 2시간 무료')
   await waitSaved(page)
   check(true, '자동 저장 완료')
   await page.screenshot({ path: `${OUT}/1-editor.png`, fullPage: true })
@@ -197,6 +207,15 @@ async function main() {
     '카카오 공유: 표지 사진 JPEG 사본 절대 주소',
   )
   check(share.content.link.mobileWebUrl === url, '카카오 공유: 링크')
+  const buttons = (
+    share as unknown as { buttons: { title: string; link: { mobileWebUrl: string } }[] }
+  ).buttons
+  check(
+    buttons.length === 2 &&
+      buttons[1].title === '참석 여부 알리기' &&
+      buttons[1].link.mobileWebUrl === `${url}?go=rsvp`,
+    '카카오 공유: [초대장 보기] [참석 여부 알리기 → ?go=rsvp]',
+  )
 
   // 8. 하객 화면 (로그인 안 한 새 브라우저)
   const guest = await browser.newContext({

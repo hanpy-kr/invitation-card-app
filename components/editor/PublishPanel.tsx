@@ -4,11 +4,20 @@ import { useState } from 'react'
 
 import type { EditorBlock, InvitationMeta } from '@/shared/invitation'
 import { loadKakaoSdk } from '@/shared/kakao-sdk'
-import { absolute, shareDescription, shareImagePath, shareTitle } from '@/shared/share'
+import type { ShareOverride } from '@/shared/blocks'
+import {
+  absolute,
+  acceptsRsvp,
+  kakaoFeed,
+  shareDescription,
+  shareImagePath,
+  shareTitle,
+} from '@/shared/share'
 import { hasPlaceholder } from '@/shared/templates'
 
 import { api } from '../ui/api'
 import styles from './Editor.module.scss'
+import ShareCard from './ShareCard'
 
 type Props = {
   id: string
@@ -21,6 +30,7 @@ type Props = {
   kakaoJsKey: string
   flush: () => Promise<boolean>
   onStatus: (s: 'draft' | 'published') => void
+  onShare: (fn: (s: ShareOverride) => ShareOverride) => void
   onClose: () => void
 }
 
@@ -58,17 +68,15 @@ export default function PublishPanel(props: Props) {
     setMessage('')
     try {
       const Kakao = await loadKakaoSdk(kakaoJsKey)
-      const link = { mobileWebUrl: url, webUrl: url }
-      Kakao.Share.sendDefault({
-        objectType: 'feed',
-        content: {
+      Kakao.Share.sendDefault(
+        kakaoFeed({
+          url,
           title,
           description,
           imageUrl: absolute(siteUrl, shareImagePath(card, props.mediaBaseUrl)),
-          link,
-        },
-        buttons: [{ title: '초대장 보기', link }],
-      })
+          rsvp: acceptsRsvp(props.blocks),
+        }),
+      )
     } catch {
       setMessage('카카오톡 공유를 열지 못했어요. 링크를 복사해서 보내 주세요.')
     }
@@ -109,6 +117,12 @@ export default function PublishPanel(props: Props) {
             <p className={styles.sheetDesc}>
               발행하면 링크를 받은 누구나 볼 수 있어요. 발행한 뒤에도 고친 내용은 바로 반영돼요.
             </p>
+            <ShareCard
+              meta={props.meta}
+              blocks={props.blocks}
+              mediaBaseUrl={props.mediaBaseUrl}
+              onShare={props.onShare}
+            />
             {warnings.length > 0 ? (
               <ul className={styles.warnings} aria-label="발행 전에 확인해 보세요">
                 {warnings.map((w) => (
@@ -139,6 +153,12 @@ export default function PublishPanel(props: Props) {
                 복사
               </button>
             </div>
+            <ShareCard
+              meta={props.meta}
+              blocks={props.blocks}
+              mediaBaseUrl={props.mediaBaseUrl}
+              onShare={props.onShare}
+            />
             {kakaoJsKey ? (
               <button type="button" className={styles.kakaoBtn} onClick={shareKakao}>
                 카카오톡으로 보내기

@@ -10,13 +10,16 @@ export type ShareInput = {
   eventType: EventType
   eventAt: string | null
   blocks: ShareBlock[]
+  /** 주최자가 직접 지정한 카드 (비어 있는 칸은 자동) */
+  share?: { title: string; description: string; image: PhotoRef | null }
 }
 
 export function shareTitle(inv: ShareInput): string {
-  return inv.title || EVENT_TYPE_LABELS[inv.eventType]
+  return inv.share?.title || inv.title || EVENT_TYPE_LABELS[inv.eventType]
 }
 
 export function shareDescription(inv: ShareInput): string {
+  if (inv.share?.description) return inv.share.description
   const location = inv.blocks.find((b) => b.type === 'location' && b.visible)
   const place = location ? (location.config as { placeName?: string }).placeName : ''
   const when = inv.eventAt ? formatEventDateTime(inv.eventAt) : ''
@@ -45,7 +48,7 @@ function sharePhoto(ref: PhotoRef, mediaBaseUrl: string): string | null {
  * 없으면 행사 종류별 기본 이미지(PNG). 상대 경로일 수 있음
  */
 export function shareImagePath(inv: ShareInput, mediaBaseUrl: string): string {
-  const candidates: PhotoRef[] = []
+  const candidates: PhotoRef[] = inv.share?.image ? [inv.share.image] : []
   for (const b of inv.blocks) {
     if (!b.visible) continue
     const c = b.config as { layout?: string; image?: PhotoRef | null }
@@ -60,6 +63,47 @@ export function shareImagePath(inv: ShareInput, mediaBaseUrl: string): string {
     if (src) return src
   }
   return `/og/${inv.eventType}`
+}
+
+/** 참석 응답을 받는 중인지 (보이는 참석 블록이 있음) → 카톡 카드에 [참석 여부 알리기] 버튼 */
+export function acceptsRsvp(blocks: ShareBlock[]): boolean {
+  return blocks.some((b) => b.type === 'rsvp' && b.visible)
+}
+
+export type KakaoFeed = {
+  objectType: 'feed'
+  content: {
+    title: string
+    description: string
+    imageUrl: string
+    link: { mobileWebUrl: string; webUrl: string }
+  }
+  buttons: { title: string; link: { mobileWebUrl: string; webUrl: string } }[]
+}
+
+/**
+ * Kakao.Share.sendDefault에 넘길 카드. 주최자 공유 · 하객의 '친구에게 공유'가 같은 카드를 쓴다.
+ * 참석 버튼 링크는 해시(#) 대신 쿼리(?go=rsvp) — 카카오가 해시를 떼는 경우가 있어서
+ */
+export function kakaoFeed(opts: {
+  url: string
+  title: string
+  description: string
+  imageUrl: string
+  rsvp: boolean
+}): KakaoFeed {
+  const link = { mobileWebUrl: opts.url, webUrl: opts.url }
+  const rsvpUrl = `${opts.url}?go=rsvp`
+  return {
+    objectType: 'feed',
+    content: { title: opts.title, description: opts.description, imageUrl: opts.imageUrl, link },
+    buttons: [
+      { title: '초대장 보기', link },
+      ...(opts.rsvp
+        ? [{ title: '참석 여부 알리기', link: { mobileWebUrl: rsvpUrl, webUrl: rsvpUrl } }]
+        : []),
+    ],
+  }
 }
 
 export function absolute(siteUrl: string, pathOrUrl: string): string {

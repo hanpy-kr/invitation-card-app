@@ -83,6 +83,19 @@ export const mediaRefSchema = z.object({
 })
 export type MediaRef = z.infer<typeof mediaRefSchema>
 
+/** 카톡 공유 카드 직접 지정 (모두 선택). 비어 있으면 제목 · 날짜 · 표지 사진으로 자동 */
+export const shareOverrideSchema = z.object({
+  title: z.string().trim().max(60).default(''),
+  description: z.string().trim().max(100).default(''),
+  image: mediaRefSchema.nullable().default(null),
+})
+export type ShareOverride = z.infer<typeof shareOverrideSchema>
+
+export function parseShareOverride(value: unknown): ShareOverride {
+  const r = shareOverrideSchema.safeParse(value ?? {})
+  return r.success ? r.data : shareOverrideSchema.parse({})
+}
+
 const shortText = (max: number) => z.string().trim().max(max)
 
 export const coverConfigSchema = z.object({

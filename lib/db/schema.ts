@@ -45,6 +45,8 @@ export const invitations = pgTable(
       onDelete: 'set null',
     }),
     status: invitationStatusEnum('status').notNull().default('draft'),
+    /** (2차) 카톡 공유 카드 직접 지정 {title, description, image}. 비어 있으면 자동 */
+    share: jsonb('share').notNull().default({}),
     createdAt: createdAt(),
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()

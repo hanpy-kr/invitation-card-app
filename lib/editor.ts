@@ -2,7 +2,7 @@ import 'server-only'
 
 import { and, asc, eq, inArray, lt, sql } from 'drizzle-orm'
 
-import { toBlock, type Block } from '@/shared/blocks'
+import { parseShareOverride, toBlock, type Block } from '@/shared/blocks'
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
 import { collectMediaRefs } from '@/shared/media'
 import { buildTemplate } from '@/shared/templates'
@@ -94,6 +94,7 @@ export async function getEditableInvitation(
       eventType: row.eventType,
       eventAt: row.eventAt ? row.eventAt.toISOString() : null,
       theme: row.theme,
+      share: parseShareOverride(row.share),
     },
     blocks: row.blocks
       .map(toBlock)
@@ -114,6 +115,7 @@ export async function saveInvitation(
   if (!isUuid(id)) throw new ApiError(404, '초대장을 찾을 수 없어요.')
 
   const refs = collectMediaRefs(input.blocks)
+  if (input.meta.share.image) refs.push(input.meta.share.image)
   for (const ref of refs) {
     if (!ref.key.startsWith(`inv/${id}/`) && !ref.key.startsWith('samples/')) {
       throw new ApiError(400, '다른 초대장의 사진은 쓸 수 없어요.')
@@ -133,6 +135,7 @@ export async function saveInvitation(
         eventType: input.meta.eventType,
         eventAt: input.meta.eventAt ? new Date(input.meta.eventAt) : null,
         theme: input.meta.theme,
+        share: input.meta.share,
         // 표지 사진이 이 초대장의 사진일 때만 연결 (없으면 null)
         coverMediaId: coverMediaId
           ? sql`(select ${schema.media.id} from ${schema.media} where ${schema.media.id} = ${coverMediaId} and ${schema.media.invitationId} = ${id})`
@@ -175,6 +178,12 @@ export async function cleanupUnusedMedia(invitationId: string): Promise<void> {
       ),
     )
   const used = new Set(collectMediaRefs(blockRows).map((r) => r.id))
+  const [inv] = await db
+    .select({ share: schema.invitations.share })
+    .from(schema.invitations)
+    .where(eq(schema.invitations.id, invitationId))
+  const shareImage = parseShareOverride(inv?.share).image
+  if (shareImage) used.add(shareImage.id)
 
   const stale = await db
     .select({ id: schema.media.id, key: schema.media.storageKey })

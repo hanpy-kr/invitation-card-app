@@ -95,6 +95,9 @@ async function main() {
   await host.getByRole('button', { name: '오시는 길', exact: true }).click()
   await host.getByLabel('장소 이름').fill('디어 다이닝')
   await host.getByRole('textbox', { name: /^주소/ }).fill('서울 강남구 테헤란로 152')
+  await host.getByRole('button', { name: '계좌 · 회비', exact: true }).click()
+  await host.getByLabel('그룹 1 계좌 1 은행').fill('토스뱅크')
+  await host.getByLabel('그룹 1 계좌 1 계좌번호').fill('1000-1234-5678')
   await host.getByRole('status').filter({ hasText: '저장됨' }).waitFor({ timeout: 15000 })
 
   await host.getByRole('button', { name: '발행하기' }).click()
