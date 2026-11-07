@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 
 import { EVENT_TYPES, type EventType } from '@/shared/blocks'
 
-/** 사진이 없는 초대장의 기본 OG 이미지. 빌드 때 4종을 미리 만들어 둔다. */
+/** 사진이 없는 초대장의 기본 OG 이미지. 빌드 때 행사 종류별로 미리 만들어 둔다. */
 export const runtime = 'nodejs'
 export const dynamic = 'force-static'
 
@@ -15,6 +15,10 @@ const STYLE: Record<EventType, { label: string; bg: string; fg: string }> = {
   dol: { label: 'FIRST BIRTHDAY', bg: '#fbf1f3', fg: '#e88ea6' },
   meetup: { label: 'YOU ARE INVITED', bg: '#f0f2f7', fg: '#3d5a98' },
   etc: { label: 'YOU ARE INVITED', bg: '#eff6f3', fg: '#4fa58f' },
+  yearend: { label: 'YEAR-END PARTY', bg: '#f4efe7', fg: '#b4533c' },
+  prewedding: { label: 'BEFORE THE WEDDING', bg: '#f6f5f5', fg: '#c96f5f' },
+  birthday: { label: 'BIRTHDAY PARTY', bg: '#fdf4e8', fg: '#dd8a32' },
+  housewarming: { label: 'HOUSEWARMING', bg: '#eef4ec', fg: '#5a8c57' },
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ eventType: string }> }) {

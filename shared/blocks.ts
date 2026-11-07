@@ -8,7 +8,17 @@ import { QUESTION_LIMITS } from './rsvp-questions'
  * 블록 config는 DB에 저장하기 전에 반드시 `parseBlockConfig`로 검증한다.
  */
 
-export const EVENT_TYPES = ['wedding', 'dol', 'meetup', 'etc'] as const
+/** DB enum 순서와 같아야 함 — 새 값은 맨 뒤에만 추가 (마이그레이션은 ADD VALUE만) */
+export const EVENT_TYPES = [
+  'wedding',
+  'dol',
+  'meetup',
+  'etc',
+  'yearend',
+  'prewedding',
+  'birthday',
+  'housewarming',
+] as const
 export type EventType = (typeof EVENT_TYPES)[number]
 
 export const EVENT_TYPE_LABELS: Record<EventType, string> = {
@@ -16,7 +26,23 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   dol: '돌잔치',
   meetup: '회식 · 동창회',
   etc: '기타 모임',
+  yearend: '송년회 · 신년회',
+  prewedding: '청첩장 모임',
+  birthday: '생일',
+  housewarming: '집들이',
 }
+
+/** 화면에 보여 줄 순서 (/new 선택 · 편집기) */
+export const EVENT_TYPE_ORDER: readonly EventType[] = [
+  'wedding',
+  'yearend',
+  'prewedding',
+  'dol',
+  'birthday',
+  'housewarming',
+  'meetup',
+  'etc',
+]
 
 export const BLOCK_TYPES = [
   'cover',

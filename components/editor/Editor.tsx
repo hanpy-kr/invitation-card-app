@@ -178,6 +178,14 @@ export default function Editor(props: EditorProps) {
                         onClick={() => setOpenId(open ? null : block.id)}
                       >
                         <span>{BLOCK_LABELS[block.type]}</span>
+                        {block.type === 'location' &&
+                        block.config.title &&
+                        block.config.title !== BLOCK_LABELS.location ? (
+                          // 1차 · 2차 구분용. 접근성 이름은 블록 종류로 유지
+                          <small aria-hidden className={styles.blockSub}>
+                            {block.config.title}
+                          </small>
+                        ) : null}
                         {!block.visible ? <em>숨김</em> : null}
                         <i aria-hidden>{open ? '▴' : '▾'}</i>
                       </button>

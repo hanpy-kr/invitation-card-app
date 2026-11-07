@@ -1,6 +1,6 @@
 'use client'
 
-import { EVENT_TYPE_LABELS, EVENT_TYPES } from '@/shared/blocks'
+import { EVENT_TYPE_LABELS, EVENT_TYPE_ORDER } from '@/shared/blocks'
 import { kstInputToIso, toKstDateString, toKstTimeString } from '@/shared/date'
 import type { InvitationMeta } from '@/shared/invitation'
 import { THEME_KEYS, THEMES } from '@/shared/themes'
@@ -47,7 +47,7 @@ export default function MetaForm({
       <Select
         label="행사 종류"
         value={meta.eventType}
-        options={EVENT_TYPES.map((t) => ({ value: t, label: EVENT_TYPE_LABELS[t] }))}
+        options={EVENT_TYPE_ORDER.map((t) => ({ value: t, label: EVENT_TYPE_LABELS[t] }))}
         onChange={(eventType) => set({ eventType })}
       />
       <div className={fieldStyles.field} role="radiogroup" aria-label="테마 색">
