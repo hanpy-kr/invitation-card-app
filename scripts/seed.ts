@@ -75,6 +75,15 @@ const seeds: SeedInvitation[] = [
       { type: 'gallery', config: { title: '사진첩', images: photos.slice(1) } },
       { type: 'calendar', config: { title: '예식 일시' } },
       {
+        type: 'contact',
+        config: {
+          people: [
+            { relation: '신랑', name: '김민준', phone: '010-0000-0001' },
+            { relation: '신부', name: '이서연', phone: '010-0000-0002' },
+          ],
+        },
+      },
+      {
         type: 'location',
         config: {
           placeName: '디어홀 웨딩',

@@ -4,6 +4,7 @@ import { mediaSrc, thumbKey } from '@/shared/media'
 
 import Account from './account/Account'
 import Calendar from './calendar/Calendar'
+import Contact from './contact/Contact'
 import Cover from './Cover'
 import Gallery from './gallery/Gallery'
 import Greeting from './Greeting'
@@ -55,6 +56,8 @@ export function BlockView({
       return <Notice config={block.config} />
     case 'calendar':
       return <Calendar config={block.config} ctx={ctx} place={place} />
+    case 'contact':
+      return <Contact config={block.config} />
   }
 }
 

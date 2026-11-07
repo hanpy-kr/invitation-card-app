@@ -1,0 +1,47 @@
+import classNames from 'classnames/bind'
+
+import type { ContactConfig } from '@/shared/blocks'
+
+import Section from '../common/Section'
+import styles from './Contact.module.scss'
+
+const cx = classNames.bind(styles)
+
+const telOf = (phone: string) => phone.replace(/[^\d+]/g, '')
+
+export default function Contact({ config }: { config: ContactConfig }) {
+  const people = config.people.filter((p) => telOf(p.phone).length >= 3)
+  if (people.length === 0) return null
+  return (
+    <Section title={config.title} className={cx('container')}>
+      <ul className={cx('list')}>
+        {people.map((p, i) => {
+          const who = [p.relation, p.name].filter(Boolean).join(' ')
+          const tel = telOf(p.phone)
+          return (
+            <li key={i}>
+              <span className={cx('who')}>
+                {p.relation ? <small>{p.relation}</small> : null}
+                {p.name || p.phone}
+              </span>
+              <a
+                href={`tel:${tel}`}
+                className={cx('btn')}
+                aria-label={`${who || p.phone}에게 전화`}
+              >
+                전화
+              </a>
+              <a
+                href={`sms:${tel}`}
+                className={cx('btn')}
+                aria-label={`${who || p.phone}에게 문자`}
+              >
+                문자
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </Section>
+  )
+}

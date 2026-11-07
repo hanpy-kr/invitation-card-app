@@ -168,6 +168,11 @@ async function main() {
   // 6-2. 안내 (2차): 자리 표시 문구 바꾸기
   await page.getByRole('button', { name: '안내', exact: true }).click()
   await page.getByLabel('안내 2 내용').fill('지하 주차장 2시간 무료')
+
+  // 6-3. 연락하기 (2차)
+  await page.getByRole('button', { name: '연락하기', exact: true }).click()
+  await page.getByLabel('연락처 1 전화번호').fill('010-1234-5678')
+  await page.getByLabel('연락처 2 전화번호').fill('010-8765-4321')
   await waitSaved(page)
   check(true, '자동 저장 완료')
   await page.screenshot({ path: `${OUT}/1-editor.png`, fullPage: true })

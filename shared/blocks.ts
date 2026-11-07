@@ -54,6 +54,7 @@ export const BLOCK_TYPES = [
   'account',
   'notice',
   'calendar',
+  'contact',
 ] as const
 export type BlockType = (typeof BLOCK_TYPES)[number]
 
@@ -67,6 +68,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   account: '계좌 · 회비',
   notice: '안내',
   calendar: '캘린더',
+  contact: '연락하기',
 }
 
 /** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
@@ -223,6 +225,27 @@ export const calendarConfigSchema = z.object({
   showDday: z.boolean().default(true),
 })
 
+export const MAX_CONTACTS = 8
+
+export const contactConfigSchema = z.object({
+  title: shortText(30).default('연락하기'),
+  people: z
+    .array(
+      z.object({
+        relation: shortText(20).default(''),
+        name: shortText(20).default(''),
+        phone: z
+          .string()
+          .trim()
+          .max(20)
+          .regex(/^[0-9\-+ ]*$/, '전화번호는 숫자와 - 만 넣어 주세요.')
+          .default(''),
+      }),
+    )
+    .max(MAX_CONTACTS)
+    .default([]),
+})
+
 export const blockConfigSchemas = {
   cover: coverConfigSchema,
   greeting: greetingConfigSchema,
@@ -233,6 +256,7 @@ export const blockConfigSchemas = {
   account: accountConfigSchema,
   notice: noticeConfigSchema,
   calendar: calendarConfigSchema,
+  contact: contactConfigSchema,
 } as const satisfies Record<BlockType, z.ZodType>
 
 export type BlockConfigMap = { [K in BlockType]: z.infer<(typeof blockConfigSchemas)[K]> }
@@ -245,6 +269,7 @@ export type GuestbookConfig = BlockConfigMap['guestbook']
 export type AccountConfig = BlockConfigMap['account']
 export type NoticeConfig = BlockConfigMap['notice']
 export type CalendarConfig = BlockConfigMap['calendar']
+export type ContactConfig = BlockConfigMap['contact']
 
 export type Block = {
   [K in BlockType]: {
@@ -300,5 +325,6 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('account'), config: accountConfigSchema }),
   z.object({ type: z.literal('notice'), config: noticeConfigSchema }),
   z.object({ type: z.literal('calendar'), config: calendarConfigSchema }),
+  z.object({ type: z.literal('contact'), config: contactConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>

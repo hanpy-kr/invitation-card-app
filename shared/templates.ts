@@ -44,6 +44,15 @@ const TEMPLATES: Record<EventType, Template> = {
         },
       },
       {
+        type: 'contact',
+        config: {
+          people: [
+            { relation: '신랑', name: '' },
+            { relation: '신부', name: '' },
+          ],
+        },
+      },
+      {
         type: 'account',
         config: {
           title: '마음 전하실 곳',
@@ -99,6 +108,10 @@ const TEMPLATES: Record<EventType, Template> = {
       {
         type: 'rsvp',
         config: { message: '식사 준비를 위해\n참석 인원을 알려 주세요.', maxPartySize: 6 },
+      },
+      {
+        type: 'contact',
+        config: { people: [{ relation: '아빠' }, { relation: '엄마' }] },
       },
       {
         type: 'account',

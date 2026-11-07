@@ -4,7 +4,7 @@ import { formatShortDate } from '@/shared/date'
 /**
  * 블록이 손글씨 폰트(@include display-font)로 그리는 글자들. 서버가 필요한 폰트 조각을 미리 받게 할 때 쓴다.
  * 블록 scss에서 display-font를 쓰는 자리를 바꾸면 여기도 같이 고칠 것:
- *  - Section 제목 (사진첩 · 오시는 길 · 참석 여부 · 방명록 · 계좌 · 안내 · 캘린더)
+ *  - Section 제목 (사진첩 · 오시는 길 · 참석 여부 · 방명록 · 계좌 · 안내 · 캘린더 · 연락하기)
  *  - Cover 날짜 · 큰 제목
  *  - Greeting 제목 · 인사말 · 보내는 사람(가운뎃점 포함)
  */
@@ -33,6 +33,9 @@ export function displayTextOf(blocks: Block[], eventAt: string | null): string {
         break
       case 'notice':
         if (b.config.items.some((it) => it.title || it.body)) parts.push(b.config.title)
+        break
+      case 'contact':
+        if (b.config.people.some((p) => p.phone)) parts.push(b.config.title)
         break
       case 'calendar':
         if (eventAt) parts.push(b.config.title)
