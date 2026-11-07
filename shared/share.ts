@@ -1,5 +1,5 @@
 import { EVENT_TYPE_LABELS, type EventType } from './blocks'
-import { formatEventDateTime } from './date'
+import { formatEventDateTime, formatTime } from './date'
 import { mediaSrc, shareKey } from './media'
 import { isDateVoting } from './vote'
 
@@ -108,6 +108,49 @@ export function kakaoFeed(opts: {
         ? [{ title: '참석 여부 알리기', link: { mobileWebUrl: rsvpUrl, webUrl: rsvpUrl } }]
         : []),
     ],
+  }
+}
+
+/**
+ * 대시보드 '다시 보내기' 카드 — 주최자가 단톡방에 다시 보내는 카카오 카드(서버 발송 아님).
+ * reminder: 응답 안 한 분께 · dayBefore: 행사 전날 안내
+ */
+export function resendFeed(
+  kind: 'reminder' | 'dayBefore',
+  inv: ShareInput,
+  opts: { url: string; imageUrl: string; deadline: string | null },
+): KakaoFeed {
+  const title = shareTitle(inv)
+  const link = { mobileWebUrl: opts.url, webUrl: opts.url }
+  const rsvpUrl = `${opts.url}?go=rsvp`
+  const rsvp = { title: '참석 여부 알리기', link: { mobileWebUrl: rsvpUrl, webUrl: rsvpUrl } }
+  if (kind === 'reminder') {
+    const [, m, d] = (opts.deadline ?? '').split('-').map(Number)
+    return {
+      objectType: 'feed',
+      content: {
+        title: `참석 여부를 알려 주세요 · ${title}`,
+        description: opts.deadline
+          ? `${m}월 ${d}일까지 알려 주시면 준비에 큰 도움이 돼요.`
+          : '아직 응답 전이라면 지금 알려 주세요.',
+        imageUrl: opts.imageUrl,
+        link: { mobileWebUrl: rsvpUrl, webUrl: rsvpUrl },
+      },
+      buttons: [rsvp, { title: '초대장 보기', link }],
+    }
+  }
+  const place = inv.blocks.find((b) => b.type === 'location' && b.visible)
+  const placeName = place ? (place.config as { placeName?: string }).placeName : ''
+  const when = inv.eventAt ? `내일 ${formatTime(inv.eventAt)}` : '내일'
+  return {
+    objectType: 'feed',
+    content: {
+      title: `내일 만나요 · ${title}`,
+      description: [when, placeName].filter(Boolean).join(' · '),
+      imageUrl: opts.imageUrl,
+      link,
+    },
+    buttons: [{ title: '초대장 · 길 찾기', link }],
   }
 }
 

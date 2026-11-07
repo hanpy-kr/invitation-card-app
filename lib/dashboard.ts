@@ -2,7 +2,7 @@ import 'server-only'
 
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
 
-import { parseBlockConfig } from '@/shared/blocks'
+import { parseBlockConfig, parseShareOverride } from '@/shared/blocks'
 import { choiceOptions, type Answers, type RsvpQuestion } from '@/shared/rsvp-questions'
 import { usableOptions } from '@/shared/vote'
 
@@ -55,16 +55,25 @@ export async function getResponses(id: string, userId: string) {
   if (!isUuid(id)) return null
   const row = await getDb().query.invitations.findFirst({
     where: and(eq(inv.id, id), eq(inv.ownerId, userId)),
-    columns: { id: true, slug: true, title: true, eventType: true, eventAt: true, status: true },
+    columns: {
+      id: true,
+      slug: true,
+      title: true,
+      eventType: true,
+      eventAt: true,
+      status: true,
+      share: true,
+    },
     with: {
       rsvps: { orderBy: [desc(rsvps.createdAt)] },
       guestbookEntries: {
         columns: { id: true, name: true, message: true, hidden: true, createdAt: true },
         orderBy: [desc(gb.createdAt)],
       },
+      // 집계(참석 · 투표 · 계좌)와 다시 보내기 카드(표지 사진 · 장소)에 씀
       blocks: {
         columns: { type: true, config: true, visible: true },
-        where: inArray(schema.blocks.type, ['rsvp', 'vote', 'account']),
+        orderBy: [asc(schema.blocks.position)],
       },
       pollVotes: {
         columns: { name: true, choices: true },
@@ -151,6 +160,14 @@ export async function getResponses(id: string, userId: string) {
     status: row.status,
     askMeal,
     dues,
+    shareInput: {
+      title: row.title,
+      eventType: row.eventType,
+      eventAt: row.eventAt?.toISOString() ?? null,
+      blocks: row.blocks,
+      share: parseShareOverride(row.share),
+    },
+    rsvpDeadline: rsvpBlock?.deadline ?? null,
     vote,
     questions,
     choiceStats,

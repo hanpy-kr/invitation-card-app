@@ -6,10 +6,14 @@ import { requireSession } from '@/lib/auth/session'
 import { getResponses } from '@/lib/dashboard'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
+import { getMediaBaseUrl } from '@/lib/media'
+import { siteUrl } from '@/lib/site'
 import { formatWon } from '@/shared/money'
+import { absolute, acceptsRsvp, shareImagePath } from '@/shared/share'
 
 import styles from './page.module.scss'
 import { GuestbookList, RsvpList } from './Responses'
+import ResendCards from './ResendCards'
 import VotePanel from './VotePanel'
 
 export const dynamic = 'force-dynamic'
@@ -86,6 +90,17 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
             </small>
           </div>
         </div>
+      ) : null}
+
+      {data.status === 'published' ? (
+        <ResendCards
+          input={data.shareInput}
+          url={`${siteUrl()}/i/${data.slug}`}
+          imageUrl={absolute(siteUrl(), shareImagePath(data.shareInput, getMediaBaseUrl()))}
+          deadline={data.rsvpDeadline}
+          kakaoJsKey={process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? ''}
+          acceptsRsvp={acceptsRsvp(data.shareInput.blocks)}
+        />
       ) : null}
 
       {data.vote ? (

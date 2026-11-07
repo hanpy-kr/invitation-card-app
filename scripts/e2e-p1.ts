@@ -198,6 +198,46 @@ async function duesFlow(browser: Browser) {
   await host.screenshot({ path: `${OUT}/p1-dues.png`, fullPage: true })
 }
 
+/** 다시 보내기 카드 (시드 demomeet) */
+async function resendFlow(browser: Browser) {
+  const { page: host } = await login(browser, '/dashboard')
+  await host.waitForURL(/\/dashboard/)
+  const href = await host
+    .locator('li')
+    .filter({ hasText: '디어고 12기 송년회' })
+    .getByRole('link', { name: '응답 보기' })
+    .getAttribute('href')
+  await host.goto(`${BASE}${href}`, { waitUntil: 'networkidle' })
+  const read = () =>
+    host.evaluate(() => {
+      const w = window as unknown as { __kakaoShare?: unknown }
+      const v = w.__kakaoShare
+      w.__kakaoShare = undefined
+      return v as {
+        content: { title: string; description: string }
+        buttons: { title: string; link: { mobileWebUrl: string } }[]
+      }
+    })
+  await host.getByRole('button', { name: '응답 안 한 분께 다시 보내기' }).click()
+  await host.waitForFunction(() => (window as unknown as { __kakaoShare?: unknown }).__kakaoShare)
+  const r = await read()
+  check(
+    r.content.title.startsWith('참석 여부를 알려 주세요') &&
+      r.content.description.startsWith('12월 12일까지') &&
+      r.buttons[0].title === '참석 여부 알리기' &&
+      r.buttons[0].link.mobileWebUrl.endsWith('/i/demomeet?go=rsvp'),
+    `다시 보내기 카드: ${r.content.title} / ${r.content.description}`,
+  )
+  await host.getByRole('button', { name: '전날 안내 보내기' }).click()
+  await host.waitForFunction(() => (window as unknown as { __kakaoShare?: unknown }).__kakaoShare)
+  const d = await read()
+  check(
+    d.content.title.startsWith('내일 만나요') &&
+      d.content.description === '내일 오후 7시 · 디어 다이닝',
+    `전날 안내 카드: ${d.content.title} / ${d.content.description}`,
+  )
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -231,6 +271,7 @@ async function main() {
   }
 
   if (run('dues')) await duesFlow(browser)
+  if (run('resend')) await resendFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()
