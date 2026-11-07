@@ -194,6 +194,8 @@ function checkBeforePublish(meta: InvitationMeta, blocks: EditorBlock[]): string
       out.push('사진첩에 사진이 없어요 (빈 블록은 안 보여요).')
     if (b.type === 'account' && !b.config.groups.some((g) => g.accounts.some((a) => a.number)))
       out.push('계좌 블록에 계좌번호가 없어요 (빈 블록은 안 보여요).')
+    if (b.type === 'notice' && !b.config.items.some((it) => it.title || it.body))
+      out.push('안내 블록이 비어 있어요 (빈 블록은 안 보여요).')
   }
   return out
 }

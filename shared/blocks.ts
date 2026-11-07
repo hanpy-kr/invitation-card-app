@@ -25,6 +25,7 @@ export const BLOCK_TYPES = [
   'rsvp',
   'guestbook',
   'account',
+  'notice',
 ] as const
 export type BlockType = (typeof BLOCK_TYPES)[number]
 
@@ -36,6 +37,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   rsvp: '참석 여부',
   guestbook: '방명록',
   account: '계좌 · 회비',
+  notice: '안내',
 }
 
 /** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
@@ -148,6 +150,19 @@ export const accountConfigSchema = z.object({
   groups: z.array(accountGroupSchema).max(MAX_ACCOUNT_GROUPS).default([]),
 })
 
+export const MAX_NOTICE_ITEMS = 6
+
+export const noticeConfigSchema = z.object({
+  title: shortText(30).default('안내'),
+  items: z
+    .array(z.object({ title: shortText(20).default(''), body: shortText(1000).default('') }))
+    .max(MAX_NOTICE_ITEMS)
+    .default([]),
+  /** 선택 버튼 1개. 주소가 http(s)로 시작할 때만 하객 화면에 보임 */
+  buttonLabel: shortText(20).default(''),
+  buttonUrl: z.string().trim().max(500).default(''),
+})
+
 export const blockConfigSchemas = {
   cover: coverConfigSchema,
   greeting: greetingConfigSchema,
@@ -156,6 +171,7 @@ export const blockConfigSchemas = {
   rsvp: rsvpConfigSchema,
   guestbook: guestbookConfigSchema,
   account: accountConfigSchema,
+  notice: noticeConfigSchema,
 } as const satisfies Record<BlockType, z.ZodType>
 
 export type BlockConfigMap = { [K in BlockType]: z.infer<(typeof blockConfigSchemas)[K]> }
@@ -166,6 +182,7 @@ export type LocationConfig = BlockConfigMap['location']
 export type RsvpConfig = BlockConfigMap['rsvp']
 export type GuestbookConfig = BlockConfigMap['guestbook']
 export type AccountConfig = BlockConfigMap['account']
+export type NoticeConfig = BlockConfigMap['notice']
 
 export type Block = {
   [K in BlockType]: {
@@ -219,5 +236,6 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('rsvp'), config: rsvpConfigSchema }),
   z.object({ type: z.literal('guestbook'), config: guestbookConfigSchema }),
   z.object({ type: z.literal('account'), config: accountConfigSchema }),
+  z.object({ type: z.literal('notice'), config: noticeConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>

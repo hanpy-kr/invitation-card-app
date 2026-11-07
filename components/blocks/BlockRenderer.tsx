@@ -7,6 +7,7 @@ import Gallery from './gallery/Gallery'
 import Greeting from './Greeting'
 import Guestbook from './guestbook/Guestbook'
 import Location from './location/Location'
+import Notice from './notice/Notice'
 import Rsvp from './rsvp/Rsvp'
 import type { BlockContext } from './types'
 
@@ -39,6 +40,8 @@ export function BlockView({ block, ctx }: { block: Block; ctx: BlockContext }) {
       return <Guestbook config={block.config} ctx={ctx} />
     case 'account':
       return <Account config={block.config} />
+    case 'notice':
+      return <Notice config={block.config} />
   }
 }
 

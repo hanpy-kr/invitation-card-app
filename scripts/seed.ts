@@ -228,6 +228,18 @@ const seeds: SeedInvitation[] = [
         },
       },
       {
+        type: 'notice',
+        config: {
+          items: [
+            { title: '회비', body: '1인 3만 원, 2차는 각자 계산해요.' },
+            { title: '주차', body: '건물 주차는 2시간 무료.\n문의 010-1234-5678' },
+            { title: '드레스 코드', body: '편하게! 빨간 아이템 하나씩 챙겨 오기' },
+          ],
+          buttonLabel: '메뉴 미리 보기',
+          buttonUrl: 'https://example.com/menu',
+        },
+      },
+      {
         type: 'guestbook',
         config: { title: '한마디', message: '못 오는 친구도 한마디 남겨 주세요.' },
       },

@@ -1,0 +1,72 @@
+@use '../../../styles/utils' as *;
+
+.container {
+  .tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    margin-bottom: 12px;
+    scrollbar-width: none;
+
+    button {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--bg);
+      font: inherit;
+      font-size: 14px;
+      color: var(--muted);
+      cursor: pointer;
+
+      &[aria-selected='true'] {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: #fff;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .panel {
+    padding: 18px 16px;
+    border-radius: 12px;
+    background: var(--surface);
+  }
+
+  .item-title {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .body {
+    font-size: 14px;
+    line-height: 22px;
+    word-break: break-all;
+
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+  }
+
+  .button {
+    display: block;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 10px;
+    background: var(--text);
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+  }
+}
