@@ -53,6 +53,7 @@ export const BLOCK_TYPES = [
   'guestbook',
   'account',
   'notice',
+  'calendar',
 ] as const
 export type BlockType = (typeof BLOCK_TYPES)[number]
 
@@ -65,6 +66,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   guestbook: '방명록',
   account: '계좌 · 회비',
   notice: '안내',
+  calendar: '캘린더',
 }
 
 /** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
@@ -216,6 +218,11 @@ export const noticeConfigSchema = z.object({
   buttonUrl: z.string().trim().max(500).default(''),
 })
 
+export const calendarConfigSchema = z.object({
+  title: shortText(30).default(''),
+  showDday: z.boolean().default(true),
+})
+
 export const blockConfigSchemas = {
   cover: coverConfigSchema,
   greeting: greetingConfigSchema,
@@ -225,6 +232,7 @@ export const blockConfigSchemas = {
   guestbook: guestbookConfigSchema,
   account: accountConfigSchema,
   notice: noticeConfigSchema,
+  calendar: calendarConfigSchema,
 } as const satisfies Record<BlockType, z.ZodType>
 
 export type BlockConfigMap = { [K in BlockType]: z.infer<(typeof blockConfigSchemas)[K]> }
@@ -236,6 +244,7 @@ export type RsvpConfig = BlockConfigMap['rsvp']
 export type GuestbookConfig = BlockConfigMap['guestbook']
 export type AccountConfig = BlockConfigMap['account']
 export type NoticeConfig = BlockConfigMap['notice']
+export type CalendarConfig = BlockConfigMap['calendar']
 
 export type Block = {
   [K in BlockType]: {
@@ -290,5 +299,6 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('guestbook'), config: guestbookConfigSchema }),
   z.object({ type: z.literal('account'), config: accountConfigSchema }),
   z.object({ type: z.literal('notice'), config: noticeConfigSchema }),
+  z.object({ type: z.literal('calendar'), config: calendarConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>

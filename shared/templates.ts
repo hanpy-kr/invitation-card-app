@@ -32,6 +32,7 @@ const TEMPLATES: Record<EventType, Template> = {
         },
       },
       { type: 'gallery', config: { title: '우리의 순간' } },
+      { type: 'calendar', config: { title: '예식 일시' } },
       { type: 'location', config: { title: '오시는 길' } },
       {
         type: 'rsvp',
@@ -93,6 +94,7 @@ const TEMPLATES: Record<EventType, Template> = {
         },
       },
       { type: 'gallery', config: { title: '자라는 모습' } },
+      { type: 'calendar', config: { title: '돌잔치 날' } },
       { type: 'location', config: { title: '오시는 길' } },
       {
         type: 'rsvp',

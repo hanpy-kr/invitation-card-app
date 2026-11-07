@@ -1,0 +1,110 @@
+@use '../../../styles/utils' as *;
+
+.container {
+  .when {
+    text-align: center;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .month {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 0 10px;
+  }
+
+  .month-title {
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .grid {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    text-align: center;
+    font-size: 14px;
+
+    th {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 6px 0;
+      font-weight: normal;
+    }
+
+    td {
+      padding: 3px 0;
+      height: 38px;
+    }
+
+    .sun {
+      color: #d9534f;
+    }
+
+    .sat {
+      color: #4a78c2;
+    }
+
+    td span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+    }
+
+    td.today span {
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: bold;
+    }
+  }
+
+  .dday {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--muted);
+
+    b {
+      color: var(--accent);
+      font-size: 18px;
+      font-weight: bold;
+    }
+  }
+
+  .save {
+    margin-top: 18px;
+  }
+
+  .save-label {
+    display: block;
+    font-size: 13px;
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .save-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn {
+    display: block;
+    padding: 12px 6px;
+    border-radius: 8px;
+    background: var(--surface);
+    font-size: 14px;
+    text-align: center;
+    text-decoration: none;
+  }
+}

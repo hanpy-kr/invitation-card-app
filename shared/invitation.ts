@@ -38,4 +38,5 @@ export const SINGLE_BLOCK_TYPES: readonly (typeof BLOCK_TYPES)[number][] = [
   'cover',
   'rsvp',
   'guestbook',
+  'calendar',
 ]

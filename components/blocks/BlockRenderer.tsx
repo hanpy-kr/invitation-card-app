@@ -1,7 +1,9 @@
 import type { Block } from '@/shared/blocks'
+import { firstPlace } from '@/shared/calendar'
 import { mediaSrc, thumbKey } from '@/shared/media'
 
 import Account from './account/Account'
+import Calendar from './calendar/Calendar'
 import Cover from './Cover'
 import Gallery from './gallery/Gallery'
 import Greeting from './Greeting'
@@ -12,7 +14,16 @@ import Rsvp from './rsvp/Rsvp'
 import type { BlockContext } from './types'
 
 /** 블록 하나를 타입에 맞는 컴포넌트로. 숨김 블록은 그리지 않는다. */
-export function BlockView({ block, ctx }: { block: Block; ctx: BlockContext }) {
+export function BlockView({
+  block,
+  ctx,
+  place = '',
+}: {
+  block: Block
+  ctx: BlockContext
+  /** 캘린더 블록용: 첫 장소 */
+  place?: string
+}) {
   if (!block.visible) return null
   switch (block.type) {
     case 'cover':
@@ -42,16 +53,19 @@ export function BlockView({ block, ctx }: { block: Block; ctx: BlockContext }) {
       return <Account config={block.config} />
     case 'notice':
       return <Notice config={block.config} />
+    case 'calendar':
+      return <Calendar config={block.config} ctx={ctx} place={place} />
   }
 }
 
 export default function BlockRenderer({ blocks, ctx }: { blocks: Block[]; ctx: BlockContext }) {
+  const place = firstPlace(blocks)
   return (
     <>
       {[...blocks]
         .sort((a, b) => a.position - b.position)
         .map((block) => (
-          <BlockView key={block.id} block={block} ctx={ctx} />
+          <BlockView key={block.id} block={block} ctx={ctx} place={place} />
         ))}
     </>
   )

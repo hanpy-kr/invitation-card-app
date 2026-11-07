@@ -4,6 +4,7 @@ import type { BlockConfigMap, BlockType } from '@/shared/blocks'
 import type { EditorBlock } from '@/shared/invitation'
 
 import AccountForm from './AccountForm'
+import CalendarForm from './CalendarForm'
 import CoverForm from './CoverForm'
 import GalleryForm from './GalleryForm'
 import GreetingForm from './GreetingForm'
@@ -36,5 +37,7 @@ export default function BlockForm({ block, update }: { block: EditorBlock; updat
       return <AccountForm config={block.config} update={as<'account'>(update)} />
     case 'notice':
       return <NoticeForm config={block.config} update={as<'notice'>(update)} />
+    case 'calendar':
+      return <CalendarForm config={block.config} update={as<'calendar'>(update)} />
   }
 }
