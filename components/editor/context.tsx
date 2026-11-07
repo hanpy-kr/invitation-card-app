@@ -12,6 +12,8 @@ export type EditorEnv = {
   geoSearchEnabled: boolean
   /** 지금 블록에 들어 있는 사진 수 (한도 계산용) */
   photoCount: number
+  /** 사진 한도 (서버가 shared/entitlements.ts로 정해 줌) */
+  photoLimit: number
 }
 
 const EditorEnvContext = createContext<EditorEnv | null>(null)

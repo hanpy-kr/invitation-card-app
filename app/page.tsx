@@ -3,6 +3,7 @@ import Link from 'next/link'
 import SiteFooter from '@/components/site/SiteFooter'
 import { getSession } from '@/lib/auth/session'
 import { preloadDisplayFont } from '@/lib/fonts/display-font'
+import { getEntitlements } from '@/shared/entitlements'
 
 import styles from './page.module.scss'
 
@@ -12,12 +13,14 @@ const LOGIN_ERRORS: Record<string, string> = {
   cancelled: '카카오 로그인을 취소했어요.',
   expired: '로그인 시간이 지났어요. 다시 시도해 주세요.',
   failed: '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.',
+  'anon-limit': '오늘은 로그인 없이 더 만들 수 없어요. 카카오로 로그인해 주세요.',
 }
 
 const TYPES = [
   { emoji: '💍', name: '결혼식', sub: '모바일 청첩장' },
   { emoji: '🎂', name: '돌잔치', sub: '첫 생일 초대장' },
-  { emoji: '🍻', name: '회식 · 동창회', sub: '송년회 · 모임' },
+  { emoji: '🥂', name: '송년회 · 신년회', sub: '1차 · 2차 · 회비' },
+  { emoji: '🍻', name: '회식 · 동창회', sub: '모임 · 청첩장 모임' },
   { emoji: '✉️', name: '그 밖의 모임', sub: '어떤 행사든' },
 ]
 
@@ -27,9 +30,15 @@ function Start({ loggedIn }: { loggedIn: boolean }) {
       내 초대장으로
     </Link>
   ) : (
-    <a href="/api/auth/kakao/login?next=/new" className={styles.kakao}>
-      카카오로 시작하기
-    </a>
+    <>
+      <a href="/api/auth/kakao/login?next=/new" className={styles.kakao}>
+        카카오로 시작하기
+      </a>
+      {/* 로그인 없이 먼저 만들어 보기 → 발행할 때 카카오 로그인 */}
+      <form action="/api/auth/anonymous" method="post" className={styles.anon}>
+        <button type="submit">로그인 없이 먼저 만들어 보기</button>
+      </form>
+    </>
   )
 }
 
@@ -63,7 +72,7 @@ export default async function Home({
           </p>
         ) : null}
         <Start loggedIn={Boolean(session)} />
-        <p className={styles.free}>무료 · 사진 10장까지</p>
+        <p className={styles.free}>무료 · 사진 {getEntitlements().photoLimit}장까지</p>
       </header>
 
       <section className={styles.section}>

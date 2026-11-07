@@ -31,6 +31,10 @@ export type EditorProps = {
   geoSearchEnabled: boolean
   /** 편집자는 초대장을 지울 수 없음 */
   isOwner: boolean
+  /** 사진 한도 (shared/entitlements.ts) */
+  photoLimit: number
+  /** 로그인 없이 만든 초대장 → 발행 대신 카카오 로그인 안내 */
+  ownerAnonymous: boolean
 }
 
 const SAVE_LABEL: Record<SaveState, string> = {
@@ -59,6 +63,7 @@ export default function Editor(props: EditorProps) {
       kakaoJsKey: props.kakaoJsKey,
       uploadEnabled: props.uploadEnabled,
       geoSearchEnabled: props.geoSearchEnabled,
+      photoLimit: props.photoLimit,
       photoCount: new Set(
         [...collectMediaRefs(blocks), ...(meta.share.image ? [meta.share.image] : [])].map(
           (r) => r.id,
@@ -289,6 +294,7 @@ export default function Editor(props: EditorProps) {
             kakaoJsKey={props.kakaoJsKey}
             flush={save.flush}
             onStatus={setStatus}
+            anonymous={props.ownerAnonymous}
             onShare={(fn) => setMeta((m) => ({ ...m, share: fn(m.share) }))}
             onClose={() => setShowPublish(false)}
           />

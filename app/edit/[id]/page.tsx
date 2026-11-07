@@ -31,6 +31,8 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
       uploadEnabled={storageMode() !== 'none'}
       geoSearchEnabled={kakaoConfigured()}
       isOwner={inv.isOwner}
+      photoLimit={inv.photoLimit}
+      ownerAnonymous={inv.ownerAnonymous}
     />
   )
 }

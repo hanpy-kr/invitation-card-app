@@ -168,3 +168,18 @@
   text-align: center;
   padding-bottom: 56px;
 }
+
+.anon {
+  margin-top: 10px;
+
+  button {
+    border: 0;
+    background: none;
+    padding: 6px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}

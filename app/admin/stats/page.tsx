@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-import { requireSession } from '@/lib/auth/session'
+import { requireKakaoSession } from '@/lib/auth/session'
 import { adminStats, isAdmin } from '@/lib/stats'
 import { EVENT_TYPE_LABELS, EVENT_TYPE_ORDER, type EventType } from '@/shared/blocks'
 
@@ -14,7 +14,7 @@ const pct = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` :
 
 /** 운영 지표: 환경변수 ADMIN_KAKAO_IDS에 있는 카카오 회원만 (비어 있으면 아무도 못 봄 → 404) */
 export default async function AdminStatsPage() {
-  const session = await requireSession('/admin/stats')
+  const session = await requireKakaoSession('/admin/stats')
   if (!(await isAdmin(session.userId))) notFound()
   const { published, funnel, sources } = await adminStats()
 

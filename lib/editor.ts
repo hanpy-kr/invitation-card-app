@@ -11,11 +11,12 @@ import {
   type BlockType,
 } from '@/shared/blocks'
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
+import { getEntitlements } from '@/shared/entitlements'
 import { collectMediaRefs } from '@/shared/media'
 import { buildFromLayout, buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
-import { canEditWhere } from './access'
+import { canEditWhere, getAccess } from './access'
 import { ApiError } from './api'
 import { getDb, schema } from './db/client'
 import { randomSlug } from './slug'
@@ -33,6 +34,10 @@ export type EditableInvitation = {
   mediaCount: number
   /** 소유자인지 (편집자는 삭제 · 편집자 관리 못 함) */
   isOwner: boolean
+  /** 사진 한도 (shared/entitlements.ts) */
+  photoLimit: number
+  /** 로그인 없이 만든 초대장 (발행하려면 카카오 로그인) */
+  ownerAnonymous: boolean
 }
 
 function isUniqueViolation(err: unknown): boolean {
@@ -118,6 +123,7 @@ export async function getEditableInvitation(
     where: and(eq(schema.invitations.id, id), canEditWhere(userId)),
     with: {
       blocks: { orderBy: [asc(schema.blocks.position)] },
+      owner: { columns: { anonymous: true } },
     },
     extras: {
       mediaCount:
@@ -146,6 +152,8 @@ export async function getEditableInvitation(
       ),
     mediaCount: Number(row.mediaCount),
     isOwner: row.ownerId === userId,
+    photoLimit: getEntitlements({ anonymous: Boolean(row.owner?.anonymous) }).photoLimit,
+    ownerAnonymous: Boolean(row.owner?.anonymous),
   }
 }
 
@@ -270,6 +278,10 @@ export async function setPublished(
   published: boolean,
 ): Promise<{ slug: string; status: 'draft' | 'published' }> {
   if (!isUuid(id)) throw new ApiError(404, '초대장을 찾을 수 없어요.')
+  const access = await getAccess(id, userId)
+  if (!access) throw new ApiError(404, '초대장을 찾을 수 없어요.')
+  if (published && access.ownerAnonymous)
+    throw new ApiError(403, '카카오로 로그인하면 발행하고 공유할 수 있어요.')
   const [row] = await getDb()
     .update(schema.invitations)
     .set({

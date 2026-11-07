@@ -29,6 +29,16 @@ export default async function DashboardPage() {
         </div>
       </header>
 
+      {session.anonymous ? (
+        <div className={styles.anonBanner}>
+          <p>
+            로그인 없이 만드는 중이에요. 카카오로 로그인하면 내 계정에 저장되고 발행할 수 있어요.
+            로그인하지 않은 초대장은 7일 뒤 지워져요.
+          </p>
+          <a href="/api/auth/kakao/login?next=/dashboard">카카오로 로그인</a>
+        </div>
+      ) : null}
+
       <Link href="/new" className={styles.create}>
         + 새 초대장 만들기
       </Link>

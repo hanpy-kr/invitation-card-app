@@ -430,6 +430,61 @@ async function statsFlow(browser: Browser) {
   }
 }
 
+/** 로그인 없이 만들기 시작 → 사진 3장 한도 · 발행 막힘 → 카카오(개발용) 로그인 → 소유권 옮김 → 발행 */
+async function anonFlow(browser: Browser) {
+  const ctx = await browser.newContext(mobile)
+  const page = await newPage(ctx)
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: '로그인 없이 먼저 만들어 보기' }).first().click()
+  await page.waitForURL(/\/new$/)
+  await page.getByRole('button', { name: '생일 생일 파티' }).click()
+  await page.waitForURL(/\/edit\//)
+  const id = page.url().split('/').pop()!
+  check(true, '로그인 없이 시작 → 생일 초대장 편집기')
+  await page.getByLabel('초대장 제목').fill('E2E 익명 생일 파티')
+  await page.getByRole('button', { name: '+ 사진첩' }).click()
+  await page
+    .locator('input[type=file][multiple]')
+    .setInputFiles([1, 2, 3, 4].map((n) => `${PHOTOS}/photo_${n}.jpg`))
+  await page.getByAltText('사진 3').waitFor({ timeout: 60000 })
+  await page.waitForTimeout(500)
+  check(
+    (await page.getByText(/초대장 전체 3\/3장/).count()) === 1 &&
+      (await page.getByAltText('사진 4').count()) === 0,
+    '익명: 사진 3장까지',
+  )
+  await waitSaved(page)
+  const pub = await page.request.post(`${BASE}/api/invitations/${id}/publish`, {
+    headers: { origin: BASE },
+    data: { published: true },
+  })
+  check(pub.status() === 403, '익명: 발행 API 막힘')
+  await page.getByRole('button', { name: '발행하기' }).click()
+  check(
+    (await page.getByRole('link', { name: '카카오로 로그인하고 발행하기' }).count()) === 1,
+    '익명: 발행 창에 카카오 로그인 안내',
+  )
+  await page.screenshot({ path: `${OUT}/p1-anon-publish.png` })
+  // 카카오 로그인(개발용) → 같은 브라우저의 임시 초대장이 내 계정으로
+  await page.goto(`${BASE}/api/auth/kakao/login?dev=1&next=${encodeURIComponent(`/edit/${id}`)}`)
+  await page.waitForURL(new RegExp(`/edit/${id}`))
+  const url = await publish(page)
+  check(/\/i\/[a-z0-9]{8}$/.test(url), `로그인 뒤 같은 초대장 발행 ${url}`)
+  await page.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
+  check((await page.getByText('E2E 익명 생일 파티').count()) === 1, '로그인 계정 대시보드에 옮겨짐')
+  // IP당 하루 5번
+  let limited = false
+  for (let i = 0; i < 6; i++) {
+    const r = await fetch(`${BASE}/api/auth/anonymous`, {
+      method: 'POST',
+      redirect: 'manual',
+      headers: { 'x-forwarded-for': '203.0.113.77' },
+    })
+    if ((r.headers.get('location') ?? '').includes('anon-limit')) limited = i === 5
+  }
+  check(limited, '익명 시작: 같은 IP 하루 5번까지')
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -467,6 +522,7 @@ async function main() {
   if (run('copy')) await copyFlow(browser)
   if (run('editors')) await editorsFlow(browser)
   if (run('stats')) await statsFlow(browser)
+  if (run('anon')) await anonFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

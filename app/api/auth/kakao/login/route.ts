@@ -3,7 +3,8 @@ import { randomBytes } from 'node:crypto'
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { devLoginEnabled, kakaoAuthorizeUrl, kakaoConfigured } from '@/lib/auth/kakao'
-import { cookieBase, OAUTH_COOKIE, setSessionCookie } from '@/lib/auth/session'
+import { mergeAnonymousInto } from '@/lib/auth/anonymous'
+import { cookieBase, getSession, OAUTH_COOKIE, setSessionCookie } from '@/lib/auth/session'
 import { signPayload } from '@/lib/auth/token'
 import { upsertKakaoUser } from '@/lib/auth/users'
 import { absoluteUrl, safeNextPath } from '@/lib/site'
@@ -21,6 +22,8 @@ export async function GET(req: NextRequest) {
       ? req.nextUrl.searchParams.get('as')
       : '1'
     const session = await upsertKakaoUser(`dev-${n}`, n === '1' ? '개발자' : `개발자${n}`)
+    const prev = await getSession()
+    if (prev?.anonymous) await mergeAnonymousInto(prev.userId, session.userId)
     const res = NextResponse.redirect(absoluteUrl(next))
     setSessionCookie(res, session)
     return res

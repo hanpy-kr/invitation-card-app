@@ -30,8 +30,16 @@ export function editableInvitationIds(userId: string) {
 /** 초대장 하나: 고칠 수 있으면 { ownerId, isOwner }, 아니면 null */
 export async function getAccess(invitationId: string, userId: string) {
   const [row] = await getDb()
-    .select({ ownerId: inv.ownerId })
+    .select({ ownerId: inv.ownerId, ownerAnonymous: schema.users.anonymous })
     .from(inv)
+    .innerJoin(schema.users, eq(schema.users.id, inv.ownerId))
     .where(and(eq(inv.id, invitationId), canEditWhere(userId)))
-  return row ? { ownerId: row.ownerId, isOwner: row.ownerId === userId } : null
+  return row
+    ? {
+        ownerId: row.ownerId,
+        isOwner: row.ownerId === userId,
+        /** 소유자가 로그인 없이 시작한 임시 사용자 (사진 한도 · 발행 제한) */
+        ownerAnonymous: row.ownerAnonymous,
+      }
+    : null
 }

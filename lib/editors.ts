@@ -24,6 +24,12 @@ async function assertOwner(invitationId: string, userId: string) {
 /** 소유자: 공동 편집 초대 링크 (7일 뒤 만료). DB에 저장하지 않는 서명 토큰 */
 export async function createEditorInvite(invitationId: string, userId: string) {
   await assertOwner(invitationId, userId)
+  const [u] = await getDb()
+    .select({ anonymous: users.anonymous })
+    .from(users)
+    .where(eq(users.id, userId))
+  if (u?.anonymous)
+    throw new ApiError(403, '카카오로 로그인하면 함께 편집할 사람을 초대할 수 있어요.')
   const exp = Math.floor(Date.now() / 1000) + INVITE_DAYS * 24 * 60 * 60
   return {
     token: signPayload({ k: 'editor', inv: invitationId, exp } satisfies InviteToken),

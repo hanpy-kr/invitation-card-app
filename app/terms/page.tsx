@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import SiteFooter from '@/components/site/SiteFooter'
 import { BUSINESS } from '@/shared/business'
+import { getEntitlements } from '@/shared/entitlements'
 
 import styles from './legal.module.scss'
 
@@ -49,7 +50,7 @@ export default function TermsPage() {
             회사는 초대장 만들기 · 편집 · 공유, 하객 참석 응답 받기, 방명록 기능을 제공합니다.
           </li>
           <li>현재 서비스는 무료입니다. 유료 기능을 추가할 때는 요금과 조건을 미리 알립니다.</li>
-          <li>사진은 초대장당 10장까지 올릴 수 있습니다.</li>
+          <li>사진은 초대장당 {getEntitlements().photoLimit}장까지 올릴 수 있습니다.</li>
         </ol>
 
         <h2>제5조 (회원 가입과 탈퇴)</h2>

@@ -33,6 +33,8 @@ type Props = {
   onStatus: (s: 'draft' | 'published') => void
   onShare: (fn: (s: ShareOverride) => ShareOverride) => void
   onClose: () => void
+  /** 로그인 없이 만든 초대장 — 발행하려면 카카오 로그인 */
+  anonymous: boolean
 }
 
 /** 발행 · 링크 복사 · 공유 시트 */
@@ -131,14 +133,36 @@ export default function PublishPanel(props: Props) {
                 ))}
               </ul>
             ) : null}
-            <button
-              type="button"
-              className={styles.primary}
-              disabled={busy}
-              onClick={() => setPublished(true)}
-            >
-              {busy ? '발행하는 중…' : '발행하기'}
-            </button>
+            {props.anonymous ? (
+              <>
+                <p className={styles.sheetDesc}>
+                  지금은 로그인 없이 만드는 중이에요. 카카오로 로그인하면 만든 초대장이 내 계정에
+                  저장되고 바로 발행할 수 있어요. (로그인하지 않은 초대장은 7일 뒤 지워져요)
+                </p>
+                <a
+                  className={styles.kakaoBtn}
+                  href={`/api/auth/kakao/login?next=${encodeURIComponent(`/edit/${id}`)}`}
+                  onClick={async (e) => {
+                    // 저장을 마친 뒤 로그인으로 (고친 내용이 날아가지 않게)
+                    e.preventDefault()
+                    const href = e.currentTarget.href
+                    await flush()
+                    window.location.href = href
+                  }}
+                >
+                  카카오로 로그인하고 발행하기
+                </a>
+              </>
+            ) : (
+              <button
+                type="button"
+                className={styles.primary}
+                disabled={busy}
+                onClick={() => setPublished(true)}
+              >
+                {busy ? '발행하는 중…' : '발행하기'}
+              </button>
+            )}
           </>
         ) : (
           <>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-import { requireSession } from '@/lib/auth/session'
+import { requireKakaoSession } from '@/lib/auth/session'
 import { acceptEditorInvite } from '@/lib/editors'
 
 import styles from '../../new/page.module.scss'
@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: '함께 편집하기 — dearday', ro
 /** 공동 편집 초대 링크: 로그인 → 편집자로 등록 → 편집기로 */
 export default async function JoinPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
-  const session = await requireSession(`/join/${encodeURIComponent(token)}`)
+  const session = await requireKakaoSession(`/join/${encodeURIComponent(token)}`)
   const invitationId = await acceptEditorInvite(token, session.userId)
   if (invitationId) redirect(`/edit/${invitationId}`)
   return (

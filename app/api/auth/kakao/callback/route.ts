@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { fetchKakaoProfile } from '@/lib/auth/kakao'
-import { cookieBase, OAUTH_COOKIE, setSessionCookie } from '@/lib/auth/session'
+import { cleanupStaleAnonymous, mergeAnonymousInto } from '@/lib/auth/anonymous'
+import { cookieBase, getSession, OAUTH_COOKIE, setSessionCookie } from '@/lib/auth/session'
 import { verifyPayload } from '@/lib/auth/token'
 import { upsertKakaoUser } from '@/lib/auth/users'
 import { absoluteUrl, safeNextPath } from '@/lib/site'
@@ -28,6 +29,10 @@ export async function GET(req: NextRequest) {
   try {
     const profile = await fetchKakaoProfile(code)
     const session = await upsertKakaoUser(profile.kakaoId, profile.nickname)
+    // 로그인 없이 만들던 초대장이 있으면 이 계정으로 옮김
+    const prev = await getSession()
+    if (prev?.anonymous) await mergeAnonymousInto(prev.userId, session.userId)
+    void cleanupStaleAnonymous()
     const res = NextResponse.redirect(absoluteUrl(safeNextPath(saved.next)))
     res.cookies.set(OAUTH_COOKIE, '', { ...cookieBase, maxAge: 0 })
     setSessionCookie(res, session)

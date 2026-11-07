@@ -12,9 +12,12 @@ export interface Entitlements {
 
 const FREE: Entitlements = { photoLimit: 10, showMadeWith: true }
 
+/** 로그인 없이 만들기 시작한 임시 사용자 (카카오로 로그인하면 FREE) */
+const ANONYMOUS: Entitlements = { ...FREE, photoLimit: 3 }
+
 /** 나중에 초대장별 플랜을 받게 되면 인자를 추가한다 */
-export function getEntitlements(): Entitlements {
-  return FREE
+export function getEntitlements(owner?: { anonymous?: boolean }): Entitlements {
+  return owner?.anonymous ? ANONYMOUS : FREE
 }
 
 /**

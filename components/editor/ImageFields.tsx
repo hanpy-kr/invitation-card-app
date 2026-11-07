@@ -3,9 +3,6 @@
 import { useState } from 'react'
 
 import { MAX_GALLERY_IMAGES, type MediaRef } from '@/shared/blocks'
-import { getEntitlements } from '@/shared/entitlements'
-
-const PHOTO_LIMIT = getEntitlements().photoLimit
 import { mediaSrc, thumbKey } from '@/shared/media'
 
 import { useEditorEnv } from './context'
@@ -16,7 +13,7 @@ function useUploader() {
   const env = useEditorEnv()
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
-  const remaining = Math.max(0, PHOTO_LIMIT - env.photoCount)
+  const remaining = Math.max(0, env.photoLimit - env.photoCount)
 
   async function run(files: File[], onEach: (ref: MediaRef) => void) {
     setError('')
@@ -25,7 +22,7 @@ function useUploader() {
       return
     }
     if (files.length > remaining) {
-      setError(`사진은 초대장당 ${PHOTO_LIMIT}장까지예요. ${remaining}장 더 올릴 수 있어요.`)
+      setError(`사진은 초대장당 ${env.photoLimit}장까지예요. ${remaining}장 더 올릴 수 있어요.`)
       files = files.slice(0, remaining)
     }
     for (let i = 0; i < files.length; i++) {
@@ -137,7 +134,7 @@ export function GalleryField({
       <span className={styles.label}>
         사진{' '}
         <em>
-          {images.length}장 · 초대장 전체 {env.photoCount}/{PHOTO_LIMIT}장
+          {images.length}장 · 초대장 전체 {env.photoCount}/{env.photoLimit}장
         </em>
       </span>
       {images.length > 0 ? (

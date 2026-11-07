@@ -71,6 +71,13 @@
       "when": 1794046349509,
       "tag": "0009_views_published_at",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794046625076,
+      "tag": "0010_anonymous_users",
+      "breakpoints": true
     }
   ]
 }

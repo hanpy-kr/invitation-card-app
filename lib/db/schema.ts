@@ -26,8 +26,11 @@ const createdAt = () => timestamp('created_at', { withTimezone: true }).notNull(
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
-  kakaoId: text('kakao_id').notNull().unique(),
+  /** (2차) 익명 사용자는 null — 카카오로 로그인하면 실제 계정으로 옮기고 지움 */
+  kakaoId: text('kakao_id').unique(),
   nickname: text('nickname').notNull().default(''),
+  /** (2차) 로그인 없이 만들기 시작한 임시 사용자 */
+  anonymous: boolean('anonymous').notNull().default(false),
   createdAt: createdAt(),
 })
 
