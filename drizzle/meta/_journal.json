@@ -36,6 +36,13 @@
       "when": 1794043002681,
       "tag": "0004_created_from",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794044349938,
+      "tag": "0005_rsvp_edit_token",
+      "breakpoints": true
     }
   ]
 }

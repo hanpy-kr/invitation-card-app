@@ -13,8 +13,9 @@ import {
 import { cleanAnswers } from '@/shared/rsvp-questions'
 
 import { ApiError } from './api'
-import { signPayload, verifyPayload } from './auth/token'
+import { verifyPayload } from './auth/token'
 import { getDb, schema } from './db/client'
+import { hashGuestToken, isGuestToken, newGuestToken } from './guest-token'
 
 /** 발행된 초대장 + 보이는 해당 블록 설정 (쿼리 1회). 없으면 404 */
 async function getTarget<K extends BlockType>(slug: string, type: K) {
@@ -36,7 +37,28 @@ async function getTarget<K extends BlockType>(slug: string, type: K) {
   return { invitationId: row.id, config: parseBlockConfig(type, block.config) as BlockConfigMap[K] }
 }
 
-type EditToken = { rid: string; inv: string; exp: number }
+/** 1차에서 내려준 서명 토큰 (응답 id를 담음). 다음 수정 때 새 무작위 토큰으로 바꿔 줌 */
+type LegacyEditToken = { rid: string; inv: string; exp: number }
+
+/** 하객 수정 토큰으로 내 응답 찾기 (새 토큰: 해시 비교, 1차 토큰: 서명 확인) */
+async function findOwnRsvp(invitationId: string, editToken: string | undefined) {
+  if (!editToken) return null
+  const db = getDb()
+  if (isGuestToken(editToken)) {
+    const [row] = await db
+      .select({ id: schema.rsvps.id })
+      .from(schema.rsvps)
+      .where(
+        and(
+          eq(schema.rsvps.invitationId, invitationId),
+          eq(schema.rsvps.editTokenHash, hashGuestToken(editToken)),
+        ),
+      )
+    return row?.id ?? null
+  }
+  const legacy = verifyPayload<LegacyEditToken>(editToken)
+  return legacy && legacy.inv === invitationId ? legacy.rid : null
+}
 
 export async function submitRsvp(slug: string, input: RsvpInput): Promise<{ editToken: string }> {
   const { invitationId, config } = await getTarget(slug, 'rsvp')
@@ -46,34 +68,43 @@ export async function submitRsvp(slug: string, input: RsvpInput): Promise<{ edit
   }
   const cleaned = cleanAnswers(config.questions, input.attending, input.answers)
   if ('error' in cleaned) throw new ApiError(400, cleaned.error)
+  // 보낼 때마다 토큰을 새로 발급 (이전 토큰은 무효)
+  const { token, hash } = newGuestToken()
   const values = {
     name: input.name,
     attending: input.attending,
     partySize: input.attending ? input.partySize : 0,
     meal: input.attending && config.askMeal ? input.meal : null,
     answers: cleaned.answers,
+    editTokenHash: hash,
   }
 
   const db = getDb()
-  const prev = verifyPayload<EditToken>(input.editToken)
+  const prevId = await findOwnRsvp(invitationId, input.editToken)
   let id: string | undefined
-  if (prev && prev.inv === invitationId) {
+  if (prevId) {
     const [row] = await db
       .update(schema.rsvps)
       .set(values)
-      .where(and(eq(schema.rsvps.id, prev.rid), eq(schema.rsvps.invitationId, invitationId)))
+      .where(and(eq(schema.rsvps.id, prevId), eq(schema.rsvps.invitationId, invitationId)))
       .returning({ id: schema.rsvps.id })
     id = row?.id
   }
   if (!id) {
-    const [row] = await db
-      .insert(schema.rsvps)
-      .values({ invitationId, ...values })
-      .returning({ id: schema.rsvps.id })
-    id = row.id
+    await db.insert(schema.rsvps).values({ invitationId, ...values })
   }
-  const exp = Math.floor(Date.now() / 1000) + 180 * 24 * 60 * 60
-  return { editToken: signPayload({ rid: id, inv: invitationId, exp } satisfies EditToken) }
+  return { editToken: token }
+}
+
+/** 하객: 내 응답 취소 (같은 브라우저의 토큰으로만). 마감 뒤에는 못 함 */
+export async function cancelRsvp(slug: string, editToken: string): Promise<void> {
+  const { invitationId, config } = await getTarget(slug, 'rsvp')
+  if (isPastDeadline(config.deadline)) throw new ApiError(403, '응답 마감일이 지났어요.')
+  const id = await findOwnRsvp(invitationId, editToken)
+  if (!id) throw new ApiError(404, '취소할 응답을 찾지 못했어요.')
+  await getDb()
+    .delete(schema.rsvps)
+    .where(and(eq(schema.rsvps.id, id), eq(schema.rsvps.invitationId, invitationId)))
 }
 
 const PAGE = 20

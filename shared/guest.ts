@@ -36,6 +36,8 @@ export const guestbookInputSchema = z.object({
 })
 export type GuestbookInput = z.infer<typeof guestbookInputSchema>
 
+export const rsvpCancelSchema = z.object({ editToken: z.string().min(1).max(500) })
+
 export const guestbookDeleteSchema = z.object({ password: z.string().min(1).max(20) })
 
 export { isPastDeadline, type GuestbookEntryView } from './guest-rules'

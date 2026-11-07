@@ -16,10 +16,18 @@ export function writeLocal(key: string, value: unknown): void {
   }
 }
 
+export function removeLocal(key: string): void {
+  try {
+    window.localStorage.removeItem(key)
+  } catch {
+    // 무시
+  }
+}
+
 /** 하객 API 호출 (블록은 순수 표시용이라 편집기 api 도우미 대신 가볍게 따로 둠) */
-export async function postJson<T>(url: string, body: unknown): Promise<T> {
+export async function postJson<T>(url: string, body: unknown, method = 'POST'): Promise<T> {
   const res = await fetch(url, {
-    method: 'POST',
+    method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })

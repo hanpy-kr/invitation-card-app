@@ -107,9 +107,14 @@ export const rsvps = pgTable(
     partySize: smallint('party_size').notNull().default(1),
     meal: boolean('meal'),
     answers: jsonb('answers').notNull().default({}),
+    /** (2차) 하객 수정 토큰의 SHA-256 해시. 원문은 하객 브라우저에만 */
+    editTokenHash: text('edit_token_hash'),
     createdAt: createdAt(),
   },
-  (t) => [index('rsvps_invitation_idx').on(t.invitationId)],
+  (t) => [
+    index('rsvps_invitation_idx').on(t.invitationId),
+    index('rsvps_edit_token_idx').on(t.editTokenHash),
+  ],
 )
 
 export const guestbookEntries = pgTable(

@@ -14,7 +14,7 @@ import {
 
 import styles from '../common/guestForm.module.scss'
 import Section from '../common/Section'
-import { postJson, readLocal, writeLocal } from '../common/storage'
+import { postJson, readLocal, removeLocal, writeLocal } from '../common/storage'
 import Text from '../common/Text'
 import type { BlockContext } from '../types'
 
@@ -121,6 +121,21 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
     }
     setError('')
     setOpen(true)
+  }
+
+  async function cancel() {
+    if (!saved || !window.confirm('보낸 응답을 취소할까요?')) return
+    setBusy(true)
+    setError('')
+    try {
+      await postJson(`/api/i/${ctx.slug}/rsvp`, { editToken: saved.editToken }, 'DELETE')
+      removeLocal(storageKey)
+      setSaved(null)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function submit(e: React.FormEvent) {
@@ -282,6 +297,14 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
           <button type="button" onClick={startEdit}>
             응답 고치기
           </button>
+          <button type="button" onClick={cancel} disabled={busy}>
+            응답 취소
+          </button>
+          {error ? (
+            <p className={styles.error} role="alert">
+              {error}
+            </p>
+          ) : null}
         </div>
       ) : (
         <button type="button" className={styles.open} onClick={startEdit}>
