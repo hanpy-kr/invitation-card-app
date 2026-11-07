@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import BlockRenderer from '@/components/blocks/BlockRenderer'
@@ -9,9 +8,18 @@ import { preloadDisplayFont } from '@/lib/fonts/display-font'
 import { getPublishedInvitation } from '@/lib/invitations'
 import { getMediaBaseUrl } from '@/lib/media'
 import { getEntitlements } from '@/shared/entitlements'
-import { shareDescription, shareImagePath, shareTitle } from '@/shared/share'
+import { siteUrl } from '@/lib/site'
+import {
+  absolute,
+  acceptsRsvp,
+  kakaoFeed,
+  shareDescription,
+  shareImagePath,
+  shareTitle,
+} from '@/shared/share'
 import { themeStyle } from '@/shared/themes'
 
+import GuestFooter from './GuestFooter'
 import styles from './page.module.scss'
 
 // 발행 직후 수정이 바로 보여야 하므로 항상 동적 렌더링
@@ -62,15 +70,25 @@ export default async function InvitationPage({ params }: Props) {
     kakaoJsKey: process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? '',
   }
 
+  const pageUrl = `${siteUrl()}/i/${inv.slug}`
+
   return (
     <div className={styles.page} style={themeStyle(inv.theme)}>
       <main className={styles.column}>
         <BlockRenderer blocks={inv.blocks} ctx={ctx} />
-        {getEntitlements().showMadeWith && (
-          <footer className={styles.footer}>
-            <Link href="/">dearday</Link>로 만든 초대장
-          </footer>
-        )}
+        <GuestFooter
+          slug={inv.slug}
+          url={pageUrl}
+          kakaoJsKey={ctx.kakaoJsKey}
+          showMadeWith={getEntitlements().showMadeWith}
+          feed={kakaoFeed({
+            url: pageUrl,
+            title: shareTitle(inv),
+            description: shareDescription(inv),
+            imageUrl: absolute(siteUrl(), shareImagePath(inv, ctx.mediaBaseUrl)),
+            rsvp: acceptsRsvp(inv.blocks),
+          })}
+        />
       </main>
     </div>
   )

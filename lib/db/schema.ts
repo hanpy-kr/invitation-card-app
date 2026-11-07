@@ -47,6 +47,8 @@ export const invitations = pgTable(
     status: invitationStatusEnum('status').notNull().default('draft'),
     /** (2차) 카톡 공유 카드 직접 지정 {title, description, image}. 비어 있으면 자동 */
     share: jsonb('share').notNull().default({}),
+    /** (2차) '나도 만들기'로 만들었을 때 원본 초대장 slug — 하객 → 주최자 전환 지표 */
+    createdFrom: varchar('created_from', { length: 8 }),
     createdAt: createdAt(),
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()

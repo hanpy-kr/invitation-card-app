@@ -362,6 +362,24 @@ export function buildTemplate(eventType: EventType): {
   }
 }
 
+/**
+ * '나도 만들기': 원본의 행사 종류 · 테마 · 블록 순서만 따르고, 내용은 전부 템플릿 기본 문구로 채운다.
+ * 원본 주최자의 글 · 사진 · 계좌 · 연락처는 이 함수에 넘어오지도 않는다(블록 종류 목록만 받음).
+ */
+export function buildFromLayout(
+  eventType: EventType,
+  layout: { type: BlockType; visible: boolean }[],
+): { title: string; blocks: (BlockInput & { visible: boolean })[] } {
+  const t = buildTemplate(eventType)
+  const pool = [...t.blocks]
+  const blocks = layout.map((b) => {
+    const i = pool.findIndex((x) => x.type === b.type)
+    const config = i >= 0 ? pool.splice(i, 1)[0].config : parseBlockConfig(b.type, {})
+    return { type: b.type, config, visible: b.visible } as BlockInput & { visible: boolean }
+  })
+  return { title: t.title, blocks }
+}
+
 /** 바꾸지 않은 자리 표시 문구([…])가 있는지 */
 export function hasPlaceholder(text: string): boolean {
   return /\[[^\]\n]{1,20}\]/.test(text)

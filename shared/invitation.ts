@@ -6,7 +6,14 @@ import { THEME_KEYS } from './themes'
 /** 편집기 · API 공용 입력 스키마 */
 export const MAX_BLOCKS = 20
 
-export const createInvitationSchema = z.object({ eventType: z.enum(EVENT_TYPES) })
+export const createInvitationSchema = z.object({
+  eventType: z.enum(EVENT_TYPES),
+  /** '나도 만들기': 원본 초대장 slug. 행사 종류 · 테마 · 블록 구성만 가져옴 */
+  from: z
+    .string()
+    .regex(/^[a-z0-9]{8}$/)
+    .optional(),
+})
 
 export const invitationMetaSchema = z.object({
   title: z.string().trim().max(60),

@@ -66,3 +66,44 @@
   color: #d64545;
   font-size: 14px;
 }
+
+.subtitle {
+  font-size: 15px;
+  font-weight: bold;
+  margin: 32px 0 12px;
+}
+
+.from {
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  padding: 18px 16px;
+  background: #fff;
+}
+
+.fromSummary {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.fromNote {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 6px 0 14px;
+  line-height: 1.6;
+}
+
+.fromBtn {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}

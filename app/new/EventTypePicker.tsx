@@ -59,3 +59,48 @@ export default function EventTypePicker() {
     </>
   )
 }
+
+/** '나도 만들기': 원본과 같은 행사 종류 · 테마 · 블록 구성, 내용은 기본 문구로 */
+export function StartFromDesign({
+  from,
+  eventType,
+  summary,
+}: {
+  from: string
+  eventType: EventType
+  summary: string
+}) {
+  const router = useRouter()
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState('')
+  return (
+    <div className={styles.from}>
+      <p className={styles.fromSummary}>{summary}</p>
+      <p className={styles.fromNote}>
+        글 · 사진 · 계좌 · 연락처는 비어 있는 새 초대장으로 시작해요. 받은 초대장의 내용은 가져오지
+        않아요.
+      </p>
+      <button
+        type="button"
+        className={styles.fromBtn}
+        disabled={pending}
+        onClick={async () => {
+          setPending(true)
+          setError('')
+          try {
+            const { id } = await api<{ id: string }>('/api/invitations', {
+              body: { eventType, from },
+            })
+            router.push(`/edit/${id}`)
+          } catch (err) {
+            setError((err as Error).message)
+            setPending(false)
+          }
+        }}
+      >
+        {pending ? '만드는 중…' : '이 구성으로 만들기'}
+      </button>
+      {error ? <p className={styles.error}>{error}</p> : null}
+    </div>
+  )
+}

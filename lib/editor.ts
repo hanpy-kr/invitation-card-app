@@ -2,10 +2,16 @@ import 'server-only'
 
 import { and, asc, eq, inArray, lt, sql } from 'drizzle-orm'
 
-import { parseShareOverride, toBlock, type Block } from '@/shared/blocks'
+import {
+  isBlockType,
+  parseShareOverride,
+  toBlock,
+  type Block,
+  type BlockType,
+} from '@/shared/blocks'
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
 import { collectMediaRefs } from '@/shared/media'
-import { buildTemplate } from '@/shared/templates'
+import { buildFromLayout, buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
 import { ApiError } from './api'
@@ -33,9 +39,39 @@ function isUniqueViolation(err: unknown): boolean {
 /** 새 초대장 + 행사 종류별 기본 블록. slug는 만들 때 발급하고, 발행 전에는 공개 페이지가 404 */
 export async function createInvitation(
   userId: string,
-  eventType: EventType,
+  requestedType: EventType,
+  from?: string,
 ): Promise<{ id: string }> {
-  const template = buildTemplate(eventType)
+  let eventType = requestedType
+  let template: {
+    title: string
+    theme: string
+    blocks: { type: string; config: unknown; visible?: boolean }[]
+  } = buildTemplate(eventType)
+  let createdFrom: string | null = null
+
+  if (from) {
+    // 원본에서 읽는 건 행사 종류 · 테마 · 블록 종류/순서/표시 여부뿐 (config는 select하지 않음)
+    const source = await getDb().query.invitations.findFirst({
+      where: and(eq(schema.invitations.slug, from), eq(schema.invitations.status, 'published')),
+      columns: { slug: true, eventType: true, theme: true },
+      with: {
+        blocks: {
+          columns: { type: true, visible: true },
+          orderBy: [asc(schema.blocks.position)],
+        },
+      },
+    })
+    if (source) {
+      eventType = source.eventType
+      const layout = source.blocks.filter((b): b is { type: BlockType; visible: boolean } =>
+        isBlockType(b.type),
+      )
+      const built = buildFromLayout(eventType, layout)
+      template = { title: built.title, theme: source.theme, blocks: built.blocks }
+      createdFrom = source.slug
+    }
+  }
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
       return await getDb().transaction(async (tx) => {
@@ -47,6 +83,7 @@ export async function createInvitation(
             eventType,
             title: template.title,
             theme: template.theme,
+            createdFrom,
           })
           .returning({ id: schema.invitations.id })
         await tx.insert(schema.blocks).values(
@@ -55,6 +92,7 @@ export async function createInvitation(
             type: b.type,
             position,
             config: b.config,
+            visible: b.visible ?? true,
           })),
         )
         return { id: inv.id }
@@ -239,4 +277,21 @@ export async function deleteInvitation(id: string, userId: string): Promise<void
 
 export function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+}
+
+/** '나도 만들기' 안내용: 발행된 원본의 행사 종류 · 테마 · 블록 수 (내용은 읽지 않음) */
+export async function getLayoutSource(slug: string) {
+  if (!/^[a-z0-9]{8}$/.test(slug)) return null
+  const row = await getDb().query.invitations.findFirst({
+    where: and(eq(schema.invitations.slug, slug), eq(schema.invitations.status, 'published')),
+    columns: { slug: true, eventType: true, theme: true },
+    with: { blocks: { columns: { type: true }, where: eq(schema.blocks.visible, true) } },
+  })
+  if (!row) return null
+  return {
+    slug: row.slug,
+    eventType: row.eventType,
+    theme: row.theme,
+    blockCount: row.blocks.length,
+  }
 }
