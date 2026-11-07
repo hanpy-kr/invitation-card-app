@@ -14,7 +14,7 @@ export default function PrivacyPage() {
       <main className={styles.page}>
         <Link href="/">← dearday</Link>
         <h1>개인정보처리방침</h1>
-        <p className={styles.date}>시행일 {BUSINESS.effectiveDate}</p>
+        <p className={styles.date}>시행일 {BUSINESS.privacyEffectiveDate}</p>
 
         <p>
           {BUSINESS.tradeName}(이하 &quot;회사&quot;)는 {BUSINESS.serviceName} 서비스를 운영하면서
@@ -156,6 +156,13 @@ export default function PrivacyPage() {
 
         <h2>8. 변경</h2>
         <p>이 방침을 바꾸면 시행 7일 전부터 서비스 화면에 알립니다.</p>
+
+        <h2>이전 방침</h2>
+        <ul>
+          <li>
+            <Link href="/privacy/v1">이전 방침(2026-11-03 시행) 보기</Link>
+          </li>
+        </ul>
       </main>
       <SiteFooter />
     </>
