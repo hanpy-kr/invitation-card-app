@@ -399,6 +399,37 @@ async function editorsFlow(browser: Browser) {
   )
 }
 
+/** 방문 통계: 기기당 하루 1회 sendBeacon → 대시보드 열람 수 · /admin/stats 접근 제한 */
+async function statsFlow(browser: Browser) {
+  const g1 = await guest(browser)
+  const beacon = g1.waitForRequest((r) => r.url().endsWith('/api/i/demomeet/view'))
+  await g1.goto(`${BASE}/i/demomeet`, { waitUntil: 'networkidle' })
+  await beacon
+  await g1.reload({ waitUntil: 'networkidle' })
+  const g2 = await guest(browser)
+  await g2.goto(`${BASE}/i/demomeet`, { waitUntil: 'networkidle' })
+  await g2.waitForTimeout(500)
+  const { page: host } = await login(browser, '/dashboard')
+  await host.waitForURL(/\/dashboard/)
+  const href = (await host
+    .locator('li')
+    .filter({ has: host.getByText('디어고 12기 송년회', { exact: true }) })
+    .getByRole('link', { name: '응답 보기' })
+    .first()
+    .getAttribute('href'))!
+  await host.goto(`${BASE}${href}`, { waitUntil: 'networkidle' })
+  const text = (await host.getByText(/열람 \d+회/).textContent()) ?? ''
+  check(/열람 2회/.test(text), `대시보드 열람 수: 기기 2대 · 새로고침은 안 셈 (${text.trim()})`)
+  await host.goto(`${BASE}/admin/stats`, { waitUntil: 'networkidle' })
+  const adminVisible = (await host.getByRole('heading', { name: '운영 지표' }).count()) === 1
+  if (process.env.EXPECT_ADMIN === '1') {
+    check(adminVisible, '/admin/stats: ADMIN_KAKAO_IDS에 있으면 보임')
+    await host.screenshot({ path: `${OUT}/p1-admin.png`, fullPage: true })
+  } else {
+    check(!adminVisible, '/admin/stats: ADMIN_KAKAO_IDS가 비어 있으면 아무도 못 봄')
+  }
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -435,6 +466,7 @@ async function main() {
   if (run('resend')) await resendFlow(browser)
   if (run('copy')) await copyFlow(browser)
   if (run('editors')) await editorsFlow(browser)
+  if (run('stats')) await statsFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

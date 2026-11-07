@@ -9,6 +9,7 @@ import {
   primaryKey,
   smallint,
   text,
+  date,
   timestamp,
   uniqueIndex,
   uuid,
@@ -46,6 +47,8 @@ export const invitations = pgTable(
       onDelete: 'set null',
     }),
     status: invitationStatusEnum('status').notNull().default('draft'),
+    /** (2차) 처음 발행한 시각 — 운영 지표(주간 발행 수)용 */
+    publishedAt: timestamp('published_at', { withTimezone: true }),
     /** (2차) 카톡 공유 카드 직접 지정 {title, description, image}. 비어 있으면 자동 */
     share: jsonb('share').notNull().default({}),
     /** (2차) '나도 만들기'로 만들었을 때 원본 초대장 slug — 하객 → 주최자 전환 지표 */
@@ -180,6 +183,20 @@ export const invitationEditors = pgTable(
     primaryKey({ columns: [t.invitationId, t.userId] }),
     index('invitation_editors_user_idx').on(t.userId),
   ],
+)
+
+/** (2차) 하객 화면 일별 열람 수 (브라우저당 하루 한 번, sendBeacon) */
+export const invitationViewsDaily = pgTable(
+  'invitation_views_daily',
+  {
+    invitationId: uuid('invitation_id')
+      .notNull()
+      .references(() => invitations.id, { onDelete: 'cascade' }),
+    /** 한국 날짜 */
+    day: date('day').notNull(),
+    views: integer('views').notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.invitationId, t.day] })],
 )
 
 /** (2차) 사람별로 응답 화면을 마지막으로 본 시각 → 대시보드 '새 응답 n' */

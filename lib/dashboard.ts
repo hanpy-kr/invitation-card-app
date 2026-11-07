@@ -85,6 +85,12 @@ export async function getResponses(id: string, userId: string) {
         orderBy: [asc(schema.pollVotes.createdAt)],
       },
     },
+    extras: {
+      views:
+        sql<number>`(select coalesce(sum(v.views), 0)::int from invitation_views_daily v where v.invitation_id = ${inv.id})`.as(
+          'views',
+        ),
+    },
   })
   if (!row) return null
 
@@ -165,6 +171,7 @@ export async function getResponses(id: string, userId: string) {
     status: row.status,
     askMeal,
     isOwner: row.ownerId === userId,
+    views: Number(row.views),
     dues,
     shareInput: {
       title: row.title,

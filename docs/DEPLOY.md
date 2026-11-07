@@ -58,6 +58,7 @@
 | `R2_ACCOUNT_ID` · `R2_ACCESS_KEY_ID` · `R2_SECRET_ACCESS_KEY` | |
 | `R2_BUCKET` | `dearday-media` |
 | `R2_PUBLIC_BASE_URL` | `https://media.thedearday.com` |
+| `ADMIN_KAKAO_IDS` | (2차, 선택) `/admin/stats`를 볼 카카오 회원번호, 쉼표로 구분. 비워 두면 아무도 못 봄 |
 
 `DEV_LOGIN`은 **넣지 않습니다**. (넣어도 amplify.yml이 런타임에 넘기지 않고, 코드도 localhost에서만 허용)
 

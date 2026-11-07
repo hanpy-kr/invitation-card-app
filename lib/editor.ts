@@ -272,7 +272,13 @@ export async function setPublished(
   if (!isUuid(id)) throw new ApiError(404, '초대장을 찾을 수 없어요.')
   const [row] = await getDb()
     .update(schema.invitations)
-    .set({ status: published ? 'published' : 'draft' })
+    .set({
+      status: published ? 'published' : 'draft',
+      // 처음 발행한 시각만 남김 (운영 지표)
+      ...(published
+        ? { publishedAt: sql`coalesce(${schema.invitations.publishedAt}, now())` }
+        : {}),
+    })
     .where(and(eq(schema.invitations.id, id), canEditWhere(userId)))
     .returning({ slug: schema.invitations.slug, status: schema.invitations.status })
   if (!row) throw new ApiError(404, '초대장을 찾을 수 없어요.')

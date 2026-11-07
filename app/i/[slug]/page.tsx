@@ -20,6 +20,7 @@ import {
 import { themeStyle } from '@/shared/themes'
 
 import GuestFooter from './GuestFooter'
+import ViewBeacon from './ViewBeacon'
 import styles from './page.module.scss'
 
 // 발행 직후 수정이 바로 보여야 하므로 항상 동적 렌더링
@@ -76,6 +77,7 @@ export default async function InvitationPage({ params }: Props) {
     <div className={styles.page} style={themeStyle(inv.theme)}>
       <main className={styles.column}>
         <BlockRenderer blocks={inv.blocks} ctx={ctx} />
+        <ViewBeacon slug={inv.slug} />
         <GuestFooter
           slug={inv.slug}
           url={pageUrl}

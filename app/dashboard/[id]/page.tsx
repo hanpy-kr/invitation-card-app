@@ -79,6 +79,14 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
         <div style={{ height: 20 }} />
       )}
 
+      <p className={styles.meal}>
+        열람 {data.views}회
+        {data.views > 0
+          ? ` · 응답률 ${Math.min(100, Math.round((data.rsvps.length / data.views) * 100))}%`
+          : ''}
+        <small className={styles.hint}> (같은 기기는 하루 한 번만 셈)</small>
+      </p>
+
       {data.dues ? (
         <div className={styles.dues}>
           <div>

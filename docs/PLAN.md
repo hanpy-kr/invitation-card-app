@@ -101,7 +101,7 @@ main 푸시 = 운영 배포이므로 항목마다 `pnpm lint && pnpm typecheck &
 - [x] **공동 편집 + 새 응답 표시**
   - `invitation_editors`(invitation_id, user_id) + 초대 링크(7일 만료 토큰). 소유자 확인을 '소유자 또는 편집자' 도우미 하나로 통일. 삭제 · 편집자 관리는 소유자만
   - 대시보드에 마지막 확인 이후 '새 응답 n' 표시
-- [ ] **방문 통계 + 운영 지표**
+- [x] **방문 통계 + 운영 지표** (⏸ `ADMIN_KAKAO_IDS` 비어 있음 → `/admin/stats`는 아무도 못 봄)
   - 하객 화면 로드 후 `sendBeacon`으로 일별 열람 수 집계(`invitation_views_daily`). 페이지 렌더링에 DB 쓰기를 넣지 않음
   - 주최자 대시보드: 열람 수, 응답률
   - `/admin/stats`(환경변수 `ADMIN_KAKAO_IDS`에 있는 사용자만): 주간 발행 수(행사 종류별), 열람 → 응답 전환율, `created_from` 기준 하객 → 주최자 전환
@@ -158,4 +158,6 @@ main 푸시 = 운영 배포이므로 항목마다 `pnpm lint && pnpm typecheck &
 - 복제: 내 초대장만(편집자 포함 여부는 ⑦에서 같은 도우미로). 응답 · 방명록 · 투표 결과는 안 가져오고 투표는 확정 전 상태로, 발행 전(작성 중) 상태로 만듦. 청첩장 모임 만들기: prewedding 템플릿 + 원본 표지 사진 · 테마, 인사말의 보내는 사람 2명이 채워져 있으면 [신랑 이름] · [신부 이름] 자리에 넣음. 날짜는 비움(투표로 정하는 경우가 많아서). 사진은 원본 · 공유용 JPEG · 썸네일 모두 서버 측 복사(R2 CopyObject)로 새 key
 - 공동 편집: 초대 링크는 DB에 저장하지 않는 7일 서명 토큰(`/join/…`) — 개별 링크 취소는 없고, 들어온 편집자는 [빼기]로 제거. 권한 확인은 `lib/access.ts`(`canEditWhere` · `editableInvitationIds` · `getAccess`) 하나로 통일, 삭제 · 편집자 관리 · 복제는 소유자만. 편집자가 올린 사진도 media.owner_id는 초대장 소유자(소유자 탈퇴 때 함께 정리)
 - 새 응답: 사람별 '응답 보기'를 마지막으로 연 시각을 새 테이블 `invitation_seen`에 저장(데이터 모델에 없던 테이블 추가). 처음 보는 초대장은 응답 전부가 '새 응답'. 응답 목록에도 지난번 이후 응답에 '새' 표시
+- 방문 통계: 열람은 기기(브라우저)당 하루 1회만 `sendBeacon`(localStorage로 중복 막음), IP당 시간당 20회 제한, 발행된 초대장만. 주최자 · 편집자가 자기 초대장을 열어도 셈. 응답률 = 응답 수 ÷ 열람 수(최대 100%)
+- 운영 지표: 주간 발행 수를 위해 `invitations.published_at`(처음 발행 시각) 추가, 1차 초대장은 만든 시각으로 대신. `/admin/stats`는 `ADMIN_KAKAO_IDS`가 비어 있거나 목록에 없으면 404. Amplify가 런타임에 넘기도록 `amplify.yml` 환경변수 목록에 `ADMIN_KAKAO_IDS` 추가(값이 없으면 아무 영향 없음), DEPLOY.md 표에도 추가
 - 가격 레버: `shared/entitlements.ts`의 `photoLimit`(지금 10)은 사진 업로드 한도, `PHOTO_LIMIT_CAP`(10)은 블록 스키마가 받을 수 있는 최대치. 유료로 한도를 올릴 때 두 값을 같이 올릴 것
