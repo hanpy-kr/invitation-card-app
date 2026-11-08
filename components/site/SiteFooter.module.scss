@@ -19,3 +19,14 @@
     }
   }
 }
+
+.badge {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: normal;
+  color: var(--accent, #c0392b);
+  vertical-align: 1px;
+}

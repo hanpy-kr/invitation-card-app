@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { BUSINESS, pending } from '@/shared/business'
 
+import PrivacyNoticeBadge from './PrivacyNoticeBadge'
 import styles from './SiteFooter.module.scss'
 
 export default function SiteFooter() {
@@ -10,7 +11,10 @@ export default function SiteFooter() {
       <nav>
         <Link href="/help">도움말</Link>
         <Link href="/terms">이용약관</Link>
-        <Link href="/privacy">개인정보처리방침</Link>
+        <span>
+          <Link href="/privacy">개인정보처리방침</Link>
+          <PrivacyNoticeBadge />
+        </span>
       </nav>
       <p>
         상호 {BUSINESS.tradeName} · 대표 {pending(BUSINESS.representative)}

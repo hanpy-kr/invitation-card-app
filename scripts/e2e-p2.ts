@@ -416,24 +416,28 @@ async function albumFlow(browser: Browser) {
   )
   sql(`delete from album_photos where invitation_id='${id}'`)
 
-  // 개인정보처리방침: 새 항목 · 시행일 · 이전 방침 보관
+  // 개인정보처리방침: 11/15 전에는 11/7 판이 현재, 위에 개정 예정 안내, 개정안은 /privacy/next
   const pg = await guest(browser)
   await pg.goto(`${BASE}/privacy`, { waitUntil: 'networkidle' })
   const txt = await pg.locator('main').innerText()
   check(
-    txt.includes('하객이 올린 사진 파일') && txt.includes('시행일 2026년 11월 8일'),
-    '방침: 하객 사진 항목 · 시행일 11/8',
+    txt.includes('시행일 2026년 11월 7일') && !txt.includes('하객이 올린 사진 파일'),
+    '방침: 11/15 전에는 11/7 판이 현재',
   )
   check(
-    (await pg.getByRole('link', { name: /2026-11-07 시행/ }).count()) === 1,
-    '방침: 11/7 판 링크',
+    txt.includes('11/15 시행 개정 예정') &&
+      (await pg.getByRole('link', { name: '개정안 보기' }).count()) === 1,
+    '방침: 맨 위 개정 예정 안내 · 개정안 링크',
+  )
+  check(await pg.getByText('개정 안내').first().isVisible(), '푸터: 개정 안내 표시')
+  await pg.goto(`${BASE}/privacy/next`, { waitUntil: 'networkidle' })
+  const nx = await pg.locator('main').innerText()
+  check(
+    nx.includes('하객이 올린 사진 파일') && nx.includes('카카오톡 메시지 전송용 접속 정보'),
+    '/privacy/next: 개정안 본문(하객 사진 · 알림 항목)',
   )
   await pg.goto(`${BASE}/privacy/v2`, { waitUntil: 'networkidle' })
-  const v2 = await pg.locator('main').innerText()
-  check(
-    v2.includes('2026년 11월 7일') && !v2.includes('하객이 올린 사진 파일'),
-    '/privacy/v2: 11/7 판 원문(하객 사진 항목 없음)',
-  )
+  check(new URL(pg.url()).pathname === '/privacy', '/privacy/v2: 개정 시행 전에는 /privacy로')
   check((await pg.request.get(`${BASE}/privacy/v1`)).status() === 200, '/privacy/v1 보관')
   void readFileSync
 }

@@ -1,7 +1,18 @@
-나눔손글씨 금은보화 (NanumGeumEunBoHwa) — 1차 런칭 때부터 쓰는 기본 글씨체
+나눔손글씨 금은보화 (NanumGeumEunBoHwa) — dearday 기본 글씨체
 
-글꼴 파일에 들어 있는 저작권 표기:
-  Copyright © 2019 NAVER Corporation. All rights reserved. Font created by CLOVA AI OCR Team.
+출처
+  클로바 나눔손글씨 배포 페이지 (NAVER Corporation)
+  https://clova.ai/handwriting  (나눔손글씨 · 클로바 AI OCR팀)
+  글꼴 파일에 들어 있는 저작권 표기:
+    Copyright © 2019 NAVER Corporation. All rights reserved. Font created by CLOVA AI OCR Team.
 
-이 파일에는 라이선스 본문이 들어 있지 않다. 배포처(네이버 한글한글아름답게, hangeul.naver.com)의
-라이선스 안내를 사용자가 확인한 뒤 이 자리에 본문을 넣을 것 (docs/PLAN.md '글씨체' 표 참고).
+라이선스
+  NAVER 나눔글꼴 라이선스 (https://help.naver.com/service/30016/contents/18088 , 나눔글꼴 라이선스 안내)
+  - 개인 · 기업 모두 상업적 이용 가능 (인쇄 · 웹 · 영상 · 앱 · 임베딩 포함)
+  - 웹사이트 임베딩(웹폰트) 허용
+  - 글꼴 파일 자체의 판매는 금지 (글꼴 파일을 단독으로 팔거나 유료 상품으로 배포할 수 없음)
+  - 글꼴 이름과 저작권 표기를 유지하고, 글꼴 파일을 일부만 변환 · 가공해 쓰는 경우에도 위 조건을 따름
+
+dearday에서의 사용
+  이 폴더의 woff2는 초대장 화면에 표시하는 웹폰트로만 쓰며, 글꼴 파일을 따로 판매하거나
+  내려받게 하지 않는다. 쓰이는 글자만 골라낸 부분 파일(subset)을 함께 제공한다.
