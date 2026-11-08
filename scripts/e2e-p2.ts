@@ -438,6 +438,40 @@ async function albumFlow(browser: Browser) {
   void readFileSync
 }
 
+/** ⑤ 돌잡이 예측: 돌잔치 템플릿의 vote 프리셋 */
+async function doljabiFlow(browser: Browser) {
+  const { page: host } = await createInvitation(browser, /돌잔치/)
+  await host.getByLabel('초대장 제목').fill('E2E 돌잡이')
+  await waitSaved(host)
+  const url = await publish(host)
+  const g = await guest(browser)
+  await g.goto(url, { waitUntil: 'networkidle' })
+  check(
+    (await g.getByRole('heading', { name: '돌잡이 예측' }).count()) === 1,
+    '돌잔치 초대장에 돌잡이 예측 블록',
+  )
+  await g.getByRole('button', { name: '투표하기' }).click()
+  const names = ['실', '돈', '연필', '판사봉', '마이크', '청진기']
+  for (const n of names)
+    check(
+      (await g.getByRole('button', { name: new RegExp(`[☐☑] ${n} ·`) }).count()) === 1,
+      `후보: ${n}`,
+    )
+  await g.getByLabel('이름', { exact: true }).fill('김하객')
+  await g.getByRole('button', { name: /[☐☑] 돈 ·/ }).click()
+  await g.getByRole('button', { name: /[☐☑] 연필 ·/ }).click()
+  await g.getByRole('button', { name: '투표하기', exact: true }).click()
+  await g.getByText('김하객님, 투표했어요.').waitFor()
+  const slug = url.split('/i/')[1]
+  const res = await (await g.request.get(`${BASE}/api/i/${slug}/vote`)).json()
+  const counts = (res.results as { id: string; count: number }[]).filter((r) => r.count > 0)
+  check(
+    counts.length === 1 && counts[0].id === 'pencil',
+    '하나만 고르기: 마지막으로 고른 연필만 1표',
+  )
+  await g.screenshot({ path: `${OUT}/p2-doljabi.png`, fullPage: true })
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -449,6 +483,7 @@ async function main() {
   if (run('media')) await mediaFlow(browser)
   if (run('thanks')) await thanksFlow(browser)
   if (run('album')) await albumFlow(browser)
+  if (run('doljabi')) await doljabiFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

@@ -13,6 +13,22 @@ import type { ThemeKey } from './themes'
  */
 type Template = { title: string; theme: ThemeKey; blocks: { type: BlockType; config: unknown }[] }
 
+/** 돌잡이 예측: 후보 6개를 미리 채운 자유 투표(하나만 고르기). 주최자가 후보를 고치거나 뺄 수 있다 */
+const DOLJABI_VOTE = {
+  title: '돌잡이 예측',
+  message: '우리 아이는 무엇을 잡을까요? 미리 맞혀 보세요!',
+  kind: 'text',
+  multiple: false,
+  options: [
+    { id: 'thread', label: '실 · 건강하게 오래오래' },
+    { id: 'money', label: '돈 · 부자가 될 거예요' },
+    { id: 'pencil', label: '연필 · 공부 잘하는 학자' },
+    { id: 'gavel', label: '판사봉 · 정의로운 법조인' },
+    { id: 'mike', label: '마이크 · 끼 많은 방송인' },
+    { id: 'steth', label: '청진기 · 따뜻한 의사' },
+  ],
+}
+
 const TEMPLATES: Record<EventType, Template> = {
   wedding: {
     title: '[신랑 이름] ♥ [신부 이름] 결혼합니다',
@@ -115,6 +131,7 @@ const TEMPLATES: Record<EventType, Template> = {
         type: 'rsvp',
         config: { message: '식사 준비를 위해\n참석 인원을 알려 주세요.', maxPartySize: 6 },
       },
+      { type: 'vote', config: DOLJABI_VOTE },
       {
         type: 'contact',
         config: { people: [{ relation: '아빠' }, { relation: '엄마' }] },
