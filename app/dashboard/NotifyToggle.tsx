@@ -25,8 +25,8 @@ export default function NotifyToggle({ on }: { on: boolean }) {
     <div className={styles.notify}>
       <p>
         {enabled
-          ? '새 응답이 오면 내 카카오톡으로 알려 드려요.'
-          : '새 응답이 오면 내 카카오톡(나와의 채팅)으로 알림을 받을 수 있어요.'}
+          ? '응답이 도착하면 내 카카오톡으로 알려 드려요.'
+          : '응답이 도착하면 내 카카오톡(나와의 채팅)으로 알림을 받을 수 있어요.'}
       </p>
       {enabled ? (
         <button type="button" onClick={turnOff} disabled={busy}>
