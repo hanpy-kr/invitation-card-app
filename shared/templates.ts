@@ -286,6 +286,32 @@ const TEMPLATES: Record<EventType, Template> = {
       },
     ],
   },
+  thanks: {
+    title: '[이름] 감사 인사',
+    theme: 'ivory',
+    blocks: [
+      {
+        type: 'cover',
+        config: {
+          layout: 'photo',
+          title: '감사합니다',
+          subtitle: '함께해 주신 마음 잊지 않겠습니다',
+        },
+      },
+      {
+        type: 'greeting',
+        config: {
+          icon: 'post',
+          title: '감사드립니다',
+          message:
+            '바쁘신 중에도 귀한 걸음 해 주시고\n따뜻한 마음을 보내 주셔서\n진심으로 감사드립니다.\n\n보내 주신 사랑 오래 간직하며\n행복하게 살겠습니다.',
+          hosts: ['[이름]', '[이름]'],
+          hostSeparator: 'heart',
+        },
+      },
+      { type: 'gallery', config: { title: '함께한 순간' } },
+    ],
+  },
   birthday: {
     title: '[이름]의 생일 파티',
     theme: 'blossom',

@@ -12,7 +12,7 @@ export const POST = handle(
   async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const session = await requireApiSession(req)
     const { id } = await params
-    const { mode } = await readJson(req, z.object({ mode: z.enum(['copy', 'prewedding']) }))
+    const { mode } = await readJson(req, z.object({ mode: z.enum(['copy', 'prewedding', 'thanks']) }))
     return json(await duplicateInvitation(id, session.userId, mode), 201)
   },
 )

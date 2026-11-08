@@ -85,7 +85,7 @@ export default async function DashboardPage() {
                   </Link>
                 ) : null}
                 {inv.isOwner ? (
-                  <DuplicateButtons id={inv.id} wedding={inv.eventType === 'wedding'} />
+                  <DuplicateButtons id={inv.id} eventType={inv.eventType} />
                 ) : null}
               </div>
             </li>

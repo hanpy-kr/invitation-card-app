@@ -1,6 +1,6 @@
 /**
  * 2차 P2 확인(로컬): 글씨체 · 테마 · 사진첩 · 영상/음악 · 감사장 · 하객 앨범 · 돌잡이 · 참석자 전용 안내 · 카톡 알림
- * 준비는 e2e-p1.ts와 같음 (운영 빌드, DEV_LOGIN=1, 서버 E2E_BASE) + 시드 새로(pnpm db:seed). 실행: pnpm e2e:p2
+ * 준비는 e2e-p1.ts와 같음(깨끗한 상태에서 시작: 시드 외 초대장 삭제 후 pnpm db:seed) (운영 빌드, DEV_LOGIN=1, 서버 E2E_BASE) + 시드 새로(pnpm db:seed). 실행: pnpm e2e:p2
  */
 import { mkdirSync } from 'node:fs'
 
@@ -201,6 +201,56 @@ async function mediaFlow(browser: Browser) {
   await g.screenshot({ path: `${OUT}/p2-media.png` })
 }
 
+/** ③ 감사장: 결혼 초대장 → [감사장 만들기] */
+async function thanksFlow(browser: Browser) {
+  const { page: host } = await createInvitation(browser, /결혼식/)
+  await host.getByLabel('초대장 제목').fill('E2E 감사장 원본 결혼')
+  await host.getByRole('button', { name: '표지', exact: true }).click()
+  await host.locator('input[type=file]').first().setInputFiles(`${PHOTOS}/photo_1.jpg`)
+  await host.getByAltText('표지 사진 미리보기').waitFor({ timeout: 30000 })
+  const srcCover = await host.getByAltText('표지 사진 미리보기').getAttribute('src')
+  await host.getByRole('button', { name: '인사말', exact: true }).click()
+  await host.getByRole('textbox', { name: '보내는 사람 1' }).fill('태윤')
+  await host.getByRole('textbox', { name: '보내는 사람 2' }).fill('하은')
+  await host.getByRole('button', { name: '사진첩', exact: true }).click()
+  await uploadPhotos(host, 3)
+  await host.getByText(/3장 ·/).waitFor({ timeout: 30000 })
+  await waitSaved(host)
+
+  await host.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
+  const card = host.locator('li').filter({ hasText: 'E2E 감사장 원본 결혼' })
+  await card.getByRole('button', { name: '감사장 만들기' }).click()
+  await host.waitForURL(/\/edit\//)
+  const thanksId = host.url().split('/').pop()!
+  check(
+    (await host.getByLabel('초대장 제목').inputValue()) === '태윤 · 하은 감사 인사',
+    '감사장: 이름이 채워진 제목',
+  )
+  check((await host.getByLabel('행사 종류').inputValue()) === 'thanks', '감사장: 행사 종류 thanks')
+  await host.getByRole('button', { name: '표지', exact: true }).click()
+  const newCover = await host.getByAltText('표지 사진 미리보기').getAttribute('src')
+  check(
+    newCover && srcCover && newCover !== srcCover && newCover.includes(`/inv/${thanksId}/`),
+    '감사장: 표지 사진은 새 key로 복사',
+  )
+  await host.getByRole('button', { name: '사진첩', exact: true }).click()
+  check((await host.getByText(/3장 ·/).count()) >= 1, '감사장: 사진첩 사진 3장 복사')
+  check(
+    (await host.getByRole('button', { name: '+ 참석 여부' }).count()) === 1,
+    '감사장에는 참석 블록이 처음부터 없음(추가 목록에만 있음)',
+  )
+  const url = await publish(host)
+  const g = await guest(browser)
+  await g.goto(url, { waitUntil: 'networkidle' })
+  check(
+    (await g.getByText('태윤').count()) >= 1 && (await g.getByText('하은').count()) >= 1,
+    '감사장 공개 화면: 보내는 사람',
+  )
+  check((await g.getByText('함께한 순간').count()) === 1, '감사장 공개 화면: 사진첩')
+  check((await g.getByText('참석 의사 전달').count()) === 0, '감사장 공개 화면: 참석 응답 없음')
+  await g.screenshot({ path: `${OUT}/p2-thanks.png`, fullPage: true })
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -210,6 +260,7 @@ async function main() {
 
   if (run('design')) await designFlow(browser)
   if (run('media')) await mediaFlow(browser)
+  if (run('thanks')) await thanksFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

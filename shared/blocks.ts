@@ -18,6 +18,7 @@ export const EVENT_TYPES = [
   'prewedding',
   'birthday',
   'housewarming',
+  'thanks',
 ] as const
 export type EventType = (typeof EVENT_TYPES)[number]
 
@@ -30,6 +31,7 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   prewedding: '청첩장 모임',
   birthday: '생일',
   housewarming: '집들이',
+  thanks: '감사장',
 }
 
 /** 참석자 명단 공개 기본값: 모임형 켜짐, 결혼 · 돌 꺼짐 */
@@ -45,6 +47,7 @@ export const EVENT_TYPE_ORDER: readonly EventType[] = [
   'dol',
   'birthday',
   'housewarming',
+  'thanks',
   'meetup',
   'etc',
 ]

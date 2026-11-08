@@ -47,7 +47,7 @@ const isHost = (s: string | undefined) => Boolean(s && s.trim() && !/\[[^\]]*\]/
 export async function duplicateInvitation(
   sourceId: string,
   userId: string,
-  mode: 'copy' | 'prewedding',
+  mode: 'copy' | 'prewedding' | 'thanks',
 ): Promise<{ id: string }> {
   if (!isUuid(sourceId)) throw new ApiError(404, '초대장을 찾을 수 없어요.')
   const db = getDb()
@@ -83,7 +83,7 @@ export async function duplicateInvitation(
         config: b.type === 'vote' ? { ...b.config, status: 'open', confirmedId: null } : b.config,
       })) as (BlockInput & { visible: boolean })[],
     }
-  } else {
+  } else if (mode === 'prewedding') {
     if (src.eventType !== 'wedding')
       throw new ApiError(400, '청첩장 모임은 결혼 초대장에서만 만들 수 있어요.')
     const cover = blocks.find((b) => b.type === 'cover')
@@ -105,6 +105,47 @@ export async function duplicateInvitation(
         let config = JSON.parse(fill(JSON.stringify(blk.config)))
         if (blk.type === 'cover' && cover?.type === 'cover' && cover.config.image)
           config = parseBlockConfig('cover', { ...config, image: cover.config.image })
+        return { ...blk, config, visible: true } as BlockInput & { visible: boolean }
+      }),
+    }
+  } else {
+    // 감사장: 결혼 · 돌 초대장에서 표지 사진 · 보내는 사람 · 사진첩을 가져옴 (내 초대장이라 가능)
+    if (src.eventType !== 'wedding' && src.eventType !== 'dol')
+      throw new ApiError(400, '감사장은 결혼 · 돌잔치 초대장에서만 만들 수 있어요.')
+    const cover = blocks.find((b) => b.type === 'cover')
+    const greeting = blocks.find((b) => b.type === 'greeting')
+    const gallery = blocks.find((b) => b.type === 'gallery')
+    const hosts = greeting?.type === 'greeting' ? greeting.config.hosts : []
+    const t = buildTemplate('thanks')
+    const named = hosts.filter(isHost)
+    const title = named.length > 0 ? `${named.join(' · ')} 감사 인사` : t.title
+    const message =
+      src.eventType === 'wedding'
+        ? '바쁘신 중에도 귀한 걸음 해 주시고\n따뜻한 마음을 보내 주셔서\n진심으로 감사드립니다.\n\n보내 주신 사랑 오래 간직하며\n행복하게 살겠습니다.'
+        : '저희 아이의 첫 생일을\n함께 축하해 주셔서\n진심으로 감사드립니다.\n\n보내 주신 사랑 덕분에\n건강하고 밝게 자라겠습니다.'
+    draft = {
+      title: title.slice(0, 60),
+      eventType: 'thanks',
+      theme: src.theme,
+      font: src.font,
+      eventAt: null,
+      share: { title: '', description: '', image: null },
+      blocks: t.blocks.map((blk) => {
+        let config = blk.config as Record<string, unknown>
+        if (blk.type === 'cover' && cover?.type === 'cover' && cover.config.image)
+          config = parseBlockConfig('cover', { ...config, image: cover.config.image })
+        if (blk.type === 'greeting')
+          config = parseBlockConfig('greeting', {
+            ...config,
+            message,
+            ...(named.length > 0 ? { hosts } : {}),
+          })
+        if (blk.type === 'gallery' && gallery?.type === 'gallery')
+          config = parseBlockConfig('gallery', {
+            ...config,
+            images: gallery.config.images,
+            layout: gallery.config.layout,
+          })
         return { ...blk, config, visible: true } as BlockInput & { visible: boolean }
       }),
     }

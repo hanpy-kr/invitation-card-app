@@ -5,12 +5,12 @@ import { useState } from 'react'
 
 import { api } from '@/components/ui/api'
 
-/** 대시보드 카드: [복제] (결혼이면 [청첩장 모임 만들기]도) */
-export default function DuplicateButtons({ id, wedding }: { id: string; wedding: boolean }) {
+/** 대시보드 카드: [복제] (결혼이면 [청첩장 모임 만들기], 결혼 · 돌이면 [감사장 만들기]도) */
+export default function DuplicateButtons({ id, eventType }: { id: string; eventType: string }) {
   const router = useRouter()
-  const [busy, setBusy] = useState<'copy' | 'prewedding' | null>(null)
+  const [busy, setBusy] = useState<'copy' | 'prewedding' | 'thanks' | null>(null)
 
-  async function run(mode: 'copy' | 'prewedding', question: string) {
+  async function run(mode: 'copy' | 'prewedding' | 'thanks', question: string) {
     if (!window.confirm(question)) return
     setBusy(mode)
     try {
@@ -35,7 +35,7 @@ export default function DuplicateButtons({ id, wedding }: { id: string; wedding:
       >
         {busy === 'copy' ? '복제 중…' : '복제'}
       </button>
-      {wedding ? (
+      {eventType === 'wedding' ? (
         <button
           type="button"
           disabled={busy !== null}
@@ -44,6 +44,17 @@ export default function DuplicateButtons({ id, wedding }: { id: string; wedding:
           }
         >
           {busy === 'prewedding' ? '만드는 중…' : '청첩장 모임 만들기'}
+        </button>
+      ) : null}
+      {eventType === 'wedding' || eventType === 'dol' ? (
+        <button
+          type="button"
+          disabled={busy !== null}
+          onClick={() =>
+            run('thanks', '감사장을 만들까요? 표지 사진 · 보내는 사람 · 사진첩을 가져와요.')
+          }
+        >
+          {busy === 'thanks' ? '만드는 중…' : '감사장 만들기'}
         </button>
       ) : null}
     </>

@@ -15,6 +15,7 @@ const OPTIONS: { type: EventType; emoji: string; sub: string }[] = [
   { type: 'dol', emoji: '🎂', sub: '첫 생일 잔치' },
   { type: 'birthday', emoji: '🎈', sub: '생일 파티' },
   { type: 'housewarming', emoji: '🏠', sub: '새 집에 초대' },
+  { type: 'thanks', emoji: '🙏', sub: '결혼 · 돌 감사 인사' },
   { type: 'meetup', emoji: '🍻', sub: '회식 · 동창회 · 모임' },
   { type: 'etc', emoji: '✉️', sub: '그 밖의 모임' },
 ]

@@ -19,6 +19,7 @@ const STYLE: Record<EventType, { label: string; bg: string; fg: string }> = {
   prewedding: { label: 'BEFORE THE WEDDING', bg: '#f6f5f5', fg: '#c96f5f' },
   birthday: { label: 'BIRTHDAY PARTY', bg: '#fdf4e8', fg: '#dd8a32' },
   housewarming: { label: 'HOUSEWARMING', bg: '#eef4ec', fg: '#5a8c57' },
+  thanks: { label: 'THANK YOU', bg: '#f7f3ec', fg: '#a9865b' },
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ eventType: string }> }) {
