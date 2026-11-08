@@ -131,3 +131,28 @@ export async function uploadImage(invitationId: string, file: File): Promise<Med
   ])
   return api<MediaRef>('/api/uploads/complete', { body: { token, width, height } })
 }
+
+const AUDIO_BY_EXT: Record<string, 'audio/mpeg' | 'audio/mp4'> = {
+  mp3: 'audio/mpeg',
+  m4a: 'audio/mp4',
+}
+export const MAX_AUDIO_BYTES = 10 * 1024 * 1024
+
+/** 배경음악(mp3 · m4a, 10MB 이하) 올리기 — 사진과 달리 줄이지 않고 그대로 올림 */
+export async function uploadAudio(invitationId: string, file: File): Promise<MediaRef> {
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+  const type = AUDIO_BY_EXT[ext]
+  if (!type) throw new Error('mp3 또는 m4a 파일만 올릴 수 있어요.')
+  if (file.size > MAX_AUDIO_BYTES) throw new Error('음악 파일은 10MB까지 올릴 수 있어요.')
+  const { uploadUrl, token } = await api<{ uploadUrl: string; token: string }>(
+    '/api/uploads/audio',
+    { body: { invitationId, contentType: type, size: file.size } },
+  )
+  const res = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': type },
+    body: file,
+  })
+  if (!res.ok) throw new Error('음악을 올리지 못했어요. 잠시 후 다시 시도해 주세요.')
+  return api<MediaRef>('/api/uploads/complete', { body: { token, width: 1, height: 1 } })
+}

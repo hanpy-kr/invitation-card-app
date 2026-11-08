@@ -96,6 +96,8 @@ export const media = pgTable(
       onDelete: 'cascade',
     }),
     storageKey: text('storage_key').notNull(),
+    /** image: 사진 · audio: 배경음악(사진 한도에 세지 않음) */
+    kind: text('kind').notNull().default('image'),
     width: integer('width').notNull(),
     height: integer('height').notNull(),
     sizeBytes: integer('size_bytes').notNull(),

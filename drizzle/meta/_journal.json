@@ -85,6 +85,13 @@
       "when": 1794119952198,
       "tag": "0011_stiff_mephisto",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794120239310,
+      "tag": "0012_stormy_obadiah_stane",
+      "breakpoints": true
     }
   ]
 }

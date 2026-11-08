@@ -1,0 +1,1 @@
+ALTER TABLE "media" ADD COLUMN "kind" text DEFAULT 'image' NOT NULL;

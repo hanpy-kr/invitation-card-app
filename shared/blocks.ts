@@ -61,6 +61,8 @@ export const BLOCK_TYPES = [
   'calendar',
   'contact',
   'vote',
+  'video',
+  'music',
 ] as const
 export type BlockType = (typeof BLOCK_TYPES)[number]
 
@@ -76,6 +78,8 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   calendar: '캘린더',
   contact: '연락하기',
   vote: '날짜 · 장소 투표',
+  video: '영상',
+  music: '배경음악',
 }
 
 /** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
@@ -284,6 +288,24 @@ export const voteConfigSchema = z.object({
   confirmedId: z.string().max(12).nullable().default(null),
 })
 
+/** 배경음악 파일 한도 */
+export const MAX_AUDIO_BYTES = 10 * 1024 * 1024
+export const AUDIO_TYPES = ['audio/mpeg', 'audio/mp4'] as const
+
+export const videoConfigSchema = z.object({
+  title: shortText(30).default('영상'),
+  /** 유튜브 주소. 알아볼 수 없는 주소면 하객 화면에서 숨김(저장은 막지 않음) */
+  url: z.string().trim().max(300).default(''),
+  caption: shortText(100).default(''),
+})
+
+export const musicConfigSchema = z.object({
+  /** 재생 버튼 옆에 보여 줄 곡 이름 */
+  title: shortText(40).default(''),
+  /** 주최자가 올린 mp3 · m4a (자동 재생 없음) */
+  audio: mediaRefSchema.nullable().default(null),
+})
+
 export const blockConfigSchemas = {
   cover: coverConfigSchema,
   greeting: greetingConfigSchema,
@@ -296,6 +318,8 @@ export const blockConfigSchemas = {
   calendar: calendarConfigSchema,
   contact: contactConfigSchema,
   vote: voteConfigSchema,
+  video: videoConfigSchema,
+  music: musicConfigSchema,
 } as const satisfies Record<BlockType, z.ZodType>
 
 export type BlockConfigMap = { [K in BlockType]: z.infer<(typeof blockConfigSchemas)[K]> }
@@ -310,6 +334,8 @@ export type NoticeConfig = BlockConfigMap['notice']
 export type CalendarConfig = BlockConfigMap['calendar']
 export type ContactConfig = BlockConfigMap['contact']
 export type VoteConfig = BlockConfigMap['vote']
+export type VideoConfig = BlockConfigMap['video']
+export type MusicConfig = BlockConfigMap['music']
 
 export type Block = {
   [K in BlockType]: {
@@ -367,5 +393,7 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('calendar'), config: calendarConfigSchema }),
   z.object({ type: z.literal('contact'), config: contactConfigSchema }),
   z.object({ type: z.literal('vote'), config: voteConfigSchema }),
+  z.object({ type: z.literal('video'), config: videoConfigSchema }),
+  z.object({ type: z.literal('music'), config: musicConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>

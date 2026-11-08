@@ -11,7 +11,7 @@ import {
   type Block,
   type BlockInput,
 } from '@/shared/blocks'
-import { collectMediaRefs } from '@/shared/media'
+import { collectAudioRefs, collectMediaRefs } from '@/shared/media'
 import { buildTemplate } from '@/shared/templates'
 
 import { ApiError } from './api'
@@ -114,6 +114,7 @@ export async function duplicateInvitation(
   const newId = randomUUID()
   const refs: Ref[] = [
     ...collectMediaRefs(draft.blocks),
+    ...collectAudioRefs(draft.blocks),
     ...((draft.share as { image?: Ref | null }).image
       ? [(draft.share as { image: Ref }).image]
       : []),
@@ -159,6 +160,7 @@ export async function duplicateInvitation(
               ownerId: userId,
               invitationId: newId,
               storageKey: map.get(m.id)!.key,
+              kind: m.kind,
               width: m.width,
               height: m.height,
               sizeBytes: m.sizeBytes,

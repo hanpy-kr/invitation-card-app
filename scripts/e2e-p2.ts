@@ -103,7 +103,11 @@ async function designFlow(browser: Browser) {
   // 사진첩 3장 + 레이아웃 3종
   await host.getByRole('button', { name: '사진첩', exact: true }).click()
   await uploadPhotos(host, 3)
-  await host.getByRole('button', { name: /사진 3장|3장/ }).first().waitFor({ timeout: 5000 }).catch(() => {})
+  await host
+    .getByRole('button', { name: /사진 3장|3장/ })
+    .first()
+    .waitFor({ timeout: 5000 })
+    .catch(() => {})
   await waitSaved(host)
   await host.getByRole('button', { name: '넘겨 보기' }).click()
   await waitSaved(host)
@@ -118,7 +122,10 @@ async function designFlow(browser: Browser) {
     await document.fonts.ready
     return [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family)
   })
-  check(fontUsed.some((f) => f.includes('Gowun Batang')), '공개 초대장: 고운바탕 실제로 로드됨')
+  check(
+    fontUsed.some((f) => f.includes('Gowun Batang')),
+    '공개 초대장: 고운바탕 실제로 로드됨',
+  )
   const slideStrip = g.locator('ul[class*=slide]')
   check((await slideStrip.count()) === 1, '사진첩 넘겨 보기 렌더')
   check((await g.getByText('1 / 3').count()) === 1, '사진첩 넘겨 보기 번호 표시')
@@ -142,6 +149,58 @@ async function designFlow(browser: Browser) {
   await g2.screenshot({ path: `${OUT}/p2-design-ratio.png`, fullPage: true })
 }
 
+const PIXEL = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64')
+
+/** ② 영상 · 배경음악 */
+async function mediaFlow(browser: Browser) {
+  const { page: host } = await createInvitation(browser, /송년회/)
+  await host.getByLabel('초대장 제목').fill('E2E 영상 음악')
+  await host.getByRole('button', { name: '+ 영상' }).click()
+  await host.getByLabel('유튜브 주소').fill('https://youtu.be/dQw4w9WgXcQ?si=abc')
+  await host.getByRole('button', { name: '+ 배경음악' }).click()
+  check(
+    (await host.getByText('저작권이 있는 음악은 올리지 마세요').count()) === 1,
+    '음악 업로드 화면에 저작권 안내',
+  )
+  await host.locator('input[accept*=".mp3"]').setInputFiles(`${PHOTOS}/tone.mp3`)
+  await host.locator('audio[controls]').waitFor({ timeout: 15000 })
+  await host.getByLabel('곡 이름 (재생 버튼 옆에 보여요)').fill('E2E 테스트 음')
+  await waitSaved(host)
+  const url = await publish(host)
+
+  const ctx = await browser.newContext(mobile)
+  const g = await newPage(ctx)
+  const hits: string[] = []
+  g.on('request', (r) => hits.push(r.url()))
+  await g.route(/i\.ytimg\.com/, (r) => r.fulfill({ contentType: 'image/gif', body: PIXEL }))
+  await g.route(/youtube-nocookie\.com/, (r) =>
+    r.fulfill({ contentType: 'text/html', body: '<html><body>yt</body></html>' }),
+  )
+  await g.goto(url, { waitUntil: 'networkidle' })
+  const pre = (re: RegExp) => hits.filter((u) => re.test(u)).length
+  check(pre(/youtube-nocookie\.com/) === 0, '누르기 전에는 유튜브 iframe 요청 없음')
+  check((await g.locator('iframe').count()) === 0, '누르기 전에는 iframe이 DOM에 없음')
+  check(pre(/i\.ytimg\.com\/vi\/dQw4w9WgXcQ/) === 1, '썸네일 이미지가 먼저 나옴')
+  check(pre(/\.mp3/) === 0, '누르기 전에는 음악 파일 요청 없음')
+  check((await g.locator('audio').count()) === 0, '자동 재생 없음(audio 요소 · 요청 없음)')
+  await g.getByRole('button', { name: '영상 재생' }).click()
+  const src = await g.locator('iframe').getAttribute('src')
+  check(
+    src?.startsWith('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ') === true,
+    '누르면 youtube-nocookie iframe',
+  )
+  await g.getByRole('button', { name: '배경음악 재생' }).click()
+  await g.getByRole('button', { name: '배경음악 멈추기' }).waitFor({ timeout: 8000 })
+  check(pre(/\.mp3/) >= 1, '버튼을 누르면 그때 음악 파일 요청')
+  await g.getByRole('button', { name: '배경음악 멈추기' }).click()
+  await g.getByRole('button', { name: '배경음악 재생' }).waitFor()
+  check(
+    (await g.getByText('음악을 재생하지 못했어요').count()) === 0,
+    '재생 · 멈춤 토글 (오류 문구 없음)',
+  )
+  await g.screenshot({ path: `${OUT}/p2-media.png` })
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -150,6 +209,7 @@ async function main() {
   const run = (name: string) => !ONLY || ONLY.includes(name)
 
   if (run('design')) await designFlow(browser)
+  if (run('media')) await mediaFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

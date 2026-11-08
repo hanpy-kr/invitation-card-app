@@ -12,7 +12,7 @@ import {
 } from '@/shared/blocks'
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
 import { getEntitlements } from '@/shared/entitlements'
-import { collectMediaRefs } from '@/shared/media'
+import { collectAudioRefs, collectMediaRefs } from '@/shared/media'
 import { buildFromLayout, buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
@@ -127,7 +127,7 @@ export async function getEditableInvitation(
     },
     extras: {
       mediaCount:
-        sql<number>`(select count(*)::int from media m where m.invitation_id = ${schema.invitations.id})`.as(
+        sql<number>`(select count(*)::int from media m where m.kind = 'image' and m.invitation_id = ${schema.invitations.id})`.as(
           'media_count',
         ),
     },
@@ -166,7 +166,7 @@ export async function saveInvitation(
 ): Promise<{ updatedAt: string }> {
   if (!isUuid(id)) throw new ApiError(404, '초대장을 찾을 수 없어요.')
 
-  const refs = collectMediaRefs(input.blocks)
+  const refs = [...collectMediaRefs(input.blocks), ...collectAudioRefs(input.blocks)]
   if (input.meta.share.image) refs.push(input.meta.share.image)
   for (const ref of refs) {
     if (!ref.key.startsWith(`inv/${id}/`) && !ref.key.startsWith('samples/')) {
@@ -242,10 +242,12 @@ export async function cleanupUnusedMedia(invitationId: string): Promise<void> {
     .where(
       and(
         eq(schema.blocks.invitationId, invitationId),
-        inArray(schema.blocks.type, ['cover', 'gallery']),
+        inArray(schema.blocks.type, ['cover', 'gallery', 'music']),
       ),
     )
-  const used = new Set(collectMediaRefs(blockRows).map((r) => r.id))
+  const used = new Set(
+    [...collectMediaRefs(blockRows), ...collectAudioRefs(blockRows)].map((r) => r.id),
+  )
   const [inv] = await db
     .select({ share: schema.invitations.share })
     .from(schema.invitations)

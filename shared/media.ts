@@ -32,3 +32,15 @@ export function collectMediaRefs(blocks: { type: string; config: unknown }[]): M
   }
   return refs
 }
+
+/** 블록들이 쓰는 배경음악 파일 (사진 수에는 세지 않음) */
+export function collectAudioRefs(blocks: { type: string; config: unknown }[]): MediaRefLike[] {
+  const refs: MediaRefLike[] = []
+  for (const b of blocks) {
+    if (b.type === 'music') {
+      const audio = (b.config as { audio?: MediaRefLike | null }).audio
+      if (audio) refs.push(audio)
+    }
+  }
+  return refs
+}
