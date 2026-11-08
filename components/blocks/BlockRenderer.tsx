@@ -7,6 +7,7 @@ import Account from './account/Account'
 import Calendar from './calendar/Calendar'
 import Contact from './contact/Contact'
 import Cover from './Cover'
+import Album from './album/Album'
 import Music from './music/Music'
 import Video from './video/Video'
 import Vote from './vote/Vote'
@@ -69,6 +70,8 @@ export function BlockView({
       return <Video config={block.config} />
     case 'music':
       return <Music config={block.config} ctx={ctx} />
+    case 'album':
+      return <Album config={block.config} ctx={ctx} />
   }
 }
 

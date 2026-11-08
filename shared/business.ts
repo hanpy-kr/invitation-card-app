@@ -9,7 +9,7 @@ export const BUSINESS = {
   /** 이용약관 시행일 */
   effectiveDate: '2026년 11월 2일',
   /** 개인정보처리방침 시행일. 바꾸면 이전 본문을 app/privacy/v{n}에 남길 것 */
-  privacyEffectiveDate: '2026년 11월 7일',
+  privacyEffectiveDate: '2026년 11월 8일',
 } as const
 
 /** 값이 비어 있으면 '등록 예정'으로 보여 준다 */

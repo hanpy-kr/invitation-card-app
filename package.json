@@ -32,6 +32,7 @@
     "bcryptjs": "^3.0.3",
     "classnames": "^2.5.1",
     "drizzle-orm": "^0.45.4",
+    "fflate": "^0.8.3",
     "next": "15.5.28",
     "postgres": "^3.4.9",
     "react": "19.1.0",

@@ -181,6 +181,7 @@ export async function getResponses(id: string, userId: string) {
       share: parseShareOverride(row.share),
     },
     rsvpDeadline: rsvpBlock?.deadline ?? null,
+    hasAlbum: row.blocks.some((b) => b.type === 'album'),
     vote,
     questions,
     choiceStats,

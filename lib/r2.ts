@@ -3,6 +3,7 @@ import 'server-only'
 import {
   CopyObjectCommand,
   DeleteObjectsCommand,
+  GetObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -91,4 +92,14 @@ export async function copyKeys(pairs: [from: string, to: string][]): Promise<str
     }
   }
   return done
+}
+
+/** 파일 내용 (없으면 null). 하객 앨범 전체 받기처럼 서버가 한 장씩 읽어 줄 때만 쓴다 */
+export async function getObject(key: string): Promise<Uint8Array | null> {
+  try {
+    const res = await r2().send(new GetObjectCommand({ Bucket: bucket(), Key: key }))
+    return (await res.Body?.transformToByteArray()) ?? null
+  } catch {
+    return null
+  }
 }

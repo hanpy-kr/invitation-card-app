@@ -51,4 +51,5 @@ export const SINGLE_BLOCK_TYPES: readonly (typeof BLOCK_TYPES)[number][] = [
   'calendar',
   'vote',
   'music',
+  'album',
 ]

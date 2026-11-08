@@ -14,6 +14,7 @@ import { absolute, acceptsRsvp, shareImagePath } from '@/shared/share'
 
 import styles from './page.module.scss'
 import { GuestbookList, RsvpList } from './Responses'
+import AlbumPanel from './AlbumPanel'
 import EditorsPanel from './EditorsPanel'
 import ResendCards from './ResendCards'
 import VotePanel from './VotePanel'
@@ -115,6 +116,10 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
           kakaoJsKey={process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? ''}
           acceptsRsvp={acceptsRsvp(data.shareInput.blocks)}
         />
+      ) : null}
+
+      {data.hasAlbum ? (
+        <AlbumPanel invitationId={data.id} mediaBaseUrl={getMediaBaseUrl()} title={data.title} />
       ) : null}
 
       {data.vote ? (

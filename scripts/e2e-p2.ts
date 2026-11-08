@@ -2,7 +2,8 @@
  * 2차 P2 확인(로컬): 글씨체 · 테마 · 사진첩 · 영상/음악 · 감사장 · 하객 앨범 · 돌잡이 · 참석자 전용 안내 · 카톡 알림
  * 준비는 e2e-p1.ts와 같음(깨끗한 상태에서 시작: 시드 외 초대장 삭제 후 pnpm db:seed) (운영 빌드, DEV_LOGIN=1, 서버 E2E_BASE) + 시드 새로(pnpm db:seed). 실행: pnpm e2e:p2
  */
-import { mkdirSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { mkdirSync, readFileSync, statSync } from 'node:fs'
 
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright'
 
@@ -251,6 +252,192 @@ async function thanksFlow(browser: Browser) {
   await g.screenshot({ path: `${OUT}/p2-thanks.png`, fullPage: true })
 }
 
+const DB_URL = process.env.DATABASE_URL ?? 'postgres://dearday:dearday@localhost:5432/dearday'
+const sql = (q: string) => execFileSync('psql', [DB_URL, '-tAc', q], { encoding: 'utf8' }).trim()
+
+/** ④ 하객 앨범 + 개인정보처리방침 */
+async function albumFlow(browser: Browser) {
+  const { page: host, id } = await createInvitation(browser, /송년회/)
+  await host.getByLabel('초대장 제목').fill('E2E 하객 앨범')
+  await host.getByRole('button', { name: '+ 하객 앨범' }).click()
+  check(
+    (await host.getByText('링크를 받은 누구나 볼 수 있고').count()) === 1,
+    '편집기: 앨범 공개 범위 안내',
+  )
+  await waitSaved(host)
+  const url = await publish(host)
+  const slug = url.split('/i/')[1]
+
+  // 하객 A: 사진 2장 올리기
+  const ga = await guest(browser)
+  await ga.goto(url, { waitUntil: 'networkidle' })
+  await ga.getByRole('heading', { name: '하객 앨범' }).scrollIntoViewIfNeeded()
+  await ga.getByText('아직 올라온 사진이 없어요').waitFor({ timeout: 10000 })
+  await ga
+    .locator('input[type=file]')
+    .last()
+    .setInputFiles([`${PHOTOS}/photo_1.jpg`, `${PHOTOS}/photo_2.jpg`])
+  await ga.getByRole('button', { name: '내 사진 지우기' }).nth(1).waitFor({ timeout: 40000 })
+  check(
+    (await ga.getByRole('button', { name: '내 사진 지우기' }).count()) === 2,
+    '하객 A: 2장 올림 · 내 사진 지우기 2개',
+  )
+  const rows = sql(
+    `select storage_key, size_bytes, token_hash from album_photos where invitation_id='${id}'`,
+  ).split('\n')
+  check(
+    rows.length === 2 && rows.every((r) => r.startsWith('album/' + id + '/')),
+    '파일은 album/{초대장}/ 아래',
+  )
+  const tokens = await ga.evaluate(
+    (sl) => JSON.parse(localStorage.getItem('dd-album-' + sl) ?? '{}'),
+    slug,
+  )
+  const tokenValues = Object.values(tokens) as string[]
+  check(
+    tokenValues.length === 2 && tokenValues.every((t) => t.length === 43),
+    '삭제 토큰 원문은 하객 브라우저 localStorage에만',
+  )
+  check(
+    tokenValues.every((t) => !rows.join('\n').includes(t)) &&
+      rows.every((r) => r.split('|')[2].length === 43),
+    'DB에는 토큰 해시만(원문 없음)',
+  )
+  const webp = sql(
+    `select count(*) from album_photos where invitation_id='${id}' and storage_key like '%.webp'`,
+  )
+  check(webp === '2', '올린 사진은 브라우저에서 줄인 webp')
+  const maxW = sql(
+    `select max(greatest(width,height)) from album_photos where invitation_id='${id}'`,
+  )
+  check(Number(maxW) <= 1600, `긴 변 1600px 이하 (${maxW}px)`)
+
+  // 하객 B: 다른 기기 — A의 사진이 보이고, 지우기 버튼은 없음. 1장 올림
+  const gb = await guest(browser)
+  await gb.goto(url, { waitUntil: 'networkidle' })
+  await gb.getByRole('heading', { name: '하객 앨범' }).scrollIntoViewIfNeeded()
+  await gb.locator('ul[class*=grid] li').nth(1).waitFor({ timeout: 10000 })
+  check((await gb.locator('ul[class*=grid] li').count()) === 2, '하객 B: A가 올린 2장이 보임')
+  check(
+    (await gb.getByRole('button', { name: '내 사진 지우기' }).count()) === 0,
+    '하객 B: 남의 사진에는 지우기 없음',
+  )
+  const aPhotoId = sql(
+    `select id from album_photos where invitation_id='${id}' order by created_at limit 1`,
+  )
+  const bad = await gb.request.delete(`${BASE}/api/i/${slug}/album/${aPhotoId}`, {
+    data: { deleteToken: 'x'.repeat(43) },
+  })
+  check(bad.status() === 404, '엉뚱한 토큰으로는 삭제 불가(404)')
+  await gb.locator('input[type=file]').last().setInputFiles(`${PHOTOS}/photo_3.jpg`)
+  await gb.getByRole('button', { name: '내 사진 지우기' }).waitFor({ timeout: 30000 })
+  check(
+    sql(`select count(*) from album_photos where invitation_id='${id}'`) === '3',
+    'B가 1장 올려 총 3장',
+  )
+
+  // A가 자기 사진 1장 지움
+  await ga.getByRole('button', { name: '내 사진 지우기' }).first().click()
+  await ga
+    .locator('ul[class*=grid] li')
+    .nth(2)
+    .waitFor({ state: 'detached', timeout: 10000 })
+    .catch(() => {})
+  await ga.waitForTimeout(500)
+  check(
+    sql(`select count(*) from album_photos where invitation_id='${id}'`) === '2',
+    'A가 자기 사진 삭제 → 2장',
+  )
+
+  // 주최자: 대시보드 숨기기 · 삭제 · 전체 받기
+  await host.goto(`${BASE}/dashboard/${id}`, { waitUntil: 'networkidle' })
+  const panel = host.getByRole('region', { name: '하객 앨범' })
+  await panel.getByText('2장').first().waitFor({ timeout: 10000 })
+  await panel.getByRole('button', { name: '숨기기' }).first().click()
+  await panel.getByText('숨김 1장').waitFor()
+  const hiddenList = await (await ga.request.get(`${BASE}/api/i/${slug}/album`)).json()
+  check(hiddenList.photos.length === 1, '숨기면 하객 목록에서 빠짐')
+  const [download] = await Promise.all([
+    host.waitForEvent('download', { timeout: 30000 }),
+    panel.getByRole('button', { name: /전체 받기/ }).click(),
+  ])
+  const zipPath = `${OUT}/p2-album.zip`
+  await download.saveAs(zipPath)
+  const listing = execFileSync('unzip', ['-l', zipPath], { encoding: 'utf8' })
+  check(
+    / 2 files/.test(listing) && statSync(zipPath).size > 1000,
+    '전체 받기: 숨긴 사진 포함 2장 zip',
+  )
+  await panel.getByRole('button', { name: '지우기' }).first().click()
+  await panel.getByText('1장').first().waitFor()
+  check(
+    sql(`select count(*) from album_photos where invitation_id='${id}'`) === '1',
+    '주최자 삭제 → 1장',
+  )
+  await host.screenshot({ path: `${OUT}/p2-album-dashboard.png`, fullPage: true })
+  const noAuth = await ga.request.get(`${BASE}/api/invitations/${id}/album`)
+  check(noAuth.status() === 401, '주최자 API는 로그인 필요(하객 401)')
+
+  // 한도: IP당 하루 30장 · 초대장당 200장
+  sql('delete from rate_limits')
+  let accepted = 0
+  let status = 0
+  for (let i = 0; i < 40; i++) {
+    const r = await ga.request.post(`${BASE}/api/i/${slug}/album/presign`, {
+      data: { contentType: 'image/webp', size: 1000 },
+    })
+    status = r.status()
+    if (status !== 200) break
+    accepted++
+  }
+  check(accepted === 30 && status === 429, `IP당 하루 30장 (허용 ${accepted}, 다음 ${status})`)
+  sql('delete from rate_limits')
+  sql(`insert into album_photos (invitation_id, storage_key, width, height, size_bytes, token_hash)
+       select '${id}', 'album/${id}/fill' || g || '.webp', 10, 10, 10, 'h' || g from generate_series(1, 199) g`)
+  const full = await ga.request.post(`${BASE}/api/i/${slug}/album/presign`, {
+    data: { contentType: 'image/webp', size: 1000 },
+  })
+  check(full.status() === 409, '초대장당 200장 가득 차면 409')
+
+  // 앨범 블록을 숨기면 읽기 · 쓰기 모두 막힘
+  sql(`update blocks set visible=false where invitation_id='${id}' and type='album'`)
+  sql('delete from rate_limits')
+  check(
+    (await ga.request.get(`${BASE}/api/i/${slug}/album`)).status() === 404,
+    '앨범 블록을 숨기면 목록 404',
+  )
+  check(
+    (
+      await ga.request.post(`${BASE}/api/i/${slug}/album/presign`, {
+        data: { contentType: 'image/webp', size: 1000 },
+      })
+    ).status() === 404,
+    '앨범 블록을 숨기면 업로드 404',
+  )
+  sql(`delete from album_photos where invitation_id='${id}'`)
+
+  // 개인정보처리방침: 새 항목 · 시행일 · 이전 방침 보관
+  const pg = await guest(browser)
+  await pg.goto(`${BASE}/privacy`, { waitUntil: 'networkidle' })
+  const txt = await pg.locator('main').innerText()
+  check(
+    txt.includes('하객이 올린 사진 파일') && txt.includes('시행일 2026년 11월 8일'),
+    '방침: 하객 사진 항목 · 시행일 11/8',
+  )
+  check(
+    (await pg.getByRole('link', { name: /2026-11-07 시행/ }).count()) === 1,
+    '방침: 11/7 판 링크',
+  )
+  await pg.goto(`${BASE}/privacy/v2`, { waitUntil: 'networkidle' })
+  const v2 = await pg.locator('main').innerText()
+  check(
+    v2.includes('2026년 11월 7일') && !v2.includes('하객이 올린 사진 파일'),
+    '/privacy/v2: 11/7 판 원문(하객 사진 항목 없음)',
+  )
+  check((await pg.request.get(`${BASE}/privacy/v1`)).status() === 200, '/privacy/v1 보관')
+  void readFileSync
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -261,6 +448,7 @@ async function main() {
   if (run('design')) await designFlow(browser)
   if (run('media')) await mediaFlow(browser)
   if (run('thanks')) await thanksFlow(browser)
+  if (run('album')) await albumFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

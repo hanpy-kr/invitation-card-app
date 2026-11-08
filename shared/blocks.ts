@@ -66,6 +66,7 @@ export const BLOCK_TYPES = [
   'vote',
   'video',
   'music',
+  'album',
 ] as const
 export type BlockType = (typeof BLOCK_TYPES)[number]
 
@@ -83,6 +84,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   vote: '날짜 · 장소 투표',
   video: '영상',
   music: '배경음악',
+  album: '하객 앨범',
 }
 
 /** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
@@ -309,6 +311,15 @@ export const musicConfigSchema = z.object({
   audio: mediaRefSchema.nullable().default(null),
 })
 
+/** 하객 앨범 한도: 초대장당 장수, IP당 하루 장수. 사진은 올리기 전 브라우저에서 긴 변 1600px webp로 줄임 */
+export const ALBUM_MAX_PHOTOS = 200
+export const ALBUM_IP_DAILY = 30
+
+export const albumConfigSchema = z.object({
+  title: shortText(30).default('하객 앨범'),
+  message: shortText(200).default('오늘 찍으신 사진을 함께 나눠 주세요.'),
+})
+
 export const blockConfigSchemas = {
   cover: coverConfigSchema,
   greeting: greetingConfigSchema,
@@ -323,6 +334,7 @@ export const blockConfigSchemas = {
   vote: voteConfigSchema,
   video: videoConfigSchema,
   music: musicConfigSchema,
+  album: albumConfigSchema,
 } as const satisfies Record<BlockType, z.ZodType>
 
 export type BlockConfigMap = { [K in BlockType]: z.infer<(typeof blockConfigSchemas)[K]> }
@@ -339,6 +351,7 @@ export type ContactConfig = BlockConfigMap['contact']
 export type VoteConfig = BlockConfigMap['vote']
 export type VideoConfig = BlockConfigMap['video']
 export type MusicConfig = BlockConfigMap['music']
+export type AlbumConfig = BlockConfigMap['album']
 
 export type Block = {
   [K in BlockType]: {
@@ -398,5 +411,6 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('vote'), config: voteConfigSchema }),
   z.object({ type: z.literal('video'), config: videoConfigSchema }),
   z.object({ type: z.literal('music'), config: musicConfigSchema }),
+  z.object({ type: z.literal('album'), config: albumConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>

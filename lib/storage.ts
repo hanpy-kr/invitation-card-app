@@ -97,3 +97,11 @@ export async function copyStored(pairs: [from: string, to: string][]): Promise<v
     throw new Error('사진 저장소가 설정되지 않았어요.')
   }
 }
+
+/** 저장된 파일 읽기 (없으면 null) */
+export async function readStored(key: string): Promise<Uint8Array | null> {
+  const mode = storageMode()
+  if (mode === 'r2') return r2.getObject(key)
+  if (mode === 'local') return readLocal(key)
+  return null
+}

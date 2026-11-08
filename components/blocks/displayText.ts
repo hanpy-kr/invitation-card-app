@@ -37,6 +37,9 @@ export function displayTextOf(blocks: Block[], eventAt: string | null): string {
       case 'vote':
         parts.push(b.config.title)
         break
+      case 'album':
+        parts.push(b.config.title)
+        break
       case 'video':
         if (b.config.url) parts.push(b.config.title)
         break

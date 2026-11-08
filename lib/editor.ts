@@ -309,12 +309,17 @@ export async function deleteInvitation(id: string, userId: string): Promise<void
     .from(schema.media)
     .innerJoin(schema.invitations, eq(schema.invitations.id, schema.media.invitationId))
     .where(and(eq(schema.media.invitationId, id), eq(schema.invitations.ownerId, userId)))
+  const albumKeys = await db
+    .select({ key: schema.albumPhotos.storageKey })
+    .from(schema.albumPhotos)
+    .innerJoin(schema.invitations, eq(schema.invitations.id, schema.albumPhotos.invitationId))
+    .where(and(eq(schema.albumPhotos.invitationId, id), eq(schema.invitations.ownerId, userId)))
   const deleted = await db
     .delete(schema.invitations)
     .where(and(eq(schema.invitations.id, id), eq(schema.invitations.ownerId, userId)))
     .returning({ id: schema.invitations.id })
   if (deleted.length === 0) throw new ApiError(404, '초대장을 찾을 수 없어요.')
-  await deleteStored(keys.map((k) => k.key))
+  await deleteStored([...keys, ...albumKeys].map((k) => k.key))
 }
 
 export function isUuid(value: string): boolean {

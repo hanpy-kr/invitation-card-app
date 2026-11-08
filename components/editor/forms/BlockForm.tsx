@@ -12,6 +12,7 @@ import GreetingForm from './GreetingForm'
 import GuestbookForm from './GuestbookForm'
 import LocationForm from './LocationForm'
 import NoticeForm from './NoticeForm'
+import AlbumForm from './AlbumForm'
 import MusicForm from './MusicForm'
 import VideoForm from './VideoForm'
 import VoteForm from './VoteForm'
@@ -51,5 +52,7 @@ export default function BlockForm({ block, update }: { block: EditorBlock; updat
       return <VideoForm config={block.config} update={as<'video'>(update)} />
     case 'music':
       return <MusicForm config={block.config} update={as<'music'>(update)} />
+    case 'album':
+      return <AlbumForm config={block.config} update={as<'album'>(update)} />
   }
 }

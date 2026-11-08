@@ -146,6 +146,30 @@ export const guestbookEntries = pgTable(
   (t) => [index('guestbook_invitation_idx').on(t.invitationId, t.createdAt)],
 )
 
+/**
+ * 하객 앨범: 로그인 없이 올린 사진. 하객은 자기 사진만 지울 수 있고(삭제 토큰은 하객 브라우저 localStorage에만,
+ * DB에는 SHA-256 해시만), 주최자는 숨김 · 삭제 · 전체 받기를 할 수 있다. 파일 key는 album/{초대장}/{id}.webp
+ */
+export const albumPhotos = pgTable(
+  'album_photos',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    invitationId: uuid('invitation_id')
+      .notNull()
+      .references(() => invitations.id, { onDelete: 'cascade' }),
+    storageKey: text('storage_key').notNull(),
+    width: integer('width').notNull(),
+    height: integer('height').notNull(),
+    sizeBytes: integer('size_bytes').notNull(),
+    /** 같은 사진 위 썸네일(.thumb.webp)이 있음 */
+    thumb: boolean('thumb').notNull().default(false),
+    tokenHash: text('token_hash').notNull(),
+    hidden: boolean('hidden').notNull().default(false),
+    createdAt: createdAt(),
+  },
+  (t) => [index('album_photos_invitation_idx').on(t.invitationId, t.createdAt)],
+)
+
 /** 하객 쓰기 API용 간단한 rate limit. key는 IP+slug+종류의 해시(원래 IP는 저장 안 함) */
 export const rateLimits = pgTable('rate_limits', {
   key: text('key').primaryKey(),
