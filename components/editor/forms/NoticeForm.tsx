@@ -2,7 +2,7 @@
 
 import { MAX_NOTICE_ITEMS } from '@/shared/blocks'
 
-import { AddButton, ItemCard, list, TextArea, TextField } from '../fields'
+import { AddButton, ItemCard, list, TextArea, TextField, Toggle } from '../fields'
 import { patcher, type FormProps } from './types'
 
 export default function NoticeForm({ config, update }: FormProps<'notice'>) {
@@ -46,12 +46,23 @@ export default function NoticeForm({ config, update }: FormProps<'notice'>) {
             rows={4}
             onChange={(body) => setItems((xs) => list.set(xs, i, { body }))}
           />
+          <Toggle
+            label="참석한 분에게만 보이기"
+            checked={it.attendeesOnly}
+            onChange={(attendeesOnly) => setItems((xs) => list.set(xs, i, { attendeesOnly }))}
+          />
+          {it.attendeesOnly ? (
+            <small style={{ display: 'block', color: 'var(--muted)', marginTop: -6 }}>
+              링크만 받은 사람 · 카톡 미리보기에는 나오지 않고, &apos;참석&apos;으로 응답한 분의
+              기기에서만 열려요. (응답한 기기가 아니면 다시 응답해야 볼 수 있어요)
+            </small>
+          ) : null}
         </ItemCard>
       ))}
       {config.items.length < MAX_NOTICE_ITEMS ? (
         <AddButton
           label="안내 항목 추가"
-          onClick={() => setItems((xs) => [...xs, { title: '', body: '' }])}
+          onClick={() => setItems((xs) => [...xs, { title: '', body: '', attendeesOnly: false }])}
         />
       ) : null}
       <TextField

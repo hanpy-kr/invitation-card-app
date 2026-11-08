@@ -135,6 +135,7 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
       removeLocal(storageKey)
       setSaved(null)
       setVersion((v) => v + 1)
+      window.dispatchEvent(new Event('dearday:rsvp-changed'))
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -174,6 +175,7 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
       setSaved(next)
       setOpen(false)
       setVersion((v) => v + 1)
+      window.dispatchEvent(new Event('dearday:rsvp-changed'))
     } catch (err) {
       setError((err as Error).message)
     } finally {

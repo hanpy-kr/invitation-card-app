@@ -472,6 +472,123 @@ async function doljabiFlow(browser: Browser) {
   await g.screenshot({ path: `${OUT}/p2-doljabi.png`, fullPage: true })
 }
 
+/** ⑥ 참석자 전용 안내: 서버 HTML · RSC · OG · 공유 카드 어디에도 새지 않음 */
+async function memberNoticeFlow(browser: Browser) {
+  const SECRET_TITLE = '입장 비밀번호'
+  const SECRET_BODY = 'SECRET-4821-PASS'
+  const { page: host, id } = await createInvitation(browser, /송년회/)
+  await host.getByLabel('초대장 제목').fill('E2E 참석자 전용')
+  await host.getByRole('button', { name: '안내', exact: true }).click()
+  await host.getByRole('button', { name: '안내 항목 추가' }).click()
+  await host.getByRole('textbox', { name: '안내 3 제목' }).fill(SECRET_TITLE)
+  await host.getByRole('textbox', { name: '안내 3 내용' }).fill(SECRET_BODY)
+  await host.getByRole('switch', { name: '참석한 분에게만 보이기' }).last().check()
+  await waitSaved(host)
+  const url = await publish(host)
+  const slug = url.split('/i/')[1]
+
+  // 1) 서버가 내려주는 모든 것에 내용이 없어야 함
+  const bare = await browser.newContext(mobile)
+  const leaks: string[] = []
+  const probe = async (label: string, res: { text(): Promise<string> }) => {
+    const t = await res.text()
+    if (t.includes(SECRET_BODY) || t.includes(SECRET_TITLE)) leaks.push(label)
+    return t
+  }
+  const html = await probe('HTML', await bare.request.get(url))
+  await probe('RSC', await bare.request.get(url, { headers: { RSC: '1' } }))
+  await probe('ics', await bare.request.get(`${url}/event.ics`))
+  await probe('attendees', await bare.request.get(`${BASE}/api/i/${slug}/attendees`))
+  check(
+    html.includes('og:title') && html.includes('og:description'),
+    'OG 메타가 있는 HTML을 검사함',
+  )
+  check(
+    leaks.length === 0,
+    `서버 HTML · RSC · OG · ics · API 어디에도 내용 없음 ${leaks.join(',')}`,
+  )
+  check(
+    html.includes('참석 응답을 보내신 분께만') || html.includes('참석자 전용'),
+    '서버 HTML에는 잠금 안내만',
+  )
+  // 카톡 공유 카드(Kakao.Share 인자)에도 없음
+  const g1 = await guest(browser)
+  await g1.goto(url, { waitUntil: 'networkidle' })
+  await g1.getByRole('button', { name: '친구에게 공유' }).click()
+  await g1.waitForFunction(
+    () => (window as unknown as { __kakaoShare?: unknown }).__kakaoShare,
+    null,
+    {
+      timeout: 8000,
+    },
+  )
+  const shared = await g1.evaluate(() =>
+    JSON.stringify((window as unknown as { __kakaoShare?: unknown }).__kakaoShare ?? {}),
+  )
+  check(
+    shared.length > 5 && !shared.includes(SECRET_BODY) && !shared.includes(SECRET_TITLE),
+    '공유 카드에 내용 없음',
+  )
+
+  // 2) 참석 응답 전: 잠금 안내만
+  await g1.getByRole('heading', { name: '안내', exact: true }).scrollIntoViewIfNeeded()
+  check((await g1.getByText('참석자 전용').count()) >= 1, '응답 전: 잠금 안내 표시')
+  check((await g1.getByText(SECRET_BODY).count()) === 0, '응답 전: 내용 안 보임')
+
+  // 3) 참석 응답 → 내용 열림
+  await g1.getByRole('button', { name: '참석 의사 전달하기' }).click()
+  await g1.getByLabel('성함').fill('김참석')
+  await g1.getByRole('button', { name: '참석할게요' }).click()
+  await g1.getByRole('button', { name: '고기', exact: true }).click()
+  await g1.getByRole('button', { name: '보내기', exact: true }).click()
+  await g1.getByText('김참석님, 응답을 보냈어요.').waitFor()
+  // 항목이 3개 이상이면 탭 — 열린 탭 이름이 바뀌면 내용이 열린 것
+  await g1.getByRole('tab', { name: /입장 비밀번호/ }).click({ timeout: 10000 })
+  await g1.getByText(SECRET_BODY).waitFor({ timeout: 10000 })
+  check(true, '참석 응답 후: 참석자 전용 안내 내용 보임')
+  await g1.screenshot({ path: `${OUT}/p2-member-notice.png`, fullPage: true })
+  const tokenData = await g1.evaluate((sl) => localStorage.getItem('dearday:rsvp:' + sl), slug)
+  const attendToken = JSON.parse(tokenData ?? '{}').editToken as string
+
+  // 4) 다른 기기 · 불참 응답 · 가짜 토큰은 안 열림
+  const g2 = await guest(browser)
+  await g2.goto(url, { waitUntil: 'networkidle' })
+  await g2.getByRole('heading', { name: '안내', exact: true }).scrollIntoViewIfNeeded()
+  await g2.waitForTimeout(800)
+  check((await g2.getByText(SECRET_BODY).count()) === 0, '응답하지 않은 기기에는 안 보임')
+  await g2.getByRole('button', { name: '참석 의사 전달하기' }).click()
+  await g2.getByLabel('성함').fill('최불참')
+  await g2.getByRole('button', { name: '못 가요' }).click()
+  await g2.getByRole('button', { name: '보내기', exact: true }).click()
+  await g2.getByText('최불참님, 응답을 보냈어요.').waitFor()
+  await g2.waitForTimeout(800)
+  check((await g2.getByText(SECRET_BODY).count()) === 0, '불참으로 응답한 분에게는 안 보임')
+  const declinedToken = JSON.parse(
+    (await g2.evaluate((sl) => localStorage.getItem('dearday:rsvp:' + sl), slug)) ?? '{}',
+  ).editToken as string
+  const call = (tok: string) =>
+    bare.request.post(`${BASE}/api/i/${slug}/member-notice`, { data: { editToken: tok } })
+  const bogus = await call('x'.repeat(43))
+  const declined = await call(declinedToken)
+  check(bogus.status() === 403 && declined.status() === 403, '가짜 토큰 · 불참 토큰은 API 403')
+  const ok = await call(attendToken)
+  check(
+    ok.status() === 200 && (await ok.text()).includes(SECRET_BODY),
+    '참석 토큰은 API 200 + 내용',
+  )
+  check(
+    (await ok.headers()['cache-control'])?.includes('no-store') === true,
+    'API 응답은 캐시 금지',
+  )
+
+  // 5) 응답 취소 → 다시 잠김
+  await g1.getByRole('button', { name: '응답 취소' }).click()
+  await g1.getByRole('button', { name: '참석 의사 전달하기' }).waitFor()
+  await g1.waitForTimeout(500)
+  check((await g1.getByText(SECRET_BODY).count()) === 0, '응답 취소 후 다시 잠김')
+  void id
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -484,6 +601,7 @@ async function main() {
   if (run('thanks')) await thanksFlow(browser)
   if (run('album')) await albumFlow(browser)
   if (run('doljabi')) await doljabiFlow(browser)
+  if (run('member')) await memberNoticeFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

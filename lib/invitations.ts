@@ -5,6 +5,7 @@ import { cache } from 'react'
 
 import {
   parseShareOverride,
+  redactMemberOnly,
   toBlock,
   type Block,
   type EventType,
@@ -62,7 +63,11 @@ export const getPublishedInvitation = cache(
       theme: row.theme,
       font: row.font,
       share: parseShareOverride(row.share),
-      blocks: row.blocks.map(toBlock).filter((b): b is Block => b !== null),
+      blocks: row.blocks
+        .map(toBlock)
+        .filter((b): b is Block => b !== null)
+        // 참석자 전용 안내는 공개 데이터에 싣지 않음
+        .map(redactMemberOnly),
     }
   },
 )

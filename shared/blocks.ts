@@ -234,7 +234,17 @@ export const MAX_NOTICE_ITEMS = 6
 export const noticeConfigSchema = z.object({
   title: shortText(30).default('안내'),
   items: z
-    .array(z.object({ title: shortText(20).default(''), body: shortText(1000).default('') }))
+    .array(
+      z.object({
+        title: shortText(20).default(''),
+        body: shortText(1000).default(''),
+        /**
+         * 참석 응답을 보낸 분에게만 보임. 공개 초대장 데이터에는 제목 · 본문을 싣지 않고(redactMemberOnly),
+         * 참석 응답 토큰을 확인하는 API로만 내려 준다
+         */
+        attendeesOnly: z.boolean().default(false),
+      }),
+    )
     .max(MAX_NOTICE_ITEMS)
     .default([]),
   /** 선택 버튼 1개. 주소가 http(s)로 시작할 때만 하객 화면에 보임 */
@@ -414,3 +424,22 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('album'), config: albumConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>
+
+/**
+ * 공개 초대장(서버 HTML · RSC 데이터 · OG · 공유 카드)에 실을 블록에서 '참석한 분에게만' 안내의 제목 · 본문을 지운다.
+ * 항목 자리(attendeesOnly: true)만 남겨 하객 화면이 '참석자 전용 n개'를 알릴 수 있게 한다.
+ * 공개 데이터를 만드는 곳은 이 함수를 반드시 거칠 것 (lib/invitations.ts getPublishedInvitation).
+ */
+export function redactMemberOnly(block: Block): Block {
+  if (block.type !== 'notice') return block
+  if (!block.config.items.some((it) => it.attendeesOnly)) return block
+  return {
+    ...block,
+    config: {
+      ...block.config,
+      items: block.config.items.map((it) =>
+        it.attendeesOnly ? { title: '', body: '', attendeesOnly: true } : it,
+      ),
+    },
+  }
+}

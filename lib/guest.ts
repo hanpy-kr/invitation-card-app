@@ -194,3 +194,27 @@ export async function deleteGuestbookEntry(
     throw new ApiError(403, '비밀번호가 맞지 않아요.')
   await db.delete(schema.guestbookEntries).where(eq(schema.guestbookEntries.id, row.id))
 }
+
+/**
+ * 참석자 전용 안내: 참석 응답 토큰(하객 브라우저 localStorage)으로 '참석'이라고 응답한 사람임을 확인한 뒤에만 내용을 준다.
+ * 공개 초대장 데이터에는 이 내용이 없다(redactMemberOnly).
+ */
+export async function memberNotices(
+  slug: string,
+  editToken: string | undefined,
+): Promise<{ items: { index: number; title: string; body: string }[] }> {
+  const { invitationId, config } = await getTarget(slug, 'notice')
+  const rid = await findOwnRsvp(invitationId, editToken)
+  if (!rid) throw new ApiError(403, '참석 응답을 보낸 분에게만 보여요.')
+  const [r] = await getDb()
+    .select({ attending: schema.rsvps.attending })
+    .from(schema.rsvps)
+    .where(and(eq(schema.rsvps.id, rid), eq(schema.rsvps.invitationId, invitationId)))
+  if (!r?.attending) throw new ApiError(403, '참석 응답을 보낸 분에게만 보여요.')
+  return {
+    items: config.items
+      .map((it, index) => ({ index, title: it.title, body: it.body, only: it.attendeesOnly }))
+      .filter((it) => it.only && (it.title || it.body))
+      .map(({ index, title, body }) => ({ index, title, body })),
+  }
+}

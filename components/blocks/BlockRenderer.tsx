@@ -59,7 +59,7 @@ export function BlockView({
     case 'account':
       return <Account config={block.config} />
     case 'notice':
-      return <Notice config={block.config} />
+      return <Notice config={block.config} ctx={ctx} />
     case 'calendar':
       return <Calendar config={block.config} ctx={ctx} place={place} />
     case 'contact':
