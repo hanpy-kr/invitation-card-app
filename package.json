@@ -22,6 +22,7 @@
     "e2e:d3": "tsx scripts/e2e-d3.ts",
     "e2e:p0": "tsx scripts/e2e-p0.ts",
     "e2e:p1": "tsx scripts/e2e-p1.ts",
+    "e2e:p2": "tsx scripts/e2e-p2.ts",
     "backfill:share": "tsx scripts/backfill-share-images.ts",
     "perf": "tsx scripts/perf.ts"
   },

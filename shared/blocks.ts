@@ -130,7 +130,8 @@ export const greetingConfigSchema = z.object({
 export const galleryConfigSchema = z.object({
   title: shortText(30).default('사진첩'),
   images: z.array(mediaRefSchema).max(MAX_GALLERY_IMAGES).default([]),
-  layout: z.enum(['grid', 'slide']).default('grid'),
+  /** grid: 정사각 바둑판 · ratio: 원본 비율(2열) · slide: 옆으로 넘겨 보기 */
+  layout: z.enum(['grid', 'ratio', 'slide']).default('grid'),
 })
 
 export const locationConfigSchema = z.object({

@@ -63,6 +63,7 @@ export async function duplicateInvitation(
     title: string
     eventType: typeof src.eventType
     theme: string
+    font: string | null
     eventAt: Date | null
     share: unknown
     blocks: (BlockInput & { visible: boolean })[]
@@ -72,6 +73,7 @@ export async function duplicateInvitation(
       title: `${src.title} (복사본)`.slice(0, 60),
       eventType: src.eventType,
       theme: src.theme,
+      font: src.font,
       eventAt: src.eventAt,
       share,
       blocks: blocks.map((b) => ({
@@ -96,6 +98,7 @@ export async function duplicateInvitation(
       title: fill(t.title),
       eventType: 'prewedding',
       theme: src.theme,
+      font: src.font,
       eventAt: null,
       share: { title: '', description: '', image: null },
       blocks: t.blocks.map((blk) => {
@@ -145,6 +148,7 @@ export async function duplicateInvitation(
           title: draft.title,
           eventAt: draft.eventAt,
           theme: draft.theme,
+          font: draft.font,
           share: shareOut,
           status: 'draft',
         })

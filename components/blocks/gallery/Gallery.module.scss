@@ -30,3 +30,60 @@
     }
   }
 }
+
+// 원본 비율: 2열, 사진 비율 그대로
+.wrap-images.ratio {
+  display: block;
+  column-count: 2;
+  column-gap: 6px;
+
+  li {
+    break-inside: avoid;
+    margin-bottom: 6px;
+  }
+
+  .wrap-image {
+    display: block;
+    border-radius: 8px;
+
+    &::after {
+      display: none;
+    }
+
+    img {
+      position: static;
+      height: auto;
+      display: block;
+    }
+  }
+}
+
+// 넘겨 보기: 가로 스크롤 스냅 (JS 라이브러리 없이)
+.wrap-images.slide {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  li {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+  }
+
+  .wrap-image::after {
+    padding-bottom: 125%;
+  }
+}
+
+.counter {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}

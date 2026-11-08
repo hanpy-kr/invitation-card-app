@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import BlockRenderer from '@/components/blocks/BlockRenderer'
 import { displayTextOf } from '@/components/blocks/displayText'
 import type { BlockContext } from '@/components/blocks/types'
-import { preloadDisplayFont } from '@/lib/fonts/display-font'
+import { fontCssHref, preloadDisplayFont } from '@/lib/fonts/display-font'
 import { getPublishedInvitation } from '@/lib/invitations'
 import { getMediaBaseUrl } from '@/lib/media'
 import { getEntitlements } from '@/shared/entitlements'
@@ -17,7 +17,7 @@ import {
   shareImagePath,
   shareTitle,
 } from '@/shared/share'
-import { themeStyle } from '@/shared/themes'
+import { resolveFont, themeStyle } from '@/shared/themes'
 
 import GuestFooter from './GuestFooter'
 import ViewBeacon from './ViewBeacon'
@@ -60,7 +60,9 @@ export default async function InvitationPage({ params }: Props) {
   if (!inv) notFound()
 
   // 손글씨로 그려질 글자에 필요한 폰트 조각만 HTML에서 바로 받기 시작
-  preloadDisplayFont(displayTextOf(inv.blocks, inv.eventAt))
+  const font = resolveFont(inv.theme, inv.font)
+  const fontCss = fontCssHref(font)
+  preloadDisplayFont(displayTextOf(inv.blocks, inv.eventAt), font)
 
   const ctx: BlockContext = {
     slug: inv.slug,
@@ -74,7 +76,8 @@ export default async function InvitationPage({ params }: Props) {
   const pageUrl = `${siteUrl()}/i/${inv.slug}`
 
   return (
-    <div className={styles.page} style={themeStyle(inv.theme)}>
+    <div className={styles.page} style={themeStyle(inv.theme, inv.font)}>
+      {fontCss ? <link rel="stylesheet" href={fontCss} precedence="font" /> : null}
       <main className={styles.column}>
         <BlockRenderer blocks={inv.blocks} ctx={ctx} />
         <ViewBeacon slug={inv.slug} />

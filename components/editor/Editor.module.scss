@@ -527,3 +527,37 @@ $wide: 960px;
   text-decoration: none;
   margin-right: 6px;
 }
+
+.fonts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.fontOption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid #e3dcdc;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+
+  b {
+    font-size: 17px;
+    font-weight: 400;
+  }
+
+  small {
+    font-size: 11px;
+    color: #89757a;
+  }
+
+  &[aria-checked='true'] {
+    border-color: var(--accent, #ea7664);
+    box-shadow: 0 0 0 1px var(--accent, #ea7664);
+  }
+}

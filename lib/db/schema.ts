@@ -46,6 +46,8 @@ export const invitations = pgTable(
     title: text('title').notNull().default(''),
     eventAt: timestamp('event_at', { withTimezone: true }),
     theme: text('theme').notNull().default('classic'),
+    /** 제목 · 인사말 글씨체(shared/fonts.ts). null이면 테마의 기본 글씨체 */
+    font: text('font'),
     coverMediaId: uuid('cover_media_id').references((): AnyPgColumn => media.id, {
       onDelete: 'set null',
     }),

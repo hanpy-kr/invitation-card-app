@@ -37,6 +37,7 @@ export function BlockView({
       return (
         <Gallery
           title={block.config.title}
+          layout={block.config.layout}
           images={block.config.images.map((m) => ({
             src: mediaSrc(ctx.mediaBaseUrl, m.key),
             // 바둑판은 썸네일, 크게 보기는 원본. 썸네일 표시가 없는 예전 사진은 원본

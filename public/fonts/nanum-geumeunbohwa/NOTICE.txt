@@ -1,0 +1,7 @@
+나눔손글씨 금은보화 (NanumGeumEunBoHwa) — 1차 런칭 때부터 쓰는 기본 글씨체
+
+글꼴 파일에 들어 있는 저작권 표기:
+  Copyright © 2019 NAVER Corporation. All rights reserved. Font created by CLOVA AI OCR Team.
+
+이 파일에는 라이선스 본문이 들어 있지 않다. 배포처(네이버 한글한글아름답게, hangeul.naver.com)의
+라이선스 안내를 사용자가 확인한 뒤 이 자리에 본문을 넣을 것 (docs/PLAN.md '글씨체' 표 참고).

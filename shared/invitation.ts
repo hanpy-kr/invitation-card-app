@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { BLOCK_TYPES, blockInputSchema, EVENT_TYPES, shareOverrideSchema } from './blocks'
+import { FONT_KEYS } from './fonts'
 import { THEME_KEYS } from './themes'
 
 /** 편집기 · API 공용 입력 스키마 */
@@ -21,6 +22,8 @@ export const invitationMetaSchema = z.object({
   /** ISO 8601 (오프셋 포함) */
   eventAt: z.iso.datetime({ offset: true }).nullable(),
   theme: z.enum(THEME_KEYS as [string, ...string[]]),
+  /** null이면 테마의 기본 글씨체 */
+  font: z.enum(FONT_KEYS as [string, ...string[]]).nullable().default(null),
   share: shareOverrideSchema.default({ title: '', description: '', image: null }),
 })
 export type InvitationMeta = z.infer<typeof invitationMetaSchema>

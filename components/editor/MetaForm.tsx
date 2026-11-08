@@ -3,7 +3,8 @@
 import { EVENT_TYPE_LABELS, EVENT_TYPE_ORDER } from '@/shared/blocks'
 import { kstInputToIso, toKstDateString, toKstTimeString } from '@/shared/date'
 import type { InvitationMeta } from '@/shared/invitation'
-import { THEME_KEYS, THEMES } from '@/shared/themes'
+import { FONT_KEYS, FONTS } from '@/shared/fonts'
+import { resolveFont, themesForEvent, THEMES } from '@/shared/themes'
 
 import styles from './Editor.module.scss'
 import fieldStyles from './fields.module.scss'
@@ -18,6 +19,7 @@ export default function MetaForm({
 }) {
   const date = meta.eventAt ? toKstDateString(meta.eventAt) : ''
   const time = meta.eventAt ? toKstTimeString(meta.eventAt) : ''
+  const current = resolveFont(meta.theme, meta.font)
   const set = (patch: Partial<InvitationMeta>) => onChange((m) => ({ ...m, ...patch }))
 
   return (
@@ -53,17 +55,41 @@ export default function MetaForm({
       <div className={fieldStyles.field} role="radiogroup" aria-label="테마 색">
         <span>테마 색</span>
         <div className={styles.swatches}>
-          {THEME_KEYS.map((key) => (
+          {themesForEvent(meta.eventType).map((key) => (
             <button
               key={key}
               type="button"
               role="radio"
               aria-checked={meta.theme === key}
               className={styles.swatch}
-              onClick={() => set({ theme: key })}
+              onClick={() => set({ theme: key, font: null })}
             >
               <i style={{ background: THEMES[key].vars.accent }} />
               {THEMES[key].label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className={fieldStyles.field} role="radiogroup" aria-label="글씨체">
+        <span>제목 · 인사말 글씨체</span>
+        {/* 고르는 칸 미리보기를 위해 이 칸이 열려 있는 동안 글씨체 CSS를 모두 불러옴 (글자 조각은 쓰는 만큼만) */}
+        {FONT_KEYS.map((key) =>
+          FONTS[key].css ? (
+            <link key={key} rel="stylesheet" href={FONTS[key].css} precedence="font" />
+          ) : null,
+        )}
+        <div className={styles.fonts}>
+          {FONT_KEYS.map((key) => (
+            <button
+              key={key}
+              type="button"
+              role="radio"
+              aria-checked={current === key}
+              className={styles.fontOption}
+              onClick={() => set({ font: key })}
+            >
+              <b style={{ fontFamily: `'${FONTS[key].family}'` }}>{FONTS[key].label}</b>
+              <small>{FONTS[key].note}</small>
             </button>
           ))}
         </div>

@@ -20,6 +20,7 @@ export type PublicInvitation = {
   title: string
   eventAt: string | null
   theme: string
+  font: string | null
   share: ShareOverride
   blocks: Block[]
 }
@@ -40,6 +41,7 @@ export const getPublishedInvitation = cache(
         title: true,
         eventAt: true,
         theme: true,
+        font: true,
         status: true,
         share: true,
       },
@@ -58,6 +60,7 @@ export const getPublishedInvitation = cache(
       title: row.title,
       eventAt: row.eventAt ? row.eventAt.toISOString() : null,
       theme: row.theme,
+      font: row.font,
       share: parseShareOverride(row.share),
       blocks: row.blocks.map(toBlock).filter((b): b is Block => b !== null),
     }

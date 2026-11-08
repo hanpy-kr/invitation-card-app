@@ -126,7 +126,19 @@ main 푸시 = 운영 배포이므로 항목마다 `pnpm lint && pnpm typecheck &
 
 ## P2 · 12/5까지 — 결혼 완성도 (유료 후보, 일단 무료)
 
-- [ ] 사진첩 레이아웃: 넘겨 보기 다시 켜기, 원본 비율. 디자인 템플릿 추가(행사별 2~3종), 글씨체 3~5종(무료 라이선스, 지금 손글씨처럼 조각 + 미리 받기)
+- [x] 사진첩 레이아웃(바둑판 · 원본 비율 · 넘겨 보기[CSS 스크롤 스냅, JS 추가 없음]) · 디자인 템플릿 테마 6종 추가(아이보리 · 세이지 · 써니 · 스카이 · 와인 · 파인, 행사별 추천 순서) · 글씨체 5종(아래 표). `invitations.font`(null = 테마 기본 글씨체)
+
+  ### 글씨체 (모두 woff2만, 라이선스 파일 함께)
+
+  | 글씨체 | 출처 | 라이선스 | 파일 |
+  | --- | --- | --- | --- |
+  | 고운바탕 Gowun Batang | npm `@fontsource/gowun-batang` 5.3.0 (Google Fonts, 원작 Yanghee Ryu) | SIL OFL 1.1 | `public/fonts/gowun-batang/` (LICENSE.txt) |
+  | 고운돋움 Gowun Dodum | npm `@fontsource/gowun-dodum` 5.3.0 (Google Fonts) | SIL OFL 1.1 | `public/fonts/gowun-dodum/` |
+  | 송명 Song Myung | npm `@fontsource/song-myung` 5.3.1 (Google Fonts) | SIL OFL 1.1 | `public/fonts/song-myung/` |
+  | 개구 Gaegu | npm `@fontsource/gaegu` 5.3.0 (Google Fonts) | SIL OFL 1.1 | `public/fonts/gaegu/` |
+  | 금은보화 NanumGeumEunBoHwa (1차부터 기본) | 나눔손글씨 계열, 원본은 `assets/fonts/` (파일 내 표기: NAVER Corporation 2019) | ⏸ 파일에 라이선스 본문 없음 — 사용자 확인 필요 | `public/fonts/nanum-geumeunbohwa/NOTICE.txt` |
+
+  가져오는 방법: `scripts/import-fontsource.mjs`. 고른 초대장만 `/fonts/<id>/v1/font.css`를 불러옴(기본 글씨체는 전역 CSS).
 - [ ] 영상 블록 `video`: 유튜브 링크 → 썸네일만 먼저, 누르면 `youtube-nocookie` 재생. 배경음악 `music`: 주최자가 올린 mp3/m4a(10MB 이하, R2), 자동재생 없이 떠 있는 재생 버튼
 - [ ] 감사장: 행사 종류 `thanks` + 템플릿(사진 표지 · 감사 인사 · 사진첩). 결혼 · 돌 초대장에서 [감사장 만들기](복제 기능 재사용)
 - [ ] 하객 앨범 블록 `album`: 로그인 없이 사진 올리기(브라우저 축소 후 업로드, IP당 · 초대장당 한도), 주최자 숨김 · 삭제, 원본 받기

@@ -142,6 +142,7 @@ export async function getEditableInvitation(
       eventType: row.eventType,
       eventAt: row.eventAt ? row.eventAt.toISOString() : null,
       theme: row.theme,
+      font: row.font,
       share: parseShareOverride(row.share),
     },
     blocks: row.blocks
@@ -186,6 +187,7 @@ export async function saveInvitation(
         eventType: input.meta.eventType,
         eventAt: input.meta.eventAt ? new Date(input.meta.eventAt) : null,
         theme: input.meta.theme,
+        font: input.meta.font,
         share: input.meta.share,
         // 표지 사진이 이 초대장의 사진일 때만 연결 (없으면 null)
         coverMediaId: coverMediaId

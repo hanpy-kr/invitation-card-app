@@ -78,6 +78,13 @@
       "when": 1794046625076,
       "tag": "0010_anonymous_users",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794119952198,
+      "tag": "0011_stiff_mephisto",
+      "breakpoints": true
     }
   ]
 }
