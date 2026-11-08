@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 
 import { NextResponse, type NextRequest } from 'next/server'
 
+import { notifyConfigured } from '@/lib/notify'
 import { devLoginEnabled, kakaoAuthorizeUrl, kakaoConfigured } from '@/lib/auth/kakao'
 import { mergeAnonymousInto } from '@/lib/auth/anonymous'
 import { cookieBase, getSession, OAUTH_COOKIE, setSessionCookie } from '@/lib/auth/session'
@@ -34,10 +35,17 @@ export async function GET(req: NextRequest) {
   }
 
   const state = randomBytes(16).toString('base64url')
-  const res = NextResponse.redirect(kakaoAuthorizeUrl(state))
+  // 새 응답 카톡 알림 켜기: 켜는 사람에게만 '카카오톡 메시지 전송' 동의를 추가로 받는다
+  const notify = req.nextUrl.searchParams.get('notify') === '1' && notifyConfigured()
+  const res = NextResponse.redirect(kakaoAuthorizeUrl(state, notify ? 'talk_message' : undefined))
   res.cookies.set(
     OAUTH_COOKIE,
-    signPayload({ state, next, exp: Math.floor(Date.now() / 1000) + 600 }),
+    signPayload({
+      state,
+      next,
+      ...(notify ? { notify: 1 } : {}),
+      exp: Math.floor(Date.now() / 1000) + 600,
+    }),
     {
       ...cookieBase,
       maxAge: 600,

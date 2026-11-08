@@ -589,6 +589,77 @@ async function memberNoticeFlow(browser: Browser) {
   void id
 }
 
+async function notifyFlow(browser: Browser) {
+  // 서버를 KAKAO_TOKEN_KEY(hex 64자)와 함께 띄워야 함. 실제 카카오는 부르지 않음(샌드박스에서는 연결 실패 → 조용히 건너뜀)
+  const key = process.env.KAKAO_TOKEN_KEY
+  if (!key)
+    return console.log('  (건너뜀) KAKAO_TOKEN_KEY 없이 실행 — 알림 흐름은 키가 있어야 확인 가능')
+
+  // 1) 알림 켜기는 talk_message 동의를 추가로 요청, 일반 로그인은 요청하지 않음
+  const bare = await browser.newContext(mobile)
+  const on = await bare.request.get(`${BASE}/api/auth/kakao/login?notify=1&next=/dashboard`, {
+    maxRedirects: 0,
+  })
+  check(
+    (on.headers().location ?? '').includes('scope=talk_message'),
+    '알림 켜기 로그인은 talk_message 동의를 요청',
+  )
+  const plain = await bare.request.get(`${BASE}/api/auth/kakao/login?next=/dashboard`, {
+    maxRedirects: 0,
+  })
+  check(!(plain.headers().location ?? '').includes('scope='), '일반 로그인은 추가 동의 없음')
+
+  // 2) 대시보드에 알림 버튼이 보임
+  const { page: host, id } = await createInvitation(browser, /송년회/)
+  await host.getByLabel('초대장 제목').fill('E2E 알림')
+  await waitSaved(host)
+  const url = await publish(host)
+  const slug = url.split('/i/')[1]
+  await host.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
+  check(await host.getByText('알림 켜기').isVisible(), '대시보드에 [알림 켜기]')
+
+  // 3) 토큰이 있는 주최자: 응답이 와도 응답 저장은 성공(카카오 호출 실패는 삼킴), 3초 안팎에 끝남
+  const enc = execFileSync(
+    'node',
+    [
+      '--conditions=react-server',
+      '--import',
+      'tsx',
+      '-e',
+      "import('./lib/crypto.ts').then((m) => process.stdout.write(m.encryptSecret('fake-refresh-token')))",
+    ],
+    { encoding: 'utf8', env: process.env },
+  )
+  execFileSync('psql', [
+    process.env.DATABASE_URL ?? 'postgres://dearday:dearday@localhost:5432/dearday',
+    '-c',
+    `update users set kakao_refresh_enc='${enc}', notify_rsvp=true where id=(select owner_id from invitations where id='${id}')`,
+  ])
+  await host.reload({ waitUntil: 'networkidle' })
+  check(
+    await host.getByRole('button', { name: '알림 끄기' }).isVisible(),
+    '켜진 상태면 [알림 끄기]',
+  )
+  const t0 = Date.now()
+  const res = await bare.request.post(`${BASE}/api/i/${slug}/rsvp`, {
+    data: { name: '알림테스트', attending: false, partySize: 1, meal: null, answers: {} },
+  })
+  check(res.status() < 300, `토큰이 있어도 응답 저장 성공 (${res.status()}, ${Date.now() - t0}ms)`)
+  check(Date.now() - t0 < 7000, '알림 때문에 응답이 오래 막히지 않음')
+
+  // 4) 끄면 토큰이 지워짐
+  await host.getByRole('button', { name: '알림 끄기' }).click()
+  await host.getByText('알림을 받을 수 있어요').waitFor()
+  const left = execFileSync('psql', [
+    process.env.DATABASE_URL ?? 'postgres://dearday:dearday@localhost:5432/dearday',
+    '-tAc',
+    `select count(*) from users where kakao_refresh_enc is not null and id=(select owner_id from invitations where id='${id}')`,
+  ])
+    .toString()
+    .trim()
+  check(left === '0', '알림을 끄면 암호화된 토큰도 지워짐')
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -602,6 +673,7 @@ async function main() {
   if (run('album')) await albumFlow(browser)
   if (run('doljabi')) await doljabiFlow(browser)
   if (run('member')) await memberNoticeFlow(browser)
+  if (run('notify')) await notifyFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

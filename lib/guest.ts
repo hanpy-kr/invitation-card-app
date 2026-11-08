@@ -13,6 +13,7 @@ import {
 import { cleanAnswers } from '@/shared/rsvp-questions'
 
 import { ApiError } from './api'
+import { notifyNewRsvp } from './notify'
 import { verifyPayload } from './auth/token'
 import { getDb, schema } from './db/client'
 import { hashGuestToken, isGuestToken, newGuestToken } from './guest-token'
@@ -92,6 +93,12 @@ export async function submitRsvp(slug: string, input: RsvpInput): Promise<{ edit
   }
   if (!id) {
     await db.insert(schema.rsvps).values({ invitationId, ...values })
+    // 새 응답 카톡 알림 (주최자가 켠 경우만). 실패해도 응답은 성공 — 3초 안에 끝나지 않으면 건너뜀
+    await notifyNewRsvp(invitationId, {
+      name: values.name,
+      attending: values.attending,
+      partySize: values.partySize,
+    })
   }
   return { editToken: token }
 }

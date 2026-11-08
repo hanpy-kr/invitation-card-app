@@ -31,6 +31,10 @@ export const users = pgTable('users', {
   nickname: text('nickname').notNull().default(''),
   /** (2차) 로그인 없이 만들기 시작한 임시 사용자 */
   anonymous: boolean('anonymous').notNull().default(false),
+  /** (2차 P2⑦) 새 응답 카톡 알림용 카카오 refresh token. AES-256-GCM으로 암호화해 저장 (KAKAO_TOKEN_KEY) */
+  kakaoRefreshEnc: text('kakao_refresh_enc'),
+  /** 새 응답 카톡 알림 켜짐 (토큰이 있어야 실제로 보냄) */
+  notifyRsvp: boolean('notify_rsvp').notNull().default(false),
   createdAt: createdAt(),
 })
 

@@ -18,16 +18,22 @@ export function kakaoRedirectUri(): string {
   return process.env.KAKAO_REDIRECT_URI || `${siteUrl()}/api/auth/kakao/callback`
 }
 
-export function kakaoAuthorizeUrl(state: string): string {
+export function kakaoAuthorizeUrl(state: string, scope?: string): string {
   const url = new URL('/oauth/authorize', KAUTH)
   url.searchParams.set('client_id', process.env.KAKAO_REST_API_KEY ?? '')
   url.searchParams.set('redirect_uri', kakaoRedirectUri())
   url.searchParams.set('response_type', 'code')
   url.searchParams.set('state', state)
+  if (scope) url.searchParams.set('scope', scope)
   return url.toString()
 }
 
-export type KakaoProfile = { kakaoId: string; nickname: string }
+export type KakaoProfile = {
+  kakaoId: string
+  nickname: string
+  /** 사용자가 talk_message(카카오톡 메시지 전송)에 동의했을 때만 */
+  refreshToken?: string
+}
 
 export async function fetchKakaoProfile(code: string): Promise<KakaoProfile> {
   const body = new URLSearchParams({
@@ -47,7 +53,11 @@ export async function fetchKakaoProfile(code: string): Promise<KakaoProfile> {
   })
   if (!tokenRes.ok)
     throw new Error(`카카오 토큰 발급 실패 (${tokenRes.status}): ${await tokenRes.text()}`)
-  const { access_token } = (await tokenRes.json()) as { access_token?: string }
+  const { access_token, refresh_token, scope } = (await tokenRes.json()) as {
+    access_token?: string
+    refresh_token?: string
+    scope?: string
+  }
   if (!access_token) throw new Error('카카오 토큰 응답에 access_token이 없습니다.')
 
   const meRes = await fetch(`${KAPI}/v2/user/me`, {
@@ -61,5 +71,10 @@ export async function fetchKakaoProfile(code: string): Promise<KakaoProfile> {
     kakao_account?: { profile?: { nickname?: string } }
   }
   const nickname = me.kakao_account?.profile?.nickname ?? me.properties?.nickname ?? ''
-  return { kakaoId: String(me.id), nickname: nickname.slice(0, 40) }
+  const talk = refresh_token && (scope ?? '').split(' ').includes('talk_message')
+  return {
+    kakaoId: String(me.id),
+    nickname: nickname.slice(0, 40),
+    ...(talk ? { refreshToken: refresh_token } : {}),
+  }
 }

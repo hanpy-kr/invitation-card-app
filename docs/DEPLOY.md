@@ -59,6 +59,7 @@
 | `R2_BUCKET` | `dearday-media` |
 | `R2_PUBLIC_BASE_URL` | `https://media.thedearday.com` |
 | `ADMIN_KAKAO_IDS` | (2차, 선택) `/admin/stats`를 볼 카카오 회원번호, 쉼표로 구분. 비워 두면 아무도 못 봄 |
+| `KAKAO_TOKEN_KEY` | (2차, 선택) 새 응답 카톡 알림용 카카오 토큰 암호화 키. `openssl rand -hex 32` (hex 64자). 비워 두면 알림 기능이 숨겨짐. **한 번 정하면 바꾸지 말 것** — 바꾸면 저장된 토큰을 못 읽어 알림이 멈추고, 이용자가 다시 켜야 함 |
 
 `DEV_LOGIN`은 **넣지 않습니다**. (넣어도 amplify.yml이 런타임에 넘기지 않고, 코드도 localhost에서만 허용)
 
@@ -136,3 +137,11 @@ curl -sI https://thedearday.com/fonts/nanum-geumeunbohwa/v1/119.woff2 | grep -iE
 
 - 서버 런타임용 비밀값이 `.env.production`으로 배포 산출물에 들어감 (AWS 문서 방식). 산출물 접근 권한을 AWS 계정 관리자로 한정할 것. 나중에 SSM Parameter Store + IAM 역할로 옮기는 것을 검토
 - `pnpm db:migrate`가 빌드마다 실행됨. 이미 적용된 마이그레이션은 건너뜀. 테이블을 지우는 마이그레이션은 만들지 않는 것을 원칙으로
+
+## 새 응답 카톡 알림 켜기 (⏸ 사용자 작업)
+
+코드는 들어 있지만 아래를 마치기 전에는 대시보드에 알림 버튼이 보이지 않습니다.
+
+1. 카카오 개발자 콘솔 → 내 애플리케이션 → 카카오 로그인 → 동의항목 → **카카오톡 메시지 전송(`talk_message`)** 을 '선택 동의'로 설정
+2. Amplify 환경변수 `KAKAO_TOKEN_KEY` 추가 (`openssl rand -hex 32`) → **재배포**
+3. 대시보드에서 [알림 켜기] → 카카오 동의 → 새 응답이 오면 내 카카오톡(나와의 채팅)으로 알림

@@ -3,10 +3,12 @@ import Link from 'next/link'
 
 import { requireSession } from '@/lib/auth/session'
 import { listMyInvitations } from '@/lib/dashboard'
+import { getNotifyState } from '@/lib/notify'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
 
 import DuplicateButtons from './DuplicateButtons'
+import NotifyToggle from './NotifyToggle'
 import styles from './page.module.scss'
 import WithdrawButton from './WithdrawButton'
 
@@ -15,7 +17,10 @@ export const metadata: Metadata = { title: '내 초대장 — dearday', robots: 
 
 export default async function DashboardPage() {
   const session = await requireSession('/dashboard')
-  const invitations = await listMyInvitations(session.userId)
+  const [invitations, notify] = await Promise.all([
+    listMyInvitations(session.userId),
+    session.anonymous ? null : getNotifyState(session.userId),
+  ])
 
   return (
     <main className={styles.page}>
@@ -38,6 +43,8 @@ export default async function DashboardPage() {
           <a href="/api/auth/kakao/login?next=/dashboard">카카오로 로그인</a>
         </div>
       ) : null}
+
+      {notify?.available ? <NotifyToggle on={notify.on} /> : null}
 
       <Link href="/new" className={styles.create}>
         + 새 초대장 만들기
@@ -84,9 +91,7 @@ export default async function DashboardPage() {
                     초대장 보기
                   </Link>
                 ) : null}
-                {inv.isOwner ? (
-                  <DuplicateButtons id={inv.id} eventType={inv.eventType} />
-                ) : null}
+                {inv.isOwner ? <DuplicateButtons id={inv.id} eventType={inv.eventType} /> : null}
               </div>
             </li>
           ))}
