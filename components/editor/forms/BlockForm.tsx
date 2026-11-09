@@ -24,10 +24,18 @@ type AnyUpdater = (fn: (c: EditorBlock['config']) => EditorBlock['config']) => v
 const as = <K extends BlockType>(update: AnyUpdater) =>
   update as unknown as (fn: (c: BlockConfigMap[K]) => BlockConfigMap[K]) => void
 
-export default function BlockForm({ block, update }: { block: EditorBlock; update: AnyUpdater }) {
+export default function BlockForm({
+  block,
+  update,
+  eventType,
+}: {
+  block: EditorBlock
+  update: AnyUpdater
+  eventType: string
+}) {
   switch (block.type) {
     case 'cover':
-      return <CoverForm config={block.config} update={as<'cover'>(update)} />
+      return <CoverForm config={block.config} update={as<'cover'>(update)} eventType={eventType} />
     case 'greeting':
       return <GreetingForm config={block.config} update={as<'greeting'>(update)} />
     case 'gallery':

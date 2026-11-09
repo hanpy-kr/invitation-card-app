@@ -1,5 +1,6 @@
 import { EVENT_TYPE_LABELS, type EventType } from './blocks'
 import { formatEventDateTime, formatTime } from './date'
+import { coverShareSrc, findCover } from './covers'
 import { mediaSrc, shareKey } from './media'
 import { isDateVoting } from './vote'
 
@@ -50,7 +51,7 @@ function sharePhoto(ref: PhotoRef, mediaBaseUrl: string): string | null {
 
 /**
  * 공유 카드 · og:image: 표지 사진 → 사진첩 사진 순서로 카톡에서 보이는 첫 사진,
- * 없으면 행사 종류별 기본 이미지(PNG). 상대 경로일 수 있음
+ * 사진이 없으면 디자인 표지 그림, 그것도 없으면 행사 종류별 기본 이미지(PNG). 상대 경로일 수 있음
  */
 export function shareImagePath(inv: ShareInput, mediaBaseUrl: string): string {
   const candidates: PhotoRef[] = inv.share?.image ? [inv.share.image] : []
@@ -66,6 +67,13 @@ export function shareImagePath(inv: ShareInput, mediaBaseUrl: string): string {
   for (const ref of candidates) {
     const src = sharePhoto(ref, mediaBaseUrl)
     if (src) return src
+  }
+  // 사진이 없으면 디자인 표지 그림 (JPEG 사본)
+  for (const b of inv.blocks) {
+    if (!b.visible || b.type !== 'cover') continue
+    const c = b.config as { layout?: string; designKey?: string | null }
+    const design = c.layout === 'design' ? findCover(c.designKey) : undefined
+    if (design) return coverShareSrc(design)
   }
   return `/og/${inv.eventType}`
 }

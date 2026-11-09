@@ -11,6 +11,7 @@ import {
   type BlockType,
 } from '@/shared/blocks'
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
+import { findCover } from '@/shared/covers'
 import { getEntitlements } from '@/shared/entitlements'
 import { collectAudioRefs, collectMediaRefs } from '@/shared/media'
 import { buildFromLayout, buildTemplate } from '@/shared/templates'
@@ -77,6 +78,28 @@ export async function createInvitation(
         isBlockType(b.type),
       )
       const built = buildFromLayout(eventType, layout)
+      // 원본의 표지 config에서는 '디자인 표지 key' 하나만 읽는다 (개인 정보가 아님, 목록에 있는 key만 인정)
+      const [pick] = await getDb()
+        .select({
+          key: sql<
+            string | null
+          >`case when ${schema.blocks.config}->>'layout' = 'design' then ${schema.blocks.config}->>'designKey' end`,
+        })
+        .from(schema.blocks)
+        .innerJoin(schema.invitations, eq(schema.invitations.id, schema.blocks.invitationId))
+        .where(and(eq(schema.invitations.slug, source.slug), eq(schema.blocks.type, 'cover')))
+        .limit(1)
+      if (findCover(pick?.key)) {
+        for (const b of built.blocks) {
+          if (b.type === 'cover') {
+            b.config = parseBlockConfig('cover', {
+              ...b.config,
+              layout: 'design',
+              designKey: pick!.key,
+            })
+          }
+        }
+      }
       template = { title: built.title, theme: source.theme, blocks: built.blocks }
       createdFrom = source.slug
     }

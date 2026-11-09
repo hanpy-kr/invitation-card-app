@@ -1,5 +1,6 @@
 'use client'
 
+import { findCover } from '@/shared/covers'
 import { useState } from 'react'
 
 import type { EditorBlock, InvitationMeta } from '@/shared/invitation'
@@ -234,6 +235,9 @@ function checkBeforePublish(meta: InvitationMeta, blocks: EditorBlock[]): string
     if (!b.visible) continue
     if (b.type === 'cover' && b.config.layout === 'photo' && !b.config.image) {
       out.push('표지 사진이 비어 있어요.')
+    }
+    if (b.type === 'cover' && b.config.layout === 'design' && !findCover(b.config.designKey)) {
+      out.push('표지 디자인을 고르지 않았어요 (글자만 표지로 나와요).')
     }
     if (b.type === 'location' && !b.config.address) out.push('오시는 길에 주소가 비어 있어요.')
     if (b.type === 'gallery' && b.config.images.length === 0)

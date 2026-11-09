@@ -84,6 +84,7 @@ async function voteFlow(browser: Browser) {
   const weddingId = host.url().split('/').pop()!
   await host.getByLabel('초대장 제목').fill('E2E 민준 ♥ 서연 결혼합니다')
   await host.getByRole('button', { name: '표지', exact: true }).click()
+  await host.getByRole('button', { name: '사진', exact: true }).click() // 결혼 템플릿은 디자인 표지로 시작
   await host.locator('input[type=file]').first().setInputFiles(`${PHOTOS}/photo_1.jpg`)
   await host.getByAltText('표지 사진 미리보기').waitFor({ timeout: 30000 })
   const weddingCover = await host.getByAltText('표지 사진 미리보기').getAttribute('src')

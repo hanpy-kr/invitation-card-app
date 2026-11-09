@@ -207,6 +207,7 @@ async function thanksFlow(browser: Browser) {
   const { page: host } = await createInvitation(browser, /결혼식/)
   await host.getByLabel('초대장 제목').fill('E2E 감사장 원본 결혼')
   await host.getByRole('button', { name: '표지', exact: true }).click()
+  await host.getByRole('button', { name: '사진', exact: true }).click() // 결혼 템플릿은 디자인 표지로 시작
   await host.locator('input[type=file]').first().setInputFiles(`${PHOTOS}/photo_1.jpg`)
   await host.getByAltText('표지 사진 미리보기').waitFor({ timeout: 30000 })
   const srcCover = await host.getByAltText('표지 사진 미리보기').getAttribute('src')
@@ -229,6 +230,13 @@ async function thanksFlow(browser: Browser) {
   )
   check((await host.getByLabel('행사 종류').inputValue()) === 'thanks', '감사장: 행사 종류 thanks')
   await host.getByRole('button', { name: '표지', exact: true }).click()
+  check(
+    (await host
+      .getByRole('button', { name: '디자인', exact: true })
+      .getAttribute('aria-pressed')) === 'true',
+    '감사장: 표지는 디자인으로 시작',
+  )
+  await host.getByRole('button', { name: '사진', exact: true }).click() // 사진 표지로 바꾸면 복사된 사진이 있음
   const newCover = await host.getByAltText('표지 사진 미리보기').getAttribute('src')
   check(
     newCover && srcCover && newCover !== srcCover && newCover.includes(`/inv/${thanksId}/`),
@@ -664,6 +672,106 @@ async function notifyFlow(browser: Browser) {
   check(left === '0', '알림을 끄면 암호화된 토큰도 지워짐')
 }
 
+/** 디자인 표지: 화면 · 편집기 · 공유 카드 · 나도 만들기 */
+async function coverFlow(browser: Browser) {
+  const { page: host } = await createInvitation(browser, /결혼식/)
+  await host.getByLabel('초대장 제목').fill('E2E 디자인 표지')
+  await host.getByRole('button', { name: '표지', exact: true }).click()
+  check(
+    (await host
+      .getByRole('button', { name: '디자인', exact: true })
+      .getAttribute('aria-pressed')) === 'true',
+    '결혼 템플릿: 표지는 디자인으로 시작',
+  )
+  const thumbs = host.getByRole('group', { name: '표지 디자인' }).getByRole('button')
+  check((await thumbs.count()) >= 2, `표지 썸네일 바둑판 (${await thumbs.count()}개)`)
+  check(
+    (await thumbs.first().getAttribute('aria-label')) === '장미 부조 표지' &&
+      (await thumbs.first().getAttribute('aria-pressed')) === 'true',
+    '결혼: 어울리는 장미가 맨 앞이고 선택돼 있음',
+  )
+  await host.getByRole('button', { name: '양귀비 부조 표지' }).click()
+  await host.getByLabel('큰 제목').fill('민준 · 서연')
+  await host.getByLabel('작은 제목').fill('우리 결혼합니다')
+  await waitSaved(host)
+  const url = await publish(host)
+  const slug = url.split('/i/')[1]
+
+  const g = await guest(browser)
+  await g.goto(url, { waitUntil: 'networkidle' })
+  const img = g.locator('img[src^="/covers/poppy-"]').first()
+  check((await img.count()) === 1, '공개 화면: 양귀비 표지 그림')
+  check((await img.getAttribute('fetchpriority')) === 'high', '표지 그림 fetchPriority high')
+  const srcset = (await img.getAttribute('srcset')) ?? ''
+  check(
+    srcset.includes('poppy-800.webp 800w') && srcset.includes('poppy-1200.webp 1200w'),
+    '표지 그림 srcset 800w · 1200w',
+  )
+  const over = await g.locator('h1', { hasText: '민준 · 서연' }).boundingBox()
+  const box = await img.boundingBox()
+  check(
+    !!over &&
+      !!box &&
+      over.y > box.y &&
+      over.y < box.y + box.height &&
+      Math.abs(over.x + over.width / 2 - (box.x + box.width / 2)) < 6,
+    '제목이 그림 위 가운데에 올라감',
+  )
+  check(
+    Math.abs((box?.height ?? 0) / (box?.width ?? 1) - 1.25) < 0.02,
+    `그림 비율 4:5 (${box?.width}x${box?.height})`,
+  )
+  await g.screenshot({ path: `${OUT}/p2-design-cover.png` })
+
+  // 카톡 공유 카드 · OG: 사진이 없으면 디자인 표지 JPEG
+  const html = await (await g.request.get(url)).text()
+  check(html.includes('/covers/poppy-share.jpg'), 'OG 이미지: 디자인 표지 JPEG')
+  const jpg = await g.request.get(`${BASE}/covers/poppy-share.jpg`)
+  check(
+    jpg.ok() && (jpg.headers()['content-type'] ?? '').includes('image/jpeg'),
+    '공유용 JPEG 열림',
+  )
+  for (const f of ['rose-800.webp', 'rose-1200.webp', 'poppy-800.webp', 'poppy-1200.webp']) {
+    const size = (await (await g.request.get(`${BASE}/covers/${f}`)).body()).length
+    check(size <= 120 * 1024, `${f} ${Math.round(size / 1024)}KB (120KB 이하)`)
+  }
+
+  // 나도 만들기: 디자인 표지 선택만 가져옴 (제목 · 글은 템플릿 문구)
+  const maker = await login(browser, `/new?from=${slug}`, '2')
+  await maker.page.getByRole('button', { name: '이 구성으로 만들기' }).first().click()
+  await maker.page.waitForURL(/\/edit\//)
+  await maker.page.getByRole('button', { name: '표지', exact: true }).click()
+  check(
+    (await maker.page
+      .getByRole('button', { name: '양귀비 부조 표지' })
+      .getAttribute('aria-pressed')) === 'true',
+    '나도 만들기: 디자인 표지 선택을 가져옴',
+  )
+  check(
+    (await maker.page.getByLabel('큰 제목').inputValue()) !== '민준 · 서연',
+    '나도 만들기: 원본 제목은 안 가져옴',
+  )
+
+  // 글자만 · 사진 전환, 돌잔치는 양귀비가 맨 앞
+  await host.getByRole('button', { name: '글자만', exact: true }).click()
+  const g2 = await guest(browser)
+  let covers = 1
+  for (let i = 0; i < 20 && covers > 0; i++) {
+    await host.waitForTimeout(700) // 자동 저장(디바운스) 기다림
+    await g2.goto(url, { waitUntil: 'networkidle' })
+    covers = await g2.locator('img[src^="/covers/"]').count()
+  }
+  check(covers === 0, '글자만으로 바꾸면 그림 없음')
+  const dol = await createInvitation(browser, /돌잔치/, '3')
+  await dol.page.getByRole('button', { name: '표지', exact: true }).click()
+  check(
+    (await dol.page
+      .getByRole('button', { name: '양귀비 부조 표지' })
+      .getAttribute('aria-pressed')) === 'true',
+    '돌잔치: 양귀비로 시작',
+  )
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true })
   const browser = await chromium.launch({
@@ -678,6 +786,7 @@ async function main() {
   if (run('doljabi')) await doljabiFlow(browser)
   if (run('member')) await memberNoticeFlow(browser)
   if (run('notify')) await notifyFlow(browser)
+  if (run('cover')) await coverFlow(browser)
 
   check(errors.length === 0, `브라우저 에러 없음 ${errors.length ? JSON.stringify(errors) : ''}`)
   await browser.close()

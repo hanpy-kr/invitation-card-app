@@ -130,6 +130,7 @@ async function main() {
 
   // 3. 표지 사진 1장
   await page.getByRole('button', { name: '표지', exact: true }).click()
+  await page.getByRole('button', { name: '사진', exact: true }).click() // 결혼 템플릿은 디자인 표지로 시작
   await page.locator('input[type=file]').first().setInputFiles(photos[0])
   await page.getByAltText('표지 사진 미리보기').waitFor({ timeout: 30000 })
   await page.getByLabel('큰 제목').fill('박도윤 · 한지우')

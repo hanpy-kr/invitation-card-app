@@ -50,4 +50,70 @@
     font-weight: normal;
     color: var(--muted);
   }
+
+  // 디자인 표지: 그림이 화면 너비를 다 쓰고 그 위에 글자를 올린다
+  &.design {
+    padding-top: 0;
+
+    .wrap-design {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: var(--surface);
+
+      img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .over {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      // 그림의 꽃이 양옆에 있어서 가운데 빈 면에만 글자를 둔다
+      padding: 0 24%;
+      word-break: keep-all;
+    }
+
+    // 글자 톤: dark = 밝은 그림 위 어두운 글자, light = 어두운 그림 위 흰 글자
+    &.dark {
+      --cover-text: #4a4039;
+      --cover-sub: #7a6d63;
+    }
+    &.light {
+      --cover-text: #ffffff;
+      --cover-sub: rgba(255, 255, 255, 0.82);
+    }
+
+    .txt-date {
+      font-size: 24px;
+      margin-bottom: 4px;
+      color: var(--accent); // 포인트는 테마 색
+    }
+
+    .txt-day {
+      font-size: 12px;
+      margin-bottom: 22px;
+      color: var(--cover-sub);
+    }
+
+    .txt-title {
+      font-size: 22px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      color: var(--cover-text);
+    }
+
+    .txt-subtitle {
+      font-size: 13px;
+      color: var(--cover-sub);
+    }
+  }
 }

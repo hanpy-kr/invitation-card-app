@@ -1,3 +1,4 @@
+import { defaultCoverKey } from './covers'
 import {
   defaultShowAttendees,
   parseBlockConfig,
@@ -37,7 +38,8 @@ const TEMPLATES: Record<EventType, Template> = {
       {
         type: 'cover',
         config: {
-          layout: 'photo',
+          layout: 'design',
+          designKey: defaultCoverKey('wedding'),
           title: '[신랑 이름] · [신부 이름]',
           subtitle: '우리 결혼합니다',
         },
@@ -108,7 +110,8 @@ const TEMPLATES: Record<EventType, Template> = {
       {
         type: 'cover',
         config: {
-          layout: 'photo',
+          layout: 'design',
+          designKey: defaultCoverKey('dol'),
           title: '[아기 이름]의 첫 번째 생일',
           subtitle: '돌잔치에 초대합니다',
         },
@@ -310,7 +313,8 @@ const TEMPLATES: Record<EventType, Template> = {
       {
         type: 'cover',
         config: {
-          layout: 'photo',
+          layout: 'design',
+          designKey: defaultCoverKey('thanks'),
           title: '감사합니다',
           subtitle: '함께해 주신 마음 잊지 않겠습니다',
         },

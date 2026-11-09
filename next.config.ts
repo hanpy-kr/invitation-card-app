@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
         source: '/fonts/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
+      {
+        // 디자인 표지 그림: 같은 이름으로 바꿔 올릴 수 있어서 immutable은 아니고 7일 캐시 (customHttp.yml과 같이 고칠 것)
+        source: '/covers/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=604800' }],
+      },
     ]
   },
   async redirects() {

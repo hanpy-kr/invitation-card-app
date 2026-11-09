@@ -235,7 +235,11 @@ export default function Editor(props: EditorProps) {
                     </div>
                     {open ? (
                       <div className={styles.blockBody}>
-                        <BlockForm block={block} update={updateBlock(block.id)} />
+                        <BlockForm
+                          block={block}
+                          update={updateBlock(block.id)}
+                          eventType={meta.eventType}
+                        />
                       </div>
                     ) : null}
                   </li>

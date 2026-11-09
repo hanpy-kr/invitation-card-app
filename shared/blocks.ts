@@ -119,7 +119,13 @@ export function parseShareOverride(value: unknown): ShareOverride {
 const shortText = (max: number) => z.string().trim().max(max)
 
 export const coverConfigSchema = z.object({
-  layout: z.enum(['photo', 'text']).default('photo'),
+  layout: z.enum(['photo', 'text', 'design']).default('photo'),
+  /** layout 'design'일 때 shared/covers.ts 의 표지 key (config만 저장, 마이그레이션 없음) */
+  designKey: z
+    .string()
+    .regex(/^[a-z0-9-]{1,30}$/)
+    .nullable()
+    .default(null),
   image: mediaRefSchema.nullable().default(null),
   title: shortText(40).default(''),
   subtitle: shortText(60).default(''),
