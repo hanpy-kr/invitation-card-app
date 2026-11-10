@@ -167,7 +167,10 @@ async function main() {
     `카톡 카드 버튼: [초대장 보기] [참석 여부 알리기 → ${rsvpButton?.link.mobileWebUrl}]`,
   )
   check(feed.content.title === 'E2E 디어 13기 송년회', '카톡 카드 제목')
-  check(/\/og\/yearend$/.test(feed.content.imageUrl), '카톡 카드 사진: 송년회 기본 이미지')
+  check(
+    /\/covers\/share\/yearend-snow\.jpg$/.test(feed.content.imageUrl),
+    '카톡 카드 사진: 사진이 없으면 송년회 디자인 표지(눈꽃) JPEG',
+  )
   await sheet.screenshot({ path: `${OUT}/p0-2-publish.png` })
 
   // ── 하객: 카톡 카드의 참석 버튼으로 들어와 응답

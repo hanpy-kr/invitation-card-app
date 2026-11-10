@@ -215,7 +215,12 @@ const TEMPLATES: Record<EventType, Template> = {
     blocks: [
       {
         type: 'cover',
-        config: { layout: 'text', title: '[모임 이름] 송년회', subtitle: '올해도 수고 많았어요' },
+        config: {
+          layout: 'design',
+          designKey: defaultCoverKey('yearend'),
+          title: '[모임 이름] 송년회',
+          subtitle: '올해도 수고 많았어요',
+        },
       },
       {
         type: 'greeting',
@@ -280,7 +285,8 @@ const TEMPLATES: Record<EventType, Template> = {
       {
         type: 'cover',
         config: {
-          layout: 'photo',
+          layout: 'design',
+          designKey: defaultCoverKey('prewedding'),
           title: '[신랑 이름] · [신부 이름]',
           subtitle: '청첩장 드리러 갈게요',
         },
@@ -339,7 +345,12 @@ const TEMPLATES: Record<EventType, Template> = {
     blocks: [
       {
         type: 'cover',
-        config: { layout: 'text', title: '[이름]의 생일 파티', subtitle: '같이 축하해 줘요' },
+        config: {
+          layout: 'design',
+          designKey: defaultCoverKey('birthday'),
+          title: '[이름]의 생일 파티',
+          subtitle: '같이 축하해 줘요',
+        },
       },
       {
         type: 'greeting',
@@ -370,7 +381,12 @@ const TEMPLATES: Record<EventType, Template> = {
     blocks: [
       {
         type: 'cover',
-        config: { layout: 'text', title: '[이름]네 집들이', subtitle: '새 집에 놀러 오세요' },
+        config: {
+          layout: 'design',
+          designKey: defaultCoverKey('housewarming'),
+          title: '[이름]네 집들이',
+          subtitle: '새 집에 놀러 오세요',
+        },
       },
       {
         type: 'greeting',

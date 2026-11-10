@@ -34,6 +34,8 @@ next-env.d.ts
 *.otf
 *.woff
 !public/icons/*.png
+# 디자인 표지 그림은 관리 결정으로 커밋 (장당 160KB 이하, shared/covers.ts)
+!public/covers/*.webp
 
 # misc
 .DS_Store
@@ -44,3 +46,6 @@ npm-debug.log*
 
 # python
 __pycache__/
+
+# 빌드 때 만드는 표지 공유용 JPEG (scripts/cover-share.mjs)
+/public/covers/share/

@@ -6,6 +6,7 @@ import { formatShortDate, formatWeekdayEn } from '@/shared/date'
 import { mediaSrc } from '@/shared/media'
 
 import Section from './common/Section'
+import { fitCqw } from './coverFit'
 import styles from './Cover.module.scss'
 import type { BlockContext } from './types'
 
@@ -28,10 +29,38 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
       ) : null}
     </>
   )
+  // 디자인 표지: 그림 가운데 빈 면(가로 100 - 양옆 여백)에 맞춰 제목 · 부제 글자 크기를 자동으로 줄임
+  const area = design ? 100 - design.padX * 2 : 100
   const titles = (
     <>
-      {config.title ? <h1 className={cx('txt-title')}>{config.title}</h1> : null}
-      {config.subtitle ? <p className={cx('txt-subtitle')}>{config.subtitle}</p> : null}
+      {config.title ? (
+        <h1
+          className={cx('txt-title')}
+          style={
+            design
+              ? ({
+                  '--fit': `${fitCqw(config.title, area, { max: 5.8, min: 4.6, floor: 3.9 }).toFixed(2)}cqw`,
+                } as React.CSSProperties)
+              : undefined
+          }
+        >
+          {config.title}
+        </h1>
+      ) : null}
+      {config.subtitle ? (
+        <p
+          className={cx('txt-subtitle')}
+          style={
+            design
+              ? ({
+                  '--fit': `${fitCqw(config.subtitle, area, { max: 3.5, min: 3, floor: 2.8 }).toFixed(2)}cqw`,
+                } as React.CSSProperties)
+              : undefined
+          }
+        >
+          {config.subtitle}
+        </p>
+      ) : null}
     </>
   )
 
@@ -41,7 +70,13 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
       <Section className={cx('container', 'design', design.tone)}>
         <div
           className={cx('wrap-design')}
-          style={{ aspectRatio: `${COVER_RATIO.w} / ${COVER_RATIO.h}` }}
+          style={
+            {
+              aspectRatio: `${COVER_RATIO.w} / ${COVER_RATIO.h}`,
+              '--cover-accent': design.accent,
+              '--pad-x': `${design.padX}%`,
+            } as React.CSSProperties
+          }
         >
           <img
             src={coverSrc(design, 800)}

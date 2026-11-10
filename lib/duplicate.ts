@@ -104,7 +104,11 @@ export async function duplicateInvitation(
       blocks: t.blocks.map((blk) => {
         let config = JSON.parse(fill(JSON.stringify(blk.config)))
         if (blk.type === 'cover' && cover?.type === 'cover' && cover.config.image)
-          config = parseBlockConfig('cover', { ...config, image: cover.config.image })
+          config = parseBlockConfig('cover', {
+            ...config,
+            layout: 'photo',
+            image: cover.config.image,
+          })
         return { ...blk, config, visible: true } as BlockInput & { visible: boolean }
       }),
     }

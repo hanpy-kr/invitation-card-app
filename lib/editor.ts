@@ -89,13 +89,14 @@ export async function createInvitation(
         .innerJoin(schema.invitations, eq(schema.invitations.id, schema.blocks.invitationId))
         .where(and(eq(schema.invitations.slug, source.slug), eq(schema.blocks.type, 'cover')))
         .limit(1)
-      if (findCover(pick?.key)) {
+      const picked = findCover(pick?.key)
+      if (picked) {
         for (const b of built.blocks) {
           if (b.type === 'cover') {
             b.config = parseBlockConfig('cover', {
               ...b.config,
               layout: 'design',
-              designKey: pick!.key,
+              designKey: picked.key,
             })
           }
         }

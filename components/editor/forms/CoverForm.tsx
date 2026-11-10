@@ -1,6 +1,13 @@
 'use client'
 
-import { coverSrc, coversForEvent, defaultCoverKey, findCover } from '@/shared/covers'
+import {
+  coverFits,
+  coverSrc,
+  coversForEvent,
+  defaultCoverKey,
+  findCover,
+  type CoverDef,
+} from '@/shared/covers'
 
 import { Segmented, TextField, Toggle } from '../fields'
 import { SingleImageField } from '../ImageFields'
@@ -15,6 +22,33 @@ export default function CoverForm({
   const set = patcher(update)
   // 지워진 표지 key를 가리키면 아무것도 고르지 않은 상태로 보여 줌 (초대장에는 글자만 표지로 나옴)
   const selected = findCover(config.designKey)
+  const all = coversForEvent(eventType)
+  const fits = all.filter((c) => coverFits(c, eventType))
+  const others = all.filter((c) => !coverFits(c, eventType))
+  const grid = (list: CoverDef[]) =>
+    list.length === 0 ? null : (
+      <div className={styles.grid} role="group" aria-label="표지 디자인">
+        {list.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            aria-pressed={c.key === selected?.key}
+            aria-label={`${c.name} 표지`}
+            onClick={() => set({ designKey: c.key })}
+          >
+            <img
+              src={coverSrc(c, 800)}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width={800}
+              height={1000}
+            />
+            <span>{c.name}</span>
+          </button>
+        ))}
+      </div>
+    )
   return (
     <>
       <Segmented
@@ -40,20 +74,12 @@ export default function CoverForm({
       />
       {config.layout === 'design' ? (
         <>
-          <div className={styles.grid} role="group" aria-label="표지 디자인">
-            {coversForEvent(eventType).map((c) => (
-              <button
-                key={c.key}
-                type="button"
-                aria-pressed={c.key === selected?.key}
-                aria-label={`${c.name} 표지`}
-                onClick={() => set({ designKey: c.key })}
-              >
-                <img src={coverSrc(c, 800)} alt="" loading="lazy" width={800} height={1000} />
-                <span>{c.name}</span>
-              </button>
-            ))}
-          </div>
+          {fits.length > 0 ? <p className={styles.caption}>이 행사에 어울리는 표지</p> : null}
+          {grid(fits)}
+          {others.length > 0 ? (
+            <p className={styles.caption}>{fits.length > 0 ? '다른 표지' : '표지 디자인'}</p>
+          ) : null}
+          {grid(others)}
           <p className={styles.hint}>내 사진을 쓰고 싶으면 위에서 [사진]을 눌러 주세요.</p>
         </>
       ) : null}
