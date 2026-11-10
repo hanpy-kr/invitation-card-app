@@ -179,15 +179,15 @@ main 푸시 = 운영 배포이므로 항목마다 `pnpm lint && pnpm typecheck &
 ### 디자인 표지 (11/9 시작 · 11/10 9종으로 확장)
 
 - [x] 표지 블록에 '디자인 표지': `coverConfigSchema.layout`에 `'design'`, `designKey`(config만, 마이그레이션 없음). 목록은 `shared/covers.ts`(key · 이름 · 행사 · 이미지 경로 · 톤 dark/light · 포인트 색 · 가운데 좌우 여백)
-- [x] 9종: wedding-poppy · wedding-rose · wedding-peony(결혼) · thanks-wildflower(감사장) · dol-cloud(돌잔치) · yearend-snow(송년회 · 신년회, light, 금색 포인트) · prewedding-cheers(청첩장 모임) · birthday-balloon(생일) · housewarming-eucalyptus(집들이). 회식 · 동창회용은 곧 추가 예정(그 행사는 지금 글자만 표지로 시작)
+- [x] 10종(11/10 meetup-ginkgo 추가): wedding-poppy · wedding-rose · wedding-peony(결혼) · thanks-wildflower(감사장) · dol-cloud(돌잔치) · yearend-snow(송년회 · 신년회, light, 금색 포인트) · prewedding-cheers(청첩장 모임) · birthday-balloon(생일) · housewarming-eucalyptus(집들이) · meetup-ginkgo(회식 · 동창회, dark, 포인트 #9a8a76). 기타 모임(etc)은 어울리는 표지가 없어 글자만 표지로 시작
 - [x] 화면: 4:5 그림 위 가운데에 날짜 · 제목 · 부제, 글자색은 톤, 날짜(포인트)는 표지 색, `fetchPriority="high"` + `srcset`(800w · 1200w)
 - [x] 제목 자동 줄이기(서버에서 계산, JS 추가 없음): 한 줄에 들어가는 크기로 줄이고(최대 5.8 → 최소 4.6cqw), 그래도 넘치면 최소 크기로 두 줄, 두 줄로도 넘치면 3.9cqw까지 더 줄임. 그림마다 글자를 둘 수 있는 가운데 폭이 달라 표지마다 좌우 여백(`padX`, 생일 28%)을 정함. 부제도 같은 방식
-- [x] 새 초대장은 행사에 맞는 첫 표지로 시작(결혼 → 양귀비, 감사장 → 들꽃, 돌 → 구름, 송년회 → 눈꽃, 청첩장 모임 → 건배, 생일 → 풍선, 집들이 → 유칼립투스). 결혼 초대장에서 만드는 청첩장 모임은 올려 둔 표지 사진이 있으면 그 사진 표지로 시작(기존과 같음)
+- [x] 새 초대장은 행사에 맞는 첫 표지로 시작(결혼 → 양귀비, 감사장 → 들꽃, 돌 → 구름, 송년회 → 눈꽃, 회식 · 동창회 → 은행잎, 청첩장 모임 → 건배, 생일 → 풍선, 집들이 → 유칼립투스). 결혼 초대장에서 만드는 청첩장 모임은 올려 둔 표지 사진이 있으면 그 사진 표지로 시작(기존과 같음)
 - [x] 편집기 표지 탭 [디자인] [사진] [글자만]: 디자인은 썸네일 바둑판 — 이 행사에 어울리는 표지 먼저, 아래에 '다른 표지'. 사진 표지로 바꾸면 올려 둔 사진이 그대로 있음
 - [x] 카톡 공유 카드 · og:image: 사진이 없으면 디자인 표지 JPEG. '나도 만들기'는 디자인 표지 key만 가져옴(제목 · 글 · 사진은 안 가져옴)
 - 표지 더하는 법(**목록 한 줄 + 파일 2개**): `public/covers/{key}-800.webp` · `{key}-1200.webp`를 넣고 `shared/covers.ts`의 `COVERS`에 한 줄. 카톡용 JPEG는 `pnpm dev` · `pnpm build` 앞에서 `scripts/cover-share.mjs`가 자동 생성(`public/covers/share/`, 커밋하지 않음)
 - 처음 만든 표지 key `rose` · `poppy`로 저장된 초대장은 `LEGACY_KEYS`로 wedding-rose · wedding-poppy로 보임
-- 결과: e2e `pnpm e2e:p2` 121개(9종 파일 · 공유 JPEG 포함) · `d2` 28 · `d3` 17 · `p0` 23 · `p1` 47 통과. 이미지 800w 22~85KB, 1200w 54~159KB(전부 160KB 이하). `/i/[slug]` First Load JS **124 kB 그대로**, `/edit/[id]` 173 kB
+- 결과: e2e `pnpm e2e:p2` 125개(10종 파일 · 공유 JPEG 포함) · `d2` 28 · `d3` 17 · `p0` 23 · `p1` 47 통과. 이미지 800w 22~85KB, 1200w 54~159KB(전부 160KB 이하). `/i/[slug]` First Load JS **124 kB 그대로**, `/edit/[id]` 173 kB
 - LCP 측정 (같은 조건, 5회 중앙값)
 
 | 페이지 | FCP | LCP | 첫 화면 용량 |

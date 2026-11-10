@@ -684,6 +684,7 @@ async function coverFlow(browser: Browser) {
     'prewedding-cheers',
     'birthday-balloon',
     'housewarming-eucalyptus',
+    'meetup-ginkgo',
   ]
   // 파일: 9종 × (800 · 1200) 모두 열리고 장당 160KB 이하, 공유용 JPEG는 빌드 때 자동 생성
   const anon = await guest(browser)
@@ -710,7 +711,7 @@ async function coverFlow(browser: Browser) {
     '결혼 템플릿: 표지는 디자인으로 시작',
   )
   const thumbs = host.getByRole('group', { name: '표지 디자인' }).getByRole('button')
-  check((await thumbs.count()) === 9, `표지 썸네일 바둑판 9개 (${await thumbs.count()}개)`)
+  check((await thumbs.count()) === 10, `표지 썸네일 바둑판 10개 (${await thumbs.count()}개)`)
   check(
     (await thumbs.nth(0).getAttribute('aria-label')) === '양귀비 표지' &&
       (await thumbs.nth(0).getAttribute('aria-pressed')) === 'true',
@@ -826,6 +827,7 @@ async function coverFlow(browser: Browser) {
     [/송년회/, '눈꽃 표지', 'yearend'],
     [/생일 파티/, '풍선 표지', 'birthday'],
     [/집들이/, '유칼립투스 표지', 'housewarming'],
+    [/회식/, '은행잎 표지', 'meetup'],
   ] as const) {
     const inv = await createInvitation(browser, name, '3')
     await inv.page.getByRole('button', { name: '표지', exact: true }).click()

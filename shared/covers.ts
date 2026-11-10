@@ -41,6 +41,7 @@ export const COVERS: readonly CoverDef[] = [
   cover('dol-cloud', '구름', ['dol'], 'dark', '#a5788a', 22),
   cover('yearend-snow', '눈꽃', ['yearend'], 'light', '#d4af6a', 22),
   cover('prewedding-cheers', '건배', ['prewedding'], 'dark', '#a37b3c', 26),
+  cover('meetup-ginkgo', '은행잎', ['meetup'], 'dark', '#9a8a76', 26),
   cover('birthday-balloon', '풍선', ['birthday'], 'dark', '#bf6a4c', 28),
   cover('housewarming-eucalyptus', '유칼립투스', ['housewarming'], 'dark', '#55724f', 22),
 ]

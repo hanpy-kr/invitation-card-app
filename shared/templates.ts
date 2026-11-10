@@ -161,7 +161,12 @@ const TEMPLATES: Record<EventType, Template> = {
     blocks: [
       {
         type: 'cover',
-        config: { layout: 'text', title: '[모임 이름]', subtitle: '오랜만에 얼굴 봐요' },
+        config: {
+          layout: 'design',
+          designKey: defaultCoverKey('meetup'),
+          title: '[모임 이름]',
+          subtitle: '오랜만에 얼굴 봐요',
+        },
       },
       {
         type: 'greeting',
