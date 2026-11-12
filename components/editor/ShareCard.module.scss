@@ -1,8 +1,8 @@
 .wrap {
-  border: 1px solid #eee7e7;
-  border-radius: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   padding: 12px;
-  background: #faf8f8;
+  background: var(--paper-surface);
 }
 
 .head {
@@ -25,9 +25,9 @@
 .card {
   max-width: 280px;
   margin: 0 auto;
-  border-radius: 10px;
+  border-radius: var(--radius);
   overflow: hidden;
-  background: #fff;
+  background: var(--paper-surface);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 
   img {
@@ -35,7 +35,7 @@
     width: 100%;
     aspect-ratio: 1200 / 630;
     object-fit: cover;
-    background: #eee;
+    background: var(--photo);
   }
 
   figcaption {
@@ -64,7 +64,7 @@
 
 .buttons {
   display: flex;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--line);
 
   span {
     flex: 1;
@@ -74,7 +74,7 @@
     color: #333;
 
     & + span {
-      border-left: 1px solid #f0f0f0;
+      border-left: 1px solid var(--line);
     }
   }
 }

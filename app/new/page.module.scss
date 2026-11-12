@@ -35,8 +35,8 @@
   gap: 6px;
   padding: 18px 16px;
   border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #fff;
+  border-radius: var(--radius);
+  background: var(--paper-surface);
   text-align: left;
   cursor: pointer;
   min-height: 112px;
@@ -75,9 +75,9 @@
 
 .from {
   border: 2px solid var(--accent);
-  border-radius: 14px;
+  border-radius: var(--radius);
   padding: 18px 16px;
-  background: #fff;
+  background: var(--paper-surface);
 }
 
 .fromSummary {
@@ -96,9 +96,9 @@
   width: 100%;
   padding: 14px;
   border: 0;
-  border-radius: 10px;
-  background: var(--accent);
-  color: #fff;
+  border-radius: var(--radius);
+  background: var(--btn);
+  color: var(--btn-text);
   font-size: 15px;
   font-weight: bold;
   cursor: pointer;

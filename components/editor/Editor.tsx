@@ -1,5 +1,6 @@
 'use client'
 
+import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
@@ -130,6 +131,7 @@ export default function Editor(props: EditorProps) {
           <Link href="/dashboard" className={styles.back} aria-label="내 초대장으로">
             ←
           </Link>
+          <Logo href={null} label={false} />
           <div className={styles.topTitle}>
             <strong>{meta.title || '제목 없음'}</strong>
             <span className={styles.saveState} data-state={save.state} role="status">

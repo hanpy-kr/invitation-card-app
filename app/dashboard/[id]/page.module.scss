@@ -36,7 +36,7 @@
 
   div {
     background: var(--surface);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 14px 10px;
     text-align: center;
   }
@@ -113,13 +113,13 @@
     flex-shrink: 0;
     font-size: 12px;
     padding: 3px 8px;
-    border-radius: 999px;
+    border-radius: var(--radius);
     background: var(--surface);
     color: var(--muted);
 
     &.yes {
-      background: var(--accent);
-      color: #fff;
+      background: var(--btn);
+      color: var(--btn-text);
     }
   }
 
@@ -135,7 +135,7 @@
     font-size: 12px;
     color: var(--text);
     background: var(--surface);
-    border-radius: 6px;
+    border-radius: var(--radius);
     padding: 6px 8px;
   }
 
@@ -158,7 +158,7 @@
 
   li {
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 12px 14px;
 
     &[data-hidden='true'] {
@@ -180,8 +180,8 @@
     button {
       margin-left: auto;
       border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #fff;
+      border-radius: var(--radius);
+      background: var(--paper-surface);
       font-size: 12px;
       padding: 4px 10px;
       cursor: pointer;
@@ -199,7 +199,7 @@
 
 .choice {
   background: var(--surface);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: 12px 14px;
   margin-bottom: 10px;
 
@@ -230,7 +230,7 @@
 .csv {
   font-size: 13px;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   border: 1px solid var(--line);
   color: var(--text);
   text-decoration: none;
@@ -270,9 +270,9 @@
       flex-shrink: 0;
       padding: 6px 12px;
       border: 0;
-      border-radius: 8px;
-      background: var(--accent);
-      color: #fff;
+      border-radius: var(--radius);
+      background: var(--btn);
+      color: var(--btn-text);
       font-size: 13px;
       cursor: pointer;
     }
@@ -326,7 +326,7 @@
     flex-direction: column;
     gap: 2px;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     border: 1px solid var(--line);
   }
 
@@ -366,7 +366,7 @@
     flex-direction: column;
     gap: 8px;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     border: 1px solid var(--line);
 
     div {
@@ -386,7 +386,7 @@
     button {
       padding: 10px;
       border: 0;
-      border-radius: 10px;
+      border-radius: var(--radius);
       background: #fee500;
       color: #191919;
       font-weight: bold;
@@ -400,7 +400,7 @@
   display: inline-block;
   font-style: normal;
   font-size: 11px;
-  color: #fff;
+  color: var(--btn-text);
   background: var(--accent);
   border-radius: 4px;
   padding: 0 4px;
@@ -415,7 +415,7 @@
   font: inherit;
   font-size: 13px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--surface);
 }
 
@@ -456,8 +456,8 @@
       width: 100%;
       aspect-ratio: 1;
       object-fit: cover;
-      border-radius: 8px;
-      background: #eee;
+      border-radius: var(--radius);
+      background: var(--photo);
     }
 
     &[data-hidden='true'] img {
@@ -484,9 +484,9 @@
 
 .albumDownload {
   padding: 10px 14px;
-  border: 1px solid #cfc7c7;
-  border-radius: 10px;
-  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-surface);
   font-size: 14px;
   cursor: pointer;
 }

@@ -30,9 +30,9 @@
   display: block;
   text-align: center;
   padding: 14px;
-  border-radius: 12px;
-  background: var(--accent);
-  color: #fff;
+  border-radius: var(--radius);
+  background: var(--btn);
+  color: var(--btn-text);
   font-weight: bold;
   text-decoration: none;
   margin-bottom: 20px;
@@ -45,7 +45,7 @@
 
   li {
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 16px;
   }
 
@@ -71,13 +71,13 @@
     flex-shrink: 0;
     font-size: 12px;
     padding: 3px 8px;
-    border-radius: 999px;
+    border-radius: var(--radius);
     background: var(--surface);
     color: var(--muted);
 
     &.published {
-      background: var(--accent);
-      color: #fff;
+      background: var(--btn);
+      color: var(--btn-text);
     }
   }
 
@@ -90,21 +90,24 @@
   .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 16px;
+    gap: 0 16px;
     margin-top: 12px;
-    padding-top: 12px;
+    padding-top: 4px;
     border-top: 1px solid var(--line);
 
     a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--tap);
       font-size: 14px;
       color: var(--accent);
       text-decoration: none;
-      font-weight: bold;
     }
 
     button {
       border: 0;
       background: none;
+      min-height: var(--tap);
       padding: 0;
       font: inherit;
       font-size: 14px;
@@ -148,9 +151,9 @@
 .newCount {
   margin-left: 8px;
   padding: 1px 8px;
-  border-radius: 999px;
-  background: var(--accent);
-  color: #fff;
+  border-radius: var(--radius);
+  background: var(--btn);
+  color: var(--btn-text);
   font-size: 12px;
   font-weight: bold;
   text-decoration: none;
@@ -159,7 +162,7 @@
 .anonBanner {
   padding: 14px;
   margin-bottom: 16px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: #fff8e0;
   font-size: 13px;
   line-height: 1.6;
@@ -168,7 +171,7 @@
     display: inline-block;
     margin-top: 8px;
     padding: 8px 14px;
-    border-radius: 8px;
+    border-radius: var(--radius);
     background: #fee500;
     color: #191919;
     font-weight: bold;
@@ -183,8 +186,8 @@
   gap: 12px;
   margin: 0 0 12px;
   padding: 12px 14px;
-  border: 1px solid var(--line, #e5e0d8);
-  border-radius: 12px;
+  border: 1px solid var(--line, var(--line));
+  border-radius: var(--radius);
   font-size: 13px;
 
   p {
@@ -197,7 +200,7 @@
     flex: none;
     padding: 6px 12px;
     border: 1px solid currentColor;
-    border-radius: 999px;
+    border-radius: var(--radius);
     background: none;
     font: inherit;
     color: inherit;

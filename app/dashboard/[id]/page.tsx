@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -35,6 +36,9 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
 
   return (
     <main className={styles.page}>
+      <div style={{ marginBottom: 12 }}>
+        <Logo />
+      </div>
       <Link href="/dashboard" className={styles.back}>
         ← 내 초대장
       </Link>

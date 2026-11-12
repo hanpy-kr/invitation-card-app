@@ -8,14 +8,14 @@
     position: relative;
     padding: 0;
     border: 2px solid transparent;
-    border-radius: 8px;
-    background: #f3efea;
+    border-radius: var(--radius);
+    background: var(--paper-surface);
     overflow: hidden;
     cursor: pointer;
     aspect-ratio: 4 / 5;
 
     &[aria-pressed='true'] {
-      border-color: var(--accent, #ea7664);
+      border-color: var(--accent, var(--gold));
     }
 
     img {
@@ -32,7 +32,7 @@
       bottom: 0;
       padding: 10px 4px 4px;
       background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
-      color: #fff;
+      color: var(--btn-text);
       font-size: 11px;
       text-align: center;
     }
@@ -42,11 +42,11 @@
 .hint {
   margin: -6px 0 14px;
   font-size: 12px;
-  color: #8a8080;
+  color: var(--muted);
 }
 
 .caption {
   margin: 0 0 6px;
   font-size: 12px;
-  color: #8a8080;
+  color: var(--muted);
 }

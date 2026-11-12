@@ -2,7 +2,7 @@ $wide: 960px;
 
 .root {
   min-height: 100vh;
-  background: #f7f5f5;
+  background: var(--bg);
 }
 
 .topbar {
@@ -13,12 +13,12 @@ $wide: 960px;
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: #fff;
+  background: var(--paper-surface);
   border-bottom: 1px solid var(--line);
 
   .back {
-    width: 36px;
-    height: 36px;
+    width: var(--tap);
+    height: var(--tap);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -73,9 +73,9 @@ $wide: 960px;
 .primary {
   flex-shrink: 0;
   border: 0;
-  border-radius: 10px;
-  background: var(--accent);
-  color: #fff;
+  border-radius: var(--radius);
+  background: var(--btn);
+  color: var(--btn-text);
   font-weight: bold;
   font-size: 14px;
   padding: 10px 14px;
@@ -92,7 +92,7 @@ $wide: 960px;
   top: 57px;
   z-index: 19;
   display: flex;
-  background: #fff;
+  background: var(--paper-surface);
   border-bottom: 1px solid var(--line);
 
   button {
@@ -156,7 +156,7 @@ $wide: 960px;
 }
 
 .phone {
-  background: #fff;
+  background: var(--paper-surface);
 
   @media (min-width: $wide) {
     position: sticky;
@@ -165,7 +165,7 @@ $wide: 960px;
     height: calc(100vh - 110px);
     max-height: 844px;
     overflow-y: auto;
-    border-radius: 28px;
+    border-radius: var(--radius);
     border: 8px solid #2b2626;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
   }
@@ -184,8 +184,8 @@ $wide: 960px;
 }
 
 .card {
-  background: #fff;
-  border-radius: 14px;
+  background: var(--paper-surface);
+  border-radius: var(--radius);
   padding: 18px 16px 4px;
   margin-bottom: 24px;
 }
@@ -208,9 +208,9 @@ $wide: 960px;
   align-items: center;
   gap: 6px;
   padding: 10px 4px;
-  border: 1px solid #e3dcdc;
-  border-radius: 10px;
-  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-surface);
   font-size: 12px;
   cursor: pointer;
 
@@ -245,8 +245,8 @@ $wide: 960px;
 }
 
 .blockCard {
-  background: #fff;
-  border-radius: 14px;
+  background: var(--paper-surface);
+  border-radius: var(--radius);
   overflow: hidden;
 
   &[data-hidden='true'] .blockName span {
@@ -280,7 +280,7 @@ $wide: 960px;
     font-size: 12px;
     color: var(--muted);
     background: var(--surface);
-    border-radius: 999px;
+    border-radius: var(--radius);
     padding: 2px 8px;
   }
 
@@ -296,8 +296,8 @@ $wide: 960px;
   padding-right: 8px;
 
   button {
-    min-width: 36px;
-    height: 36px;
+    min-width: var(--tap);
+    height: var(--tap);
     border: 0;
     background: none;
     font-size: 13px;
@@ -321,8 +321,8 @@ $wide: 960px;
 .addBox {
   margin-top: 16px;
   padding: 16px;
-  border: 1px dashed #d8d0d0;
-  border-radius: 14px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
 
   > span {
     display: block;
@@ -338,9 +338,9 @@ $wide: 960px;
   }
 
   button {
-    border: 1px solid #e3dcdc;
-    background: #fff;
-    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--paper-surface);
+    border-radius: var(--radius);
     padding: 8px 14px;
     font-size: 14px;
     cursor: pointer;
@@ -382,15 +382,15 @@ $wide: 960px;
   max-width: 480px;
   max-height: 92vh;
   overflow-y: auto;
-  background: #fff;
-  border-radius: 20px 20px 0 0;
+  background: var(--paper-surface);
+  border-radius: var(--radius) 20px 0 0;
   padding: 28px 20px calc(24px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 12px;
 
   @media (min-width: 600px) {
-    border-radius: 20px;
+    border-radius: var(--radius);
   }
 
   h2 {
@@ -409,7 +409,7 @@ $wide: 960px;
   position: absolute;
   top: 16px;
   right: 14px;
-  width: 36px;
+  width: var(--tap);
   height: 36px;
   border: 0;
   background: none;
@@ -426,7 +426,7 @@ $wide: 960px;
 
 .warnings {
   background: #fff8e8;
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: 12px 14px 12px 30px;
   font-size: 13px;
   line-height: 1.7;
@@ -444,16 +444,16 @@ $wide: 960px;
     font: inherit;
     font-size: 14px;
     padding: 12px;
-    border: 1px solid #e3dcdc;
-    border-radius: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
     background: var(--surface);
   }
 
   button {
     border: 0;
-    border-radius: 10px;
+    border-radius: var(--radius);
     background: var(--text);
-    color: #fff;
+    color: var(--btn-text);
     padding: 0 16px;
     font-weight: bold;
     cursor: pointer;
@@ -473,9 +473,9 @@ $wide: 960px;
   align-items: center;
   gap: 6px;
   padding: 13px;
-  border-radius: 10px;
-  border: 1px solid #e3dcdc;
-  background: #fff;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--paper-surface);
   font-size: 15px;
   text-decoration: none;
   cursor: pointer;
@@ -520,7 +520,7 @@ $wide: 960px;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1px solid #e3dcdc;
+  border: 1px solid var(--line);
   font-size: 14px;
   font-weight: bold;
   color: var(--muted);
@@ -540,9 +540,9 @@ $wide: 960px;
   align-items: flex-start;
   gap: 2px;
   padding: 10px 12px;
-  border: 1px solid #e3dcdc;
-  border-radius: 10px;
-  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-surface);
   cursor: pointer;
   text-align: left;
 
@@ -557,7 +557,7 @@ $wide: 960px;
   }
 
   &[aria-checked='true'] {
-    border-color: var(--accent, #ea7664);
-    box-shadow: 0 0 0 1px var(--accent, #ea7664);
+    border-color: var(--accent, var(--gold));
+    box-shadow: 0 0 0 1px var(--accent, var(--gold));
   }
 }

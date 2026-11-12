@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
@@ -18,6 +19,9 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
   if (invitationId) redirect(`/edit/${invitationId}`)
   return (
     <main className={styles.page}>
+      <div style={{ marginBottom: 12 }}>
+        <Logo />
+      </div>
       <h1 className={styles.title}>초대 링크가 만료됐어요</h1>
       <p className={styles.desc}>
         공동 편집 링크는 만든 지 7일이 지나면 쓸 수 없어요. 초대장 주인에게 새 링크를 받아 주세요.

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 
 import { requireSession } from '@/lib/auth/session'
@@ -24,6 +25,9 @@ export default async function DashboardPage() {
 
   return (
     <main className={styles.page}>
+      <div style={{ marginBottom: 12 }}>
+        <Logo />
+      </div>
       <header className={styles.header}>
         <h1>{session.nickname ? `${session.nickname}님의 초대장` : '내 초대장'}</h1>
         <div className={styles.headerTools}>

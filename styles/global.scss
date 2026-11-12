@@ -78,3 +78,10 @@ strong,
 b {
   font-weight: bold;
 }
+
+/* 제목 글씨는 고운바탕. 입력칸 · 작은 설명은 고딕 그대로 */
+h1,
+h2 {
+  font-family: var(--font-display), var(--font-body);
+  font-weight: normal;
+}

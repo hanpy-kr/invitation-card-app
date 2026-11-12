@@ -3,7 +3,7 @@
 
   .preview {
     position: relative;
-    border-radius: 10px;
+    border-radius: var(--radius);
     overflow: hidden;
     background: var(--surface);
     margin-bottom: 8px;
@@ -41,9 +41,9 @@
   justify-content: center;
   align-items: center;
   padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px dashed #cfc7c7;
-  background: #fff;
+  border-radius: var(--radius);
+  border: 1px dashed var(--line);
+  background: var(--paper-surface);
   font-size: 14px;
   cursor: pointer;
 
@@ -70,7 +70,7 @@
   li {
     position: relative;
     aspect-ratio: 1;
-    border-radius: 8px;
+    border-radius: var(--radius);
     overflow: hidden;
     background: var(--surface);
 
@@ -93,7 +93,7 @@
     button {
       border: 0;
       background: none;
-      color: #fff;
+      color: var(--btn-text);
       font-size: 14px;
       width: 32px;
       height: 32px;

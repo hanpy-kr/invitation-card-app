@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 
 import SiteFooter from '@/components/site/SiteFooter'
@@ -176,6 +177,9 @@ export default function HelpPage() {
   return (
     <>
       <main className={styles.page}>
+        <div style={{ marginBottom: 12 }}>
+          <Logo />
+        </div>
         <Link href="/" className={styles.back}>
           ← dearday
         </Link>

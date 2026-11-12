@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 
 import SiteFooter from '@/components/site/SiteFooter'
@@ -14,6 +15,9 @@ export default function TermsPage() {
   return (
     <>
       <main className={styles.page}>
+        <div style={{ marginBottom: 12 }}>
+          <Logo />
+        </div>
         <Link href="/">← dearday</Link>
         <h1>이용약관</h1>
         <p className={styles.date}>시행일 {BUSINESS.effectiveDate}</p>

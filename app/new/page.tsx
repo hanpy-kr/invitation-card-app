@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 
 import { requireSession } from '@/lib/auth/session'
@@ -23,6 +24,9 @@ export default async function NewInvitationPage({
   const source = fromSlug ? await getLayoutSource(fromSlug) : null
   return (
     <main className={styles.page}>
+      <div style={{ marginBottom: 12 }}>
+        <Logo />
+      </div>
       <Link href="/dashboard" className={styles.back}>
         ← 내 초대장
       </Link>

@@ -1,22 +1,29 @@
 .footer {
   max-width: var(--column);
   margin: 0 auto;
-  padding: 32px 24px 40px;
+  padding: 28px 24px 40px;
   font-size: 12px;
-  line-height: 1.8;
+  line-height: 1.9;
   color: var(--muted);
   border-top: 1px solid var(--line);
 
   nav {
     display: flex;
-    gap: 14px;
+    flex-wrap: wrap;
+    gap: 4px 16px;
     margin-bottom: 10px;
 
     a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--tap);
       color: var(--text);
-      font-weight: bold;
       text-decoration: none;
     }
+  }
+
+  a {
+    text-underline-offset: 3px;
   }
 }
 
@@ -24,7 +31,7 @@
   margin-left: 4px;
   padding: 1px 6px;
   border: 1px solid currentColor;
-  border-radius: 999px;
+  border-radius: var(--radius);
   font-size: 10px;
   font-weight: normal;
   color: var(--accent, #c0392b);

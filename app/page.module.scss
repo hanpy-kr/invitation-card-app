@@ -2,56 +2,156 @@
 
 .page {
   background: var(--bg);
+  min-height: 100vh;
+}
+
+.top {
+  max-width: var(--column);
+  margin: 0 auto;
+  height: 64px;
+  padding: 0 20px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.login {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 4px;
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  padding-left: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent);
 }
 
 .hero {
   max-width: var(--column);
   margin: 0 auto;
-  padding: 72px 24px 56px;
+  padding: 36px 24px 48px;
   text-align: center;
-  background: linear-gradient(180deg, #fbf1ef 0%, #fff 100%);
-
-  .logo {
-    @include display-font;
-    font-size: 26px;
-    color: var(--accent);
-    margin-bottom: 28px;
-  }
 
   h1 {
-    font-size: 30px;
-    font-weight: bold;
-    line-height: 1.35;
-    letter-spacing: -0.5px;
-    margin-bottom: 14px;
+    @include display-font;
+    font-size: 31px;
+    font-weight: normal;
+    line-height: 1.4;
+    margin: 16px 0 14px;
   }
 
-  p {
+  .lead {
+    @include display-font;
     color: var(--muted);
-    font-size: 16px;
-    line-height: 1.7;
-    margin-bottom: 32px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+}
+
+// 표지 3장 부채꼴: 가운데는 결혼, 양옆은 송년회 · 생일
+.fan {
+  position: relative;
+  height: 270px;
+  margin: 36px auto 28px;
+  width: 100%;
+  max-width: 340px;
+
+  .card {
+    position: absolute;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--photo);
+    box-shadow: 0 6px 18px rgba(74, 66, 57, 0.14);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .left,
+  .right {
+    width: 150px;
+    height: 187px;
+    top: 38px;
+  }
+
+  .left {
+    left: 0;
+    transform: rotate(-8deg);
+  }
+
+  .right {
+    right: 0;
+    transform: rotate(8deg);
+  }
+
+  .center {
+    width: 190px;
+    height: 237px;
+    left: 50%;
+    top: 0;
+    margin-left: -95px;
+    z-index: 1;
+  }
+
+  .over {
+    position: absolute;
+    inset: 22px 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: #4a4239;
+
+    small {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+    }
+
+    b {
+      @include display-font;
+      font-size: 16px;
+      font-weight: normal;
+    }
   }
 }
 
 .alert {
-  margin: 0 auto 20px;
+  margin: 0 auto 16px;
   padding: 10px 14px;
-  border-radius: 10px;
-  background: #fff1f1;
-  color: #b23b3b;
+  border: 1px solid #c9a39d;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: #8c3b33;
   font-size: 14px;
 }
 
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
 .kakao {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   width: 100%;
   max-width: 320px;
-  padding: 16px 24px;
-  border-radius: 12px;
+  min-height: var(--btn-h);
+  border-radius: 6px;
   background: #fee500;
   color: #191919;
   font-size: 16px;
@@ -59,127 +159,71 @@
   text-decoration: none;
 }
 
-.free {
-  margin-top: 12px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.section {
-  max-width: var(--column);
-  margin: 0 auto;
-  padding: 40px 24px;
-
-  h2 {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 18px;
-    text-align: center;
-  }
-}
-
-.types {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-
-  li {
-    padding: 18px 14px;
-    border-radius: 14px;
-    background: var(--surface);
-
-    span {
-      font-size: 26px;
-    }
-
-    strong {
-      display: block;
-      margin-top: 6px;
-      font-size: 16px;
-    }
-
-    small {
-      color: var(--muted);
-      font-size: 13px;
-    }
-  }
-}
-
-.steps {
-  counter-reset: step;
-
-  li {
-    counter-increment: step;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--line);
-
-    &::before {
-      content: counter(step);
-      flex-shrink: 0;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: #fff;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-    }
-
-    strong {
-      display: block;
-      font-size: 16px;
-    }
-
-    small {
-      color: var(--muted);
-      font-size: 14px;
-    }
-  }
-}
-
-.features {
-  display: grid;
-  gap: 10px;
-
-  li {
-    padding: 16px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-
-    strong {
-      display: block;
-      margin-bottom: 2px;
-    }
-
-    small {
-      color: var(--muted);
-      font-size: 14px;
-    }
-  }
-}
-
-.bottom {
-  text-align: center;
-  padding-bottom: 56px;
+.sample {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 320px;
+  min-height: var(--btn-h);
+  border: 1px solid var(--btn-line);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 15px;
+  text-decoration: none;
 }
 
 .anon {
-  margin-top: 10px;
-
   button {
+    min-height: var(--tap);
+    padding: 0 8px;
     border: 0;
     background: none;
-    padding: 6px;
     font: inherit;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--muted);
     text-decoration: underline;
+    text-underline-offset: 3px;
     cursor: pointer;
+  }
+}
+
+.free {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.why {
+  max-width: var(--column);
+  margin: 0 auto;
+  padding: 24px 24px 56px;
+
+  .eyebrow {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  li {
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+    text-align: center;
+
+    &:last-child {
+      border-bottom: 1px solid var(--line);
+    }
+  }
+
+  strong {
+    @include display-font;
+    display: block;
+    font-size: 17px;
+    font-weight: normal;
+    margin-bottom: 4px;
+  }
+
+  small {
+    font-size: 13px;
+    color: var(--muted);
   }
 }
