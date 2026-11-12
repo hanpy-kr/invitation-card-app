@@ -21,7 +21,7 @@ export default function Video({ config }: { config: VideoConfig }) {
   if (!id) return null
 
   return (
-    <Section title={config.title}>
+    <Section eyebrow="VIDEO" title={config.title}>
       <div className={cx('frame')}>
         {playing ? (
           <iframe

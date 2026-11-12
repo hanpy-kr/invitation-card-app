@@ -127,7 +127,7 @@ export default function Album({ config, ctx }: { config: AlbumConfig; ctx: Block
   const viewerImages = list.map((p) => ({ src: mediaSrc(ctx.mediaBaseUrl, p.key), w: p.w, h: p.h }))
 
   return (
-    <Section title={config.title}>
+    <Section eyebrow="GUEST ALBUM" title={config.title}>
       <div ref={ref} className={cx('album')}>
         {config.message ? <p className={cx('message')}>{config.message}</p> : null}
         <p className={cx('notice')}>

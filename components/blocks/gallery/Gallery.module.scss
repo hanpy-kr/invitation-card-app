@@ -9,7 +9,7 @@
     padding: 0;
     border: 0;
     background: var(--surface);
-    border-radius: 8px;
+    border-radius: var(--radius);
     overflow: hidden;
     cursor: pointer;
 
@@ -26,7 +26,7 @@
       top: 0;
       position: absolute;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: var(--radius);
     }
   }
 }
@@ -44,7 +44,7 @@
 
   .wrap-image {
     display: block;
-    border-radius: 8px;
+    border-radius: var(--radius);
 
     &::after {
       display: none;

@@ -93,7 +93,7 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
   }
 
   return (
-    <Section title={config.title}>
+    <Section eyebrow="GUESTBOOK" title={config.title}>
       {config.message ? <Text className={formStyles.intro}>{config.message}</Text> : null}
 
       {open ? (

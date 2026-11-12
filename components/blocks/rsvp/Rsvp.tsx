@@ -184,7 +184,7 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
   }
 
   return (
-    <Section title={config.title} id={ctx.preview ? undefined : 'rsvp'}>
+    <Section eyebrow="R.S.V.P." title={config.title} id={ctx.preview ? undefined : 'rsvp'}>
       {config.message ? <Text className={styles.intro}>{config.message}</Text> : null}
       {!open && config.deadline && !closed ? (
         <p className={styles.note}>{deadlineLabel(config.deadline)}</p>

@@ -15,7 +15,6 @@
     flex: 1;
     min-width: 0;
     font-size: 15px;
-    font-weight: bold;
 
     small {
       display: block;
@@ -27,9 +26,13 @@
 
   .btn {
     flex-shrink: 0;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: var(--surface);
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding: 0 16px;
+    border: 1px solid var(--btn-line, var(--line));
+    border-radius: var(--radius);
+    background: transparent;
     font-size: 13px;
     text-decoration: none;
   }

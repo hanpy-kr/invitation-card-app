@@ -17,6 +17,7 @@ import {
   shareImagePath,
   shareTitle,
 } from '@/shared/share'
+import { designCoverOf } from '@/shared/covers'
 import { resolveFont, themeStyle } from '@/shared/themes'
 
 import GuestFooter from './GuestFooter'
@@ -76,7 +77,7 @@ export default async function InvitationPage({ params }: Props) {
   const pageUrl = `${siteUrl()}/i/${inv.slug}`
 
   return (
-    <div className={styles.page} style={themeStyle(inv.theme, inv.font)}>
+    <div className={styles.page} style={themeStyle(inv.theme, inv.font, designCoverOf(inv.blocks))}>
       {fontCss ? <link rel="stylesheet" href={fontCss} precedence="font" /> : null}
       <main className={styles.column}>
         <BlockRenderer blocks={inv.blocks} ctx={ctx} />

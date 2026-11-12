@@ -83,7 +83,7 @@ export default function Notice({ config, ctx }: { config: NoticeConfig; ctx: Blo
   const current = Math.min(active, items.length - 1)
 
   return (
-    <Section title={config.title} className={cx('container')}>
+    <Section eyebrow="NOTICE" title={config.title} className={cx('container')}>
       <div ref={ref} />
       {tabs ? (
         <>

@@ -5,6 +5,7 @@ import type { BlockContext } from '@/components/blocks/types'
 import type { Block } from '@/shared/blocks'
 import type { EditorBlock, InvitationMeta } from '@/shared/invitation'
 import { FONTS } from '@/shared/fonts'
+import { designCoverOf } from '@/shared/covers'
 import { resolveFont, themeStyle } from '@/shared/themes'
 
 import styles from './Editor.module.scss'
@@ -34,7 +35,10 @@ export default function Preview({
   const fontCss = FONTS[resolveFont(meta.theme, meta.font)].css
   const view = blocks.map((b, position) => ({ ...b, position }) as Block)
   return (
-    <div className={styles.previewScreen} style={themeStyle(meta.theme, meta.font)}>
+    <div
+      className={styles.previewScreen}
+      style={themeStyle(meta.theme, meta.font, designCoverOf(view))}
+    >
       {fontCss ? <link rel="stylesheet" href={fontCss} precedence="font" /> : null}
       <BlockRenderer blocks={view} ctx={ctx} />
       {view.every((b) => !b.visible) ? (

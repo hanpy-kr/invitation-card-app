@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 12px;
+  border-radius: var(--radius);
   overflow: hidden;
   background: #000;
 

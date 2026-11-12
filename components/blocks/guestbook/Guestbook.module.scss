@@ -6,7 +6,7 @@
 
   li {
     padding: 14px 16px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     border: 1px solid var(--line);
   }
 
@@ -54,16 +54,16 @@
       font: inherit;
       font-size: 16px;
       padding: 8px 10px;
-      border: 1px solid #dcd5d5;
-      border-radius: 8px;
+      border: 1px solid var(--btn-line, var(--line));
+      border-radius: var(--radius);
     }
 
     button {
       border: 0;
-      border-radius: 8px;
+      border-radius: var(--radius);
       padding: 0 12px;
-      background: var(--text);
-      color: #fff;
+      background: var(--btn);
+      color: var(--btn-text);
       font-size: 13px;
       cursor: pointer;
     }
@@ -87,9 +87,10 @@
   display: block;
   margin: 14px auto 0;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
-  padding: 8px 18px;
+  border-radius: var(--radius);
+  background: transparent;
+  min-height: var(--tap);
+  padding: 0 18px;
   font-size: 14px;
   cursor: pointer;
 }

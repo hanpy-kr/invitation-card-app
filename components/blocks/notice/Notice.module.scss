@@ -11,19 +11,19 @@
     button {
       flex-shrink: 0;
       padding: 8px 14px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--bg);
+      min-height: var(--tap);
+      border: 1px solid var(--btn-line, var(--line));
+      border-radius: var(--radius);
+      background: transparent;
       font: inherit;
       font-size: 14px;
       color: var(--muted);
       cursor: pointer;
 
       &[aria-selected='true'] {
-        border-color: var(--accent);
-        background: var(--accent);
-        color: #fff;
-        font-weight: bold;
+        border-color: var(--btn);
+        background: var(--btn);
+        color: var(--btn-text);
       }
     }
   }
@@ -36,7 +36,8 @@
 
   .panel {
     padding: 18px 16px;
-    border-radius: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
     background: var(--surface);
   }
 
@@ -61,11 +62,11 @@
     display: block;
     margin-top: 14px;
     padding: 14px;
-    border-radius: 10px;
-    background: var(--text);
-    color: #fff;
+    border-radius: var(--radius);
+    background: var(--btn);
+    color: var(--btn-text);
     font-size: 15px;
-    font-weight: bold;
+    letter-spacing: 0.08em;
     text-align: center;
     text-decoration: none;
   }

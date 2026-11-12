@@ -6,9 +6,9 @@
     gap: 2px;
     padding: 16px;
     margin-bottom: 16px;
-    border-radius: 12px;
-    background: var(--accent);
-    color: #fff;
+    border-radius: var(--radius);
+    background: var(--btn);
+    color: var(--btn-text);
 
     span {
       font-size: 13px;
@@ -39,9 +39,10 @@
     gap: 8px;
     width: 100%;
     padding: 12px 14px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--bg);
+    min-height: var(--tap);
+    border: 1px solid var(--btn-line, var(--line));
+    border-radius: var(--radius);
+    background: var(--surface);
     font: inherit;
     color: var(--text);
     text-align: left;
@@ -65,7 +66,7 @@
   .bar {
     position: absolute;
     inset: 0 auto 0 0;
-    background: var(--surface);
+    background: var(--photo, var(--line));
     transition: width 0.3s;
   }
 

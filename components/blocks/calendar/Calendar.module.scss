@@ -1,24 +1,33 @@
 @use '../../../styles/utils' as *;
 
+// THE DAY: 테두리 카드 안에 날짜 · 달력 · D-day · 캘린더 저장
 .container {
-  .when {
+  .card {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 28px 20px 22px;
     text-align: center;
-    font-size: 15px;
-    color: var(--muted);
+  }
+
+  .when {
+    @include display-font;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text);
     margin-bottom: 16px;
   }
 
   .month {
     border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    padding: 14px 0 10px;
+    padding: 14px 0 4px;
   }
 
   .month-title {
-    text-align: center;
-    font-size: 15px;
-    font-weight: bold;
-    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
   }
 
   .grid {
@@ -36,75 +45,75 @@
     }
 
     td {
-      padding: 3px 0;
-      height: 38px;
+      padding: 2px 0;
+      height: 36px;
     }
 
     .sun {
-      color: #d9534f;
+      color: #a8584f;
     }
 
     .sat {
-      color: #4a78c2;
+      color: var(--muted);
     }
 
     td span {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
     }
 
     td.today span {
       border-radius: 50%;
-      background: var(--accent);
-      color: #fff;
-      font-weight: bold;
+      background: var(--btn, var(--accent));
+      color: var(--btn-text, #fff);
     }
   }
 
   .dday {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: baseline;
     gap: 8px;
-    margin-top: 16px;
-    font-size: 14px;
+    margin-top: 14px;
+    font-size: 13px;
     color: var(--muted);
 
     b {
       color: var(--accent);
-      font-size: 18px;
-      font-weight: bold;
+      font-size: 13px;
+      font-weight: normal;
+      letter-spacing: 0.12em;
     }
   }
 
   .save {
-    margin-top: 18px;
+    margin-top: 6px;
   }
 
   .save-label {
     display: block;
     font-size: 13px;
-    text-align: center;
     color: var(--muted);
-    margin-bottom: 8px;
+    margin-top: 10px;
   }
 
   .save-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
   }
 
   .btn {
-    display: block;
-    padding: 12px 6px;
-    border-radius: 8px;
-    background: var(--surface);
-    font-size: 14px;
-    text-align: center;
-    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding: 0 8px;
+    font-size: 13px;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 }

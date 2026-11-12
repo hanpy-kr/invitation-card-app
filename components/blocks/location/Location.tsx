@@ -33,7 +33,7 @@ export default function Location({
   ].filter((w) => w.text)
 
   return (
-    <Section title={config.title} className={cx('container')}>
+    <Section eyebrow="LOCATION" title={config.title} className={cx('container')}>
       <div className={cx('wrap-place')}>
         {config.time ? <div className={cx('txt-time')}>{config.time}</div> : null}
         {config.placeName ? <div className={cx('txt-name')}>{config.placeName}</div> : null}

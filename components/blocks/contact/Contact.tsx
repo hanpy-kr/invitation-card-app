@@ -13,7 +13,7 @@ export default function Contact({ config }: { config: ContactConfig }) {
   const people = config.people.filter((p) => telOf(p.phone).length >= 3)
   if (people.length === 0) return null
   return (
-    <Section title={config.title} className={cx('container')}>
+    <Section eyebrow="CONTACT" title={config.title} className={cx('container')}>
       <ul className={cx('list')}>
         {people.map((p, i) => {
           const who = [p.relation, p.name].filter(Boolean).join(' ')

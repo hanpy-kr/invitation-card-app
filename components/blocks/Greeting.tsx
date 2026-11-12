@@ -5,7 +5,7 @@ import type { GreetingConfig } from '@/shared/blocks'
 import { formatLongDate, formatTime } from '@/shared/date'
 
 import { IconFlower, IconHeart, IconPost } from './common/icons'
-import Section from './common/Section'
+import Section, { LeafDivider } from './common/Section'
 import Text from './common/Text'
 import styles from './Greeting.module.scss'
 import type { BlockContext } from './types'
@@ -17,7 +17,8 @@ export default function Greeting({ config, ctx }: { config: GreetingConfig; ctx:
   const hosts = config.hosts.filter(Boolean)
 
   return (
-    <Section className={cx('container')}>
+    <Section eyebrow="INVITATION" className={cx('container')}>
+      <LeafDivider />
       {config.icon === 'flower' ? <IconFlower className={cx('ico-flower')} /> : null}
       {config.icon === 'post' ? <IconPost className={cx('ico-post')} /> : null}
       {config.title ? <h2 className={cx('txt-heading')}>{config.title}</h2> : null}

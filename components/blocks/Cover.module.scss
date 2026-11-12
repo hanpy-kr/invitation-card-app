@@ -2,11 +2,10 @@
 
 .container {
   text-align: center;
-  font-weight: bold;
   padding-top: 48px;
 
   &.text {
-    background: var(--surface);
+    background: var(--bg);
     padding: 96px 24px 88px;
   }
 
@@ -26,9 +25,9 @@
 
   .wrap-photo {
     margin: 0 auto 28px;
-    border-radius: 8px;
+    border-radius: var(--radius);
     overflow: hidden;
-    background: var(--surface);
+    background: var(--photo, var(--surface));
 
     img {
       width: 100%;

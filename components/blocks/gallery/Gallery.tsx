@@ -34,7 +34,7 @@ export default function Gallery({ title, layout = 'grid', images }: Props) {
 
   return (
     <>
-      <Section title={title}>
+      <Section eyebrow="GALLERY" title={title}>
         <ul
           ref={layout === 'slide' ? stripRef : undefined}
           onScroll={layout === 'slide' ? onScroll : undefined}

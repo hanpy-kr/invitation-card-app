@@ -21,7 +21,60 @@ export type CoverDef = {
   accent: string
   /** 그림 양옆 장식을 피해 글자를 둘 수 있는 가운데 폭을 정하는 좌우 여백(%). 기본 24 — 가운데가 좁은 그림은 크게 */
   padX: number
+  /** 본문 종이 색: 그림 아래 가장자리 색에서 뽑아 표지와 본문이 한 장처럼 이어지게 함 (면 · 선은 거기서 파생) */
+  paper: string
+  surface: string
+  line: string
+  /** 본문 보조 글자 · 포인트 색 (종이 위 대비 4.5:1 이상으로 보정한 값) */
+  sub: string
+  point: string
+  /** 어두운 종이일 때만: 글자 · 보조 글자 · 포인트 · 버튼 색을 따로 정함 (없으면 기본 종이 편지 색) */
+  dark?: { ink: string; sub: string; point: string; btn: string; btnText: string; btnLine: string }
   src: string
+}
+
+const PAPER: Record<string, string> = {
+  'birthday-balloon': '#f5e0cf',
+  'dol-cloud': '#ece2d8',
+  'housewarming-eucalyptus': '#d0cfbc',
+  'meetup-ginkgo': '#e3dcd2',
+  'prewedding-cheers': '#ebe0cf',
+  'thanks-wildflower': '#e2dace',
+  'wedding-peony': '#e6dfd6',
+  'wedding-poppy': '#e1dad1',
+  'wedding-rose': '#e3dace',
+  'yearend-snow': '#19273e',
+}
+
+function lum(h: string): number {
+  const c = [1, 3, 5]
+    .map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+    .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+}
+
+/** 글자 색이 종이 위에서 대비 min:1 이상이 되도록 어두운 쪽으로 보정 (이미 넘으면 그대로) */
+function ensureContrast(color: string, paper: string, min = 4.6): string {
+  let c = color
+  for (let t = 0; t <= 1; t += 0.05) {
+    c = mix(color, '#2b2620', t)
+    const a = lum(c)
+    const b = lum(paper)
+    if ((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) >= min) return c
+  }
+  return c
+}
+
+/** 두 색을 t(0~1) 비율로 섞음 */
+function mix(a: string, b: string, t: number): string {
+  const p = (h: string, i: number) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16)
+  return `#${[0, 1, 2]
+    .map((i) =>
+      Math.round(p(a, i) + (p(b, i) - p(a, i)) * t)
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')}`
 }
 
 const cover = (
@@ -31,7 +84,34 @@ const cover = (
   tone: CoverTone,
   accent: string,
   padX = 24,
-): CoverDef => ({ key, name, events, tone, accent, padX, src: `/covers/${key}` })
+): CoverDef => {
+  const paper = PAPER[key] ?? '#f3ede2'
+  const isDark = tone === 'light'
+  return {
+    key,
+    name,
+    events,
+    tone,
+    accent,
+    padX,
+    paper,
+    surface: isDark ? mix(paper, '#ffffff', 0.08) : mix(paper, '#ffffff', 0.5),
+    line: isDark ? mix(paper, '#ffffff', 0.2) : mix(paper, '#4a4239', 0.16),
+    sub: isDark ? '#c9c2b4' : ensureContrast('#6b6156', paper),
+    point: isDark ? '#d4b77a' : ensureContrast('#8a6a43', paper),
+    dark: isDark
+      ? {
+          ink: '#f1ebdf',
+          sub: '#c9c2b4',
+          point: '#d4b77a',
+          btn: '#d4b77a',
+          btnText: '#19273e',
+          btnLine: '#5a6784',
+        }
+      : undefined,
+    src: `/covers/${key}`,
+  }
+}
 
 export const COVERS: readonly CoverDef[] = [
   cover('wedding-poppy', '양귀비', ['wedding'], 'dark', '#a8715f'),
@@ -93,4 +173,13 @@ export function coverSrcSet(c: CoverDef): string {
 /** 카톡 공유 카드 · og:image용 JPEG (상대 경로, 빌드 때 자동 생성) */
 export function coverShareSrc(c: CoverDef): string {
   return `/covers/share/${c.key}.jpg`
+}
+
+/** 초대장의 첫 보이는 표지 블록이 디자인 표지면 그 표지 (본문 종이 색을 맞추는 데 씀) */
+export function designCoverOf(
+  blocks: readonly { type: string; visible: boolean; config: unknown }[],
+): CoverDef | undefined {
+  const b = blocks.find((x) => x.type === 'cover' && x.visible)
+  const c = b?.config as { layout?: string; designKey?: string | null } | undefined
+  return c?.layout === 'design' ? findCover(c.designKey) : undefined
 }

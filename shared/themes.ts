@@ -1,3 +1,4 @@
+import type { CoverDef } from './covers'
 import type { CSSProperties } from 'react'
 
 import { DEFAULT_FONT, FONTS, isFontKey, type FontKey } from './fonts'
@@ -186,7 +187,7 @@ type ThemeVars = {
   photo?: string
 }
 
-export function themeStyle(theme: string, font?: string | null): CSSProperties {
+export function themeStyle(theme: string, font?: string | null, cover?: CoverDef): CSSProperties {
   const t: ThemeVars = THEMES[isThemeKey(theme) ? theme : 'classic'].vars
   const family = FONTS[resolveFont(theme, font)].family
   return {
@@ -207,5 +208,36 @@ export function themeStyle(theme: string, font?: string | null): CSSProperties {
     '--btn-line': t.btnLine ?? `color-mix(in srgb, ${t.text} 28%, ${t.bg})`,
     '--deco': t.deco ?? `color-mix(in srgb, ${t.accent} 65%, ${t.bg})`,
     '--photo': t.photo ?? `color-mix(in srgb, ${t.text} 10%, ${t.bg})`,
+    ...(cover ? coverPaperVars(cover) : {}),
   } as CSSProperties
+}
+
+/** 디자인 표지를 쓰면 본문 종이를 그 표지 색에 맞춘다. 어두운 표지는 글자 · 포인트 · 버튼도 함께 */
+function coverPaperVars(c: CoverDef): Record<string, string> {
+  const v: Record<string, string> = {
+    '--bg': c.paper,
+    '--surface': c.surface,
+    '--beige': c.surface,
+    '--line': c.line,
+    '--photo': `color-mix(in srgb, ${c.dark?.ink ?? '#4a4239'} 10%, ${c.paper})`,
+    '--muted': c.sub,
+    '--brown': c.sub,
+    '--accent': c.point,
+    '--red': c.point,
+  }
+  if (c.dark) {
+    Object.assign(v, {
+      '--text': c.dark.ink,
+      '--black': c.dark.ink,
+      '--muted': c.dark.sub,
+      '--brown': c.dark.sub,
+      '--accent': c.dark.point,
+      '--red': c.dark.point,
+      '--deco': c.dark.point,
+      '--btn': c.dark.btn,
+      '--btn-text': c.dark.btnText,
+      '--btn-line': c.dark.btnLine,
+    })
+  }
+  return v
 }

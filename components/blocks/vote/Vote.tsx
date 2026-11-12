@@ -108,7 +108,12 @@ export default function Vote({ config, ctx }: { config: VoteConfig; ctx: BlockCo
   const max = Math.max(1, ...(results?.results.map((r) => r.count) ?? [0]))
 
   return (
-    <Section title={config.title} className={cx('container')} id={ctx.preview ? undefined : 'vote'}>
+    <Section
+      eyebrow="VOTE"
+      title={config.title}
+      className={cx('container')}
+      id={ctx.preview ? undefined : 'vote'}
+    >
       <div ref={ref}>
         {closed && confirmed ? (
           <div className={cx('confirmed')} role="status">

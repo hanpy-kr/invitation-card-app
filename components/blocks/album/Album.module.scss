@@ -24,11 +24,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 48px;
-  border-radius: 12px;
-  background: var(--accent);
-  color: #fff;
-  font-weight: bold;
+  height: var(--btn-h);
+  border-radius: var(--radius);
+  background: var(--btn);
+  color: var(--btn-text);
+  letter-spacing: 0.08em;
   cursor: pointer;
 
   input {
@@ -75,7 +75,7 @@
   width: 100%;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius);
   overflow: hidden;
   background: var(--surface);
   cursor: pointer;

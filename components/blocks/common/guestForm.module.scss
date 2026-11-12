@@ -10,13 +10,14 @@
 .open {
   display: block;
   width: 100%;
-  padding: 15px;
+  min-height: var(--btn-h);
+  padding: 0 15px;
   border: 0;
-  border-radius: 10px;
-  background: var(--accent);
-  color: #fff;
+  border-radius: var(--radius);
+  background: var(--btn);
+  color: var(--btn-text);
   font-size: 16px;
-  font-weight: bold;
+  letter-spacing: 0.08em;
   cursor: pointer;
 
   &:disabled {
@@ -30,7 +31,8 @@
   flex-direction: column;
   gap: 14px;
   padding: 20px 16px;
-  border-radius: 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
   background: var(--surface);
 }
 
@@ -50,9 +52,9 @@
   font-size: 16px;
   font-weight: normal;
   padding: 11px 12px;
-  border: 1px solid #dcd5d5;
-  border-radius: 10px;
-  background: #fff;
+  border: 1px solid var(--btn-line, var(--line));
+  border-radius: var(--radius);
+  background: var(--bg);
   color: var(--text);
 
   &:focus {
@@ -80,18 +82,18 @@
 
   button {
     flex: 1;
+    min-height: var(--tap);
     padding: 11px 6px;
-    border: 1px solid #dcd5d5;
-    border-radius: 10px;
-    background: #fff;
+    border: 1px solid var(--btn-line, var(--line));
+    border-radius: var(--radius);
+    background: var(--surface);
     font-size: 15px;
     cursor: pointer;
 
     &[aria-pressed='true'] {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: #fff;
-      font-weight: bold;
+      border-color: var(--btn);
+      background: var(--btn);
+      color: var(--btn-text);
     }
   }
 }
@@ -140,7 +142,7 @@
 .done {
   text-align: center;
   padding: 20px 16px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: var(--surface);
   line-height: 1.7;
 
@@ -175,7 +177,7 @@
 .attendees {
   margin-top: 16px;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   border: 1px solid var(--line);
   text-align: center;
 
@@ -199,7 +201,7 @@
 
   li {
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius);
     background: var(--surface);
     font-size: 13px;
   }

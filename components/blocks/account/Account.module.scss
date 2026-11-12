@@ -15,7 +15,7 @@
     gap: 2px;
     padding: 16px;
     margin-bottom: 16px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     background: var(--surface);
 
     span {
@@ -24,14 +24,14 @@
     }
 
     strong {
-      font-size: 26px;
+      font-size: 24px;
       color: var(--accent);
     }
   }
 
   .group {
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: var(--radius);
     overflow: hidden;
 
     & + .group {
@@ -44,12 +44,12 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 15px 16px;
+    min-height: 52px;
+    padding: 0 16px;
     border: 0;
-    background: var(--bg);
+    background: var(--surface);
     font: inherit;
     font-size: 15px;
-    font-weight: bold;
     color: var(--text);
     cursor: pointer;
 
@@ -65,7 +65,7 @@
 
   .list {
     border-top: 1px solid var(--line);
-    background: var(--surface);
+    background: var(--bg);
   }
 
   .row {
@@ -103,10 +103,14 @@
   .btn {
     flex: 1;
     display: block;
-    padding: 9px 6px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--tap);
+    padding: 0 6px;
+    border: 1px solid var(--btn-line, var(--line));
+    border-radius: var(--radius);
+    background: transparent;
     font: inherit;
     font-size: 13px;
     text-align: center;

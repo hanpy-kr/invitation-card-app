@@ -1,14 +1,35 @@
 @use '../../../styles/utils' as *;
 
 .container {
-  padding: 40px 24px;
+  padding: 48px 24px;
+
+  .head {
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    // 마지막 글자 뒤 자간만큼 가운데가 밀리는 것을 보정
+    padding-left: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
 
   .txt-title {
     @include display-font;
-    font-size: 22px;
-    font-weight: bold;
+    font-size: 21px;
+    font-weight: normal;
+    line-height: 1.4;
     text-align: center;
     color: var(--text);
-    margin-bottom: 24px;
+  }
+
+  .leaf {
+    display: block;
+    margin: 0 auto 20px;
+    color: var(--deco, var(--accent));
   }
 }

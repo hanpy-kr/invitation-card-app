@@ -113,7 +113,7 @@ export default function Account({ config }: { config: AccountConfig }) {
   const amount = config.perPerson && config.perPerson > 0 ? config.perPerson : null
 
   return (
-    <Section title={config.title} className={cx('container')}>
+    <Section eyebrow="WITH HEART" title={config.title} className={cx('container')}>
       {config.message ? <Text className={cx('message')}>{config.message}</Text> : null}
       {amount ? (
         <div className={cx('per-person')}>
