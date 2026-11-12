@@ -4,6 +4,8 @@ export const BUSINESS = {
   tradeName: '한피',
   representative: '강창현',
   registrationNumber: '207-39-62795',
+  /** 통신판매업 신고번호 (⏸ 사용자: 신고 후 입력. 비어 있으면 푸터에 '등록 예정'으로 보임) */
+  mailOrderNumber: '',
   /** 문의 · 개인정보 보호책임자 연락처 */
   email: 'hanpy.kang@gmail.com',
   /** 이용약관 시행일 */

@@ -146,8 +146,8 @@ async function main() {
   await page.locator('input[type=file][multiple]').setInputFiles(photos.slice(1, 4))
   await page.getByAltText('사진 3').waitFor({ timeout: 60000 })
   check(
-    (await page.getByText(/초대장 전체 4\/10장/).count()) === 1,
-    '사진 4장 업로드 (표지 1 + 사진첩 3), 한도 표시 4/10',
+    (await page.getByText(/초대장 전체 4\/60장/).count()) === 1,
+    '사진 4장 업로드 (표지 1 + 사진첩 3), 한도 표시 4/60 (결제 시작 전이라 모든 초대장이 프리미엄 한도)',
   )
 
   // 6. 오시는 길: 주소 검색 → 선택

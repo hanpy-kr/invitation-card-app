@@ -5,12 +5,15 @@ import Link from 'next/link'
 import { requireSession } from '@/lib/auth/session'
 import { listMyInvitations } from '@/lib/dashboard'
 import { getNotifyState } from '@/lib/notify'
+import { listOrders } from '@/lib/payments'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
+import { formatWon } from '@/shared/pricing'
 
 import DuplicateButtons from './DuplicateButtons'
 import NotifyToggle from './NotifyToggle'
 import QrButton from './QrButton'
+import RefundButton from './RefundButton'
 import styles from './page.module.scss'
 import WithdrawButton from './WithdrawButton'
 
@@ -19,9 +22,10 @@ export const metadata: Metadata = { title: '내 초대장 — dearday', robots: 
 
 export default async function DashboardPage() {
   const session = await requireSession('/dashboard')
-  const [invitations, notify] = await Promise.all([
+  const [invitations, notify, orders] = await Promise.all([
     listMyInvitations(session.userId),
     session.anonymous ? null : getNotifyState(session.userId),
+    session.anonymous ? [] : listOrders(session.userId),
   ])
 
   return (
@@ -109,6 +113,43 @@ export default async function DashboardPage() {
           ))}
         </ul>
       )}
+      {orders.length > 0 ? (
+        <section className={styles.orders} aria-label="결제 내역">
+          <h2>결제 내역</h2>
+          <ul>
+            {orders.map((o) => (
+              <li key={o.id}>
+                <div className={styles.row}>
+                  <div className={styles.title}>{o.orderName}</div>
+                  <span className={styles.badge}>
+                    {o.status === 'canceled' ? '환불됨' : '결제 완료'}
+                  </span>
+                </div>
+                <div className={styles.meta}>
+                  {o.invitationTitle} · {formatWon(o.amount)}
+                  {o.method ? ` · ${o.method}` : ''}
+                </div>
+                <div className={styles.meta}>
+                  {o.status === 'canceled' && o.canceledAt
+                    ? `환불 ${formatLongDate(o.canceledAt)}`
+                    : o.approvedAt
+                      ? `결제 ${formatLongDate(o.approvedAt)}`
+                      : ''}
+                </div>
+                <div className={styles.actions}>
+                  {o.receiptUrl ? (
+                    <a href={o.receiptUrl} target="_blank" rel="noopener noreferrer">
+                      영수증
+                    </a>
+                  ) : null}
+                  {o.refundable && o.invitationId ? <RefundButton invitationId={o.invitationId} /> : null}
+                </div>
+                {o.refundNote ? <div className={styles.meta}>{o.refundNote}</div> : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <div className={styles.withdraw}>
         <WithdrawButton />
       </div>

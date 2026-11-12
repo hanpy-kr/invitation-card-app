@@ -113,6 +113,13 @@
       "when": 1794121728514,
       "tag": "0015_lucky_silver_sable",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794491876830,
+      "tag": "0016_strong_argent",
+      "breakpoints": true
     }
   ]
 }

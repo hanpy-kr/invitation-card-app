@@ -110,6 +110,8 @@ export const shareOverrideSchema = z.object({
   title: z.string().trim().max(60).default(''),
   description: z.string().trim().max(100).default(''),
   image: mediaRefSchema.nullable().default(null),
+  /** 하단 'dearday로 만들었어요' 문구 숨기기 (프리미엄만 적용, 서버가 권한을 확인함). 카톡 카드와 같은 초대장 단위 설정이라 여기에 둠 */
+  hideMadeWith: z.boolean().default(false),
 })
 export type ShareOverride = z.infer<typeof shareOverrideSchema>
 

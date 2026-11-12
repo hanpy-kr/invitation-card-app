@@ -576,3 +576,50 @@ $wide: 960px;
   font-size: 13px;
   cursor: pointer;
 }
+
+.premium {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--btn-line, #cbb89c);
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.7;
+
+  strong {
+    font-size: 15px;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 18px;
+    list-style: disc;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+.premiumBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap, 44px);
+  border: 1px solid var(--btn-line, #cbb89c);
+  border-radius: var(--radius);
+  font-size: 14px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap, 44px);
+  font-size: 13px;
+}

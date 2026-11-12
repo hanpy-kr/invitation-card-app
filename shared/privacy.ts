@@ -24,3 +24,15 @@ export const PRIVACY_CURRENT = { label: '2026년 11월 7일', iso: '2026-11-07' 
 export function isNextInEffect(now: Date = new Date()): boolean {
   return now.getTime() >= new Date(PRIVACY_NEXT.effectiveAt).getTime()
 }
+
+/**
+ * 결제(프리미엄) 개정안 — 개인정보처리방침에 '결제 정보 보관'과 '토스페이먼츠 위탁'을 추가한 판.
+ * 시행일은 정해지지 않았다(⏸ 사용자). 정해지면: 위 PRIVACY_NEXT 처럼 이 판의 본문(app/privacy/_bodies/PrivacyPaid.tsx)을
+ * 새 시행일 이름의 파일로 옮기고 PRIVACY_NEXT 를 바꿔, 시행 7일 전(방침 8항)까지 배포한다.
+ */
+export const PRIVACY_PAID = {
+  changes: [
+    '이용료를 결제한 회원의 주문번호 · 결제 금액 · 결제 시각 등 결제 기록을 5년간 보관하는 항목을 추가했어요.',
+    '결제 처리를 맡기는 토스페이먼츠(대한민국)를 위탁 목록에 추가했어요. 카드번호는 회사가 받지 않아요.',
+  ],
+} as const

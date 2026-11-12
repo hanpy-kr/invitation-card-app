@@ -13,6 +13,8 @@ import {
 } from '@/shared/blocks'
 
 import { getDb, schema } from './db/client'
+import { derivedPremiumSql, planOf } from './plan'
+import type { Plan } from '@/shared/entitlements'
 
 export type PublicInvitation = {
   id: string
@@ -23,6 +25,8 @@ export type PublicInvitation = {
   theme: string
   font: string | null
   share: ShareOverride
+  /** 결제 플랜 (봉투 · 효과, 하단 문구 숨김 판단) */
+  plan: Plan
   blocks: Block[]
 }
 
@@ -45,7 +49,10 @@ export const getPublishedInvitation = cache(
         font: true,
         status: true,
         share: true,
+        createdAt: true,
+        premiumOrderId: true,
       },
+      extras: { derivedPremium: derivedPremiumSql().as('derived_premium') },
       with: {
         blocks: {
           columns: { id: true, type: true, position: true, visible: true, config: true },
@@ -63,6 +70,7 @@ export const getPublishedInvitation = cache(
       theme: row.theme,
       font: row.font,
       share: parseShareOverride(row.share),
+      plan: planOf(row),
       blocks: row.blocks
         .map(toBlock)
         .filter((b): b is Block => b !== null)

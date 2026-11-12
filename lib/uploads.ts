@@ -85,7 +85,7 @@ async function assertOwnerAndRoom(
     .select({ n: count() })
     .from(schema.media)
     .where(and(eq(schema.media.invitationId, invitationId), eq(schema.media.kind, 'image')))
-  const { photoLimit } = getEntitlements({ anonymous: access.ownerAnonymous })
+  const { photoLimit } = getEntitlements({ plan: access.plan, anonymous: access.ownerAnonymous })
   if (n >= photoLimit)
     throw new ApiError(409, `사진은 초대장당 ${photoLimit}장까지 올릴 수 있어요.`)
   return { ownerId: access.ownerId }

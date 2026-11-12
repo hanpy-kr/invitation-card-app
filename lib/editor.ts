@@ -12,12 +12,14 @@ import {
 } from '@/shared/blocks'
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
 import { findCover } from '@/shared/covers'
-import { getEntitlements } from '@/shared/entitlements'
+import { getEntitlements, type Plan } from '@/shared/entitlements'
+import { priceFor } from '@/shared/pricing'
 import { collectAudioRefs, collectMediaRefs } from '@/shared/media'
 import { buildFromLayout, buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
 import { canEditWhere, getAccess } from './access'
+import { derivedPremiumSql, paymentsOpen, planOf } from './plan'
 import { ApiError } from './api'
 import { getDb, schema } from './db/client'
 import { randomSlug } from './slug'
@@ -39,6 +41,12 @@ export type EditableInvitation = {
   photoLimit: number
   /** 로그인 없이 만든 초대장 (발행하려면 카카오 로그인) */
   ownerAnonymous: boolean
+  /** 결제 플랜과 권한 · 결제 안내 (shared/entitlements.ts · pricing.ts) */
+  plan: Plan
+  introEffects: boolean
+  canHideMadeWith: boolean
+  /** 결제 버튼을 보여 줄지(PAYMENTS_LIVE가 켜지고 아직 프리미엄이 아닐 때) · 가격 */
+  upsell: { price: number } | null
 }
 
 function isUniqueViolation(err: unknown): boolean {
@@ -154,9 +162,12 @@ export async function getEditableInvitation(
         sql<number>`(select count(*)::int from media m where m.kind = 'image' and m.invitation_id = ${schema.invitations.id})`.as(
           'media_count',
         ),
+      derivedPremium: derivedPremiumSql().as('derived_premium'),
     },
   })
   if (!row) return null
+  const plan = planOf(row)
+  const ent = getEntitlements({ plan, anonymous: Boolean(row.owner?.anonymous) })
   return {
     id: row.id,
     slug: row.slug,
@@ -177,8 +188,12 @@ export async function getEditableInvitation(
       ),
     mediaCount: Number(row.mediaCount),
     isOwner: row.ownerId === userId,
-    photoLimit: getEntitlements({ anonymous: Boolean(row.owner?.anonymous) }).photoLimit,
+    photoLimit: ent.photoLimit,
     ownerAnonymous: Boolean(row.owner?.anonymous),
+    plan,
+    introEffects: ent.introEffects,
+    canHideMadeWith: ent.canHideMadeWith,
+    upsell: paymentsOpen() && plan !== 'premium' ? { price: priceFor(row.eventType) } : null,
   }
 }
 

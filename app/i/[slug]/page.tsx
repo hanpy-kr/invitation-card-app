@@ -66,6 +66,7 @@ export default async function InvitationPage({ params }: Props) {
   const fontCss = fontCssHref(font)
   preloadDisplayFont(displayTextOf(inv.blocks, inv.eventAt), font)
 
+  const ent = getEntitlements({ plan: inv.plan })
   const ctx: BlockContext = {
     slug: inv.slug,
     eventType: inv.eventType,
@@ -73,6 +74,7 @@ export default async function InvitationPage({ params }: Props) {
     eventAt: inv.eventAt,
     mediaBaseUrl: getMediaBaseUrl(),
     kakaoJsKey: process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? '',
+    introEffects: ent.introEffects,
   }
 
   const pageUrl = `${siteUrl()}/i/${inv.slug}`
@@ -88,7 +90,7 @@ export default async function InvitationPage({ params }: Props) {
           slug={inv.slug}
           url={pageUrl}
           kakaoJsKey={ctx.kakaoJsKey}
-          showMadeWith={getEntitlements().showMadeWith}
+          showMadeWith={!(ent.canHideMadeWith && inv.share.hideMadeWith)}
           feed={kakaoFeed({
             url: pageUrl,
             title: shareTitle(inv),

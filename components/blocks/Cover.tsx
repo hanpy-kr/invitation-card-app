@@ -2,7 +2,6 @@ import classNames from 'classnames/bind'
 
 import type { CoverConfig } from '@/shared/blocks'
 import { COVER_RATIO, coverSrc, coverSrcSet, findCover } from '@/shared/covers'
-import { getEntitlements } from '@/shared/entitlements'
 import { formatShortDate, formatWeekdayEn } from '@/shared/date'
 import { mediaSrc } from '@/shared/media'
 
@@ -70,7 +69,7 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
   // 디자인 표지: 화면 한 장(100svh)을 꽉 채움. 종이 색 바탕 가운데에 가로 116%짜리 4:5 그림을 놓고
   // 위아래를 종이 색으로 녹이며, 날짜 · 제목 · 부제는 화면 가운데에 둔다.
   if (design) {
-    const fx = getEntitlements().introEffects
+    const fx = ctx.introEffects
     const effect = fx && config.effect !== 'none' ? config.effect : null
     const intro = fx && config.intro !== 'none' ? config.intro : null
     const style = {

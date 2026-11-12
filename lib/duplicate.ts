@@ -100,7 +100,7 @@ export async function duplicateInvitation(
       theme: src.theme,
       font: src.font,
       eventAt: null,
-      share: { title: '', description: '', image: null },
+      share: { title: '', description: '', image: null, hideMadeWith: false },
       blocks: t.blocks.map((blk) => {
         let config = JSON.parse(fill(JSON.stringify(blk.config)))
         if (blk.type === 'cover' && cover?.type === 'cover' && cover.config.image)
@@ -133,7 +133,7 @@ export async function duplicateInvitation(
       theme: src.theme,
       font: src.font,
       eventAt: null,
-      share: { title: '', description: '', image: null },
+      share: { title: '', description: '', image: null, hideMadeWith: false },
       blocks: t.blocks.map((blk) => {
         let config = blk.config as Record<string, unknown>
         if (blk.type === 'cover' && cover?.type === 'cover' && cover.config.image)
@@ -196,6 +196,8 @@ export async function duplicateInvitation(
           theme: draft.theme,
           font: draft.font,
           share: shareOut,
+          // 원본 기록: 결제된 결혼 · 돌에서 만든 청첩장 모임 · 감사장은 프리미엄이 같이 적용됨 (shared/entitlements.ts)
+          derivedFromId: sourceId,
           status: 'draft',
         })
         if (rows.length > 0) {

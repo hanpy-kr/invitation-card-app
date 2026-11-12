@@ -3,6 +3,7 @@ import 'server-only'
 import { and, eq, inArray, or } from 'drizzle-orm'
 
 import { getDb, schema } from './db/client'
+import { derivedPremiumSql, planOf } from './plan'
 
 const { invitations: inv, invitationEditors: editors } = schema
 
@@ -30,7 +31,13 @@ export function editableInvitationIds(userId: string) {
 /** 초대장 하나: 고칠 수 있으면 { ownerId, isOwner }, 아니면 null */
 export async function getAccess(invitationId: string, userId: string) {
   const [row] = await getDb()
-    .select({ ownerId: inv.ownerId, ownerAnonymous: schema.users.anonymous })
+    .select({
+      ownerId: inv.ownerId,
+      ownerAnonymous: schema.users.anonymous,
+      createdAt: inv.createdAt,
+      premiumOrderId: inv.premiumOrderId,
+      derivedPremium: derivedPremiumSql(),
+    })
     .from(inv)
     .innerJoin(schema.users, eq(schema.users.id, inv.ownerId))
     .where(and(eq(inv.id, invitationId), canEditWhere(userId)))
@@ -40,6 +47,8 @@ export async function getAccess(invitationId: string, userId: string) {
         isOwner: row.ownerId === userId,
         /** 소유자가 로그인 없이 시작한 임시 사용자 (사진 한도 · 발행 제한) */
         ownerAnonymous: row.ownerAnonymous,
+        /** 결제 플랜 (사진 한도 등 권한 계산용) */
+        plan: planOf(row),
       }
     : null
 }

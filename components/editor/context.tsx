@@ -14,6 +14,8 @@ export type EditorEnv = {
   photoCount: number
   /** 사진 한도 (서버가 shared/entitlements.ts로 정해 줌) */
   photoLimit: number
+  /** 봉투 · 효과가 하객에게 보이는 플랜인지 */
+  introEffects: boolean
 }
 
 const EditorEnvContext = createContext<EditorEnv | null>(null)

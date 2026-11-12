@@ -10,6 +10,7 @@ import {
 } from '@/shared/covers'
 
 import { Segmented, Select, TextField, Toggle } from '../fields'
+import { useEditorEnv } from '../context'
 import { SingleImageField } from '../ImageFields'
 import styles from './CoverForm.module.scss'
 import { patcher, type FormProps } from './types'
@@ -20,6 +21,7 @@ export default function CoverForm({
   eventType,
 }: FormProps<'cover'> & { eventType: string }) {
   const set = patcher(update)
+  const env = useEditorEnv()
   // 지워진 표지 key를 가리키면 아무것도 고르지 않은 상태로 보여 줌 (초대장에는 글자만 표지로 나옴)
   const selected = findCover(config.designKey)
   const all = coversForEvent(eventType)
@@ -81,6 +83,11 @@ export default function CoverForm({
           ) : null}
           {grid(others)}
           <p className={styles.hint}>내 사진을 쓰고 싶으면 위에서 [사진]을 눌러 주세요.</p>
+          {!env.introEffects ? (
+            <p className={styles.hint}>
+              봉투 열기 · 떨어지는 효과는 프리미엄에서 하객에게 보여요. 미리보기에서는 볼 수 있어요.
+            </p>
+          ) : null}
           <Segmented
             label="여는 방식"
             value={config.intro}

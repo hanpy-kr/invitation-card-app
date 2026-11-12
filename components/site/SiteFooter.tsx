@@ -10,6 +10,7 @@ export default function SiteFooter() {
     <footer className={styles.footer}>
       <nav>
         <Link href="/help">도움말</Link>
+        <Link href="/pricing">가격 · 환불</Link>
         <Link href="/terms">이용약관</Link>
         <span>
           <Link href="/privacy">개인정보처리방침</Link>
@@ -20,6 +21,8 @@ export default function SiteFooter() {
         상호 {BUSINESS.tradeName} · 대표 {pending(BUSINESS.representative)}
         <br />
         사업자등록번호 {pending(BUSINESS.registrationNumber)}
+        <br />
+        통신판매업 신고번호 {pending(BUSINESS.mailOrderNumber)}
         <br />
         문의 <a href={`mailto:${BUSINESS.email}`}>{pending(BUSINESS.email)}</a>
       </p>

@@ -36,6 +36,11 @@ export type EditorProps = {
   photoLimit: number
   /** 로그인 없이 만든 초대장 → 발행 대신 카카오 로그인 안내 */
   ownerAnonymous: boolean
+  /** 결제 플랜에 따른 권한 (shared/entitlements.ts) */
+  introEffects: boolean
+  canHideMadeWith: boolean
+  /** 프리미엄 안내 · 결제 버튼 (결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음) */
+  upsell: { price: number } | null
 }
 
 const SAVE_LABEL: Record<SaveState, string> = {
@@ -65,6 +70,7 @@ export default function Editor(props: EditorProps) {
       uploadEnabled: props.uploadEnabled,
       geoSearchEnabled: props.geoSearchEnabled,
       photoLimit: props.photoLimit,
+      introEffects: props.introEffects,
       photoCount: new Set(
         [...collectMediaRefs(blocks), ...(meta.share.image ? [meta.share.image] : [])].map(
           (r) => r.id,
@@ -283,6 +289,7 @@ export default function Editor(props: EditorProps) {
                 slug={props.slug}
                 mediaBaseUrl={props.mediaBaseUrl}
                 kakaoJsKey={props.kakaoJsKey}
+                introEffects={props.introEffects}
               />
             </div>
           </aside>
@@ -302,6 +309,8 @@ export default function Editor(props: EditorProps) {
             onStatus={setStatus}
             anonymous={props.ownerAnonymous}
             onShare={(fn) => setMeta((m) => ({ ...m, share: fn(m.share) }))}
+            canHideMadeWith={props.canHideMadeWith}
+            upsell={props.upsell}
             onClose={() => setShowPublish(false)}
           />
         ) : null}

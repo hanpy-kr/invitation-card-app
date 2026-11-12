@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import {
   boolean,
   index,
@@ -62,6 +62,12 @@ export const invitations = pgTable(
     share: jsonb('share').notNull().default({}),
     /** (2차) '나도 만들기'로 만들었을 때 원본 초대장 slug — 하객 → 주최자 전환 지표 */
     createdFrom: varchar('created_from', { length: 8 }),
+    /** (결제) 프리미엄이 적용된 결제 주문. null이면 무료(또는 결제 시작 전에 만든 초대장) */
+    premiumOrderId: uuid('premium_order_id'),
+    /** (결제) 복제 · 청첩장 모임 · 감사장을 만들 때 원본 초대장. 결제된 결혼 · 돌에서 파생된 청첩장 모임 · 감사장은 프리미엄 */
+    derivedFromId: uuid('derived_from_id').references((): AnyPgColumn => invitations.id, {
+      onDelete: 'set null',
+    }),
     createdAt: createdAt(),
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()
@@ -174,6 +180,43 @@ export const albumPhotos = pgTable(
   (t) => [index('album_photos_invitation_idx').on(t.invitationId, t.createdAt)],
 )
 
+/**
+ * (결제) 프리미엄 이용료 주문. dearday는 이용료만 받는다(축의금 · 회비는 하객 ↔ 주최자 직접).
+ * status: pending(결제창 열기 전 · 승인 전) → paid(토스 승인) → canceled(환불). failed는 승인 실패 기록.
+ * order_id는 토스에 보내는 주문번호(우리가 만듦), payment_key는 승인 뒤 토스가 준 값(서버에서만 씀).
+ */
+export const orders = pgTable(
+  'orders',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // 초대장을 지우거나 탈퇴해도 결제 기록은 남긴다(전자상거래법 보관 의무) → set null
+    invitationId: uuid('invitation_id').references(() => invitations.id, { onDelete: 'set null' }),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+    orderId: text('order_id').notNull(),
+    orderName: text('order_name').notNull(),
+    /** 원 단위, 부가세 포함. 서버가 shared/pricing.ts로 계산한 값 */
+    amount: integer('amount').notNull(),
+    status: text('status').notNull().default('pending'),
+    paymentKey: text('payment_key'),
+    /** 결제 방법(카드 · 간편결제 등, 토스 응답의 method) */
+    method: text('method'),
+    receiptUrl: text('receipt_url'),
+    /** 결제 전 '발행 후 환불 불가' 동의를 받은 시각 */
+    refundAgreedAt: timestamp('refund_agreed_at', { withTimezone: true }),
+    approvedAt: timestamp('approved_at', { withTimezone: true }),
+    canceledAt: timestamp('canceled_at', { withTimezone: true }),
+    failReason: text('fail_reason'),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('orders_order_id_idx').on(t.orderId),
+    index('orders_invitation_idx').on(t.invitationId),
+    index('orders_user_idx').on(t.userId),
+    // 같은 초대장에 결제 완료 주문은 하나만 (중복 결제 방지)
+    uniqueIndex('orders_one_paid_idx').on(t.invitationId).where(sql`${t.status} = 'paid'`),
+  ],
+)
+
 /** 하객 쓰기 API용 간단한 rate limit. key는 IP+slug+종류의 해시(원래 IP는 저장 안 함) */
 export const rateLimits = pgTable('rate_limits', {
   key: text('key').primaryKey(),
@@ -284,6 +327,7 @@ export const pollVotesRelations = relations(pollVotes, ({ one }) => ({
 export type User = typeof users.$inferSelect
 export type Invitation = typeof invitations.$inferSelect
 export type BlockRow = typeof blocks.$inferSelect
+export type Order = typeof orders.$inferSelect
 export type Media = typeof media.$inferSelect
 export type Rsvp = typeof rsvps.$inferSelect
 export type GuestbookEntry = typeof guestbookEntries.$inferSelect

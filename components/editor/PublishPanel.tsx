@@ -18,6 +18,9 @@ import { hasPlaceholder } from '@/shared/templates'
 import { parseYoutubeId } from '@/shared/video'
 import { isDateVoting, usableOptions } from '@/shared/vote'
 
+import { formatWon, REFUND_NOTICE } from '@/shared/pricing'
+import { PLAN_FEATURES } from '@/shared/entitlements'
+
 import { api } from '../ui/api'
 import styles from './Editor.module.scss'
 import ShareCard from './ShareCard'
@@ -37,6 +40,10 @@ type Props = {
   onClose: () => void
   /** 로그인 없이 만든 초대장 — 발행하려면 카카오 로그인 */
   anonymous: boolean
+  /** 프리미엄 하단 문구 숨기기 가능 */
+  canHideMadeWith: boolean
+  /** 결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음 */
+  upsell: { price: number } | null
 }
 
 /** 발행 · 링크 복사 · 공유 시트 */
@@ -128,6 +135,7 @@ export default function PublishPanel(props: Props) {
               mediaBaseUrl={props.mediaBaseUrl}
               onShare={props.onShare}
             />
+            <PremiumBlock id={id} upsell={props.upsell} />
             {warnings.length > 0 ? (
               <ul className={styles.warnings} aria-label="발행 전에 확인해 보세요">
                 {warnings.map((w) => (
@@ -201,6 +209,17 @@ export default function PublishPanel(props: Props) {
                 초대장 열어 보기
               </a>
             </div>
+            <PremiumBlock id={id} upsell={props.upsell} />
+            {props.canHideMadeWith ? (
+              <label className={styles.checkRow}>
+                <input
+                  type="checkbox"
+                  checked={props.meta.share.hideMadeWith}
+                  onChange={(e) => props.onShare((s) => ({ ...s, hideMadeWith: e.target.checked }))}
+                />
+                하단 &lsquo;dearday로 만들었어요&rsquo; 문구 숨기기
+              </label>
+            ) : null}
             <button
               type="button"
               className={styles.textBtn}
@@ -264,4 +283,24 @@ function stringsIn(value: unknown): string[] {
   if (Array.isArray(value)) return value.flatMap(stringsIn)
   if (value && typeof value === 'object') return Object.values(value).flatMap(stringsIn)
   return []
+}
+
+/** 프리미엄 안내 · 결제 버튼. 결제가 열려 있고 아직 프리미엄이 아닐 때만 보임 */
+function PremiumBlock({ id, upsell }: { id: string; upsell: { price: number } | null }) {
+  if (!upsell) return null
+  const f = PLAN_FEATURES.premium
+  return (
+    <section className={styles.premium} aria-label="프리미엄 안내">
+      <strong>프리미엄 {formatWon(upsell.price)}</strong>
+      <ul>
+        <li>봉투 열기 3종 · 떨어지는 효과 6종이 하객에게 보여요</li>
+        <li>사진을 초대장당 {f.photoLimit}장까지 올릴 수 있어요 (무료 {PLAN_FEATURES.free.photoLimit}장)</li>
+        <li>하단 &lsquo;dearday로 만들었어요&rsquo; 문구를 숨길 수 있어요</li>
+      </ul>
+      <p>초대장 1개당 1회 결제 · 부가세 포함. {REFUND_NOTICE}</p>
+      <a className={styles.premiumBtn} href={`/pay/${id}`}>
+        프리미엄 결제하기
+      </a>
+    </section>
+  )
 }

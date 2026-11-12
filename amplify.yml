@@ -1,6 +1,8 @@
 # AWS Amplify Hosting (WEB_COMPUTE, Next.js 15 SSR)
 # 콘솔 환경변수는 빌드 때만 보이므로, 서버 런타임(Route Handler)에 필요한 값을 .env.production에 써 넣는다.
 # https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
+# TOSS_SECRET_KEY는 서버(Route Handler)에서만 읽고, NEXT_PUBLIC_TOSS_CLIENT_KEY(결제창용 공개 키)는 NEXT_PUBLIC_ 패턴으로 함께 들어감.
+# TOSS_API_BASE는 e2e 전용이라 일부러 넣지 않음.
 # DEV_LOGIN은 일부러 넣지 않음 → 운영에서는 개발용 로그인이 절대 켜지지 않는다.
 version: 1
 frontend:
@@ -15,7 +17,7 @@ frontend:
         - pnpm install --frozen-lockfile
     build:
       commands:
-        - env | grep -E '^(DATABASE_URL|SESSION_SECRET|KAKAO_REST_API_KEY|KAKAO_CLIENT_SECRET|KAKAO_REDIRECT_URI|R2_ACCOUNT_ID|R2_ACCESS_KEY_ID|R2_SECRET_ACCESS_KEY|R2_BUCKET|R2_PUBLIC_BASE_URL|ADMIN_KAKAO_IDS|KAKAO_TOKEN_KEY|NEXT_PUBLIC_[A-Z0-9_]+)=' >> .env.production
+        - env | grep -E '^(DATABASE_URL|SESSION_SECRET|KAKAO_REST_API_KEY|KAKAO_CLIENT_SECRET|KAKAO_REDIRECT_URI|R2_ACCOUNT_ID|R2_ACCESS_KEY_ID|R2_SECRET_ACCESS_KEY|R2_BUCKET|R2_PUBLIC_BASE_URL|ADMIN_KAKAO_IDS|KAKAO_TOKEN_KEY|TOSS_SECRET_KEY|PAYMENTS_LIVE|NEXT_PUBLIC_[A-Z0-9_]+)=' >> .env.production
         - pnpm db:migrate
         - pnpm build
   artifacts:

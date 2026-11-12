@@ -18,12 +18,14 @@ export default function Preview({
   slug,
   mediaBaseUrl,
   kakaoJsKey,
+  introEffects,
 }: {
   meta: InvitationMeta
   blocks: EditorBlock[]
   slug: string
   mediaBaseUrl: string
   kakaoJsKey: string
+  introEffects: boolean
 }) {
   const ctx: BlockContext = {
     slug,
@@ -32,6 +34,7 @@ export default function Preview({
     eventAt: meta.eventAt,
     mediaBaseUrl,
     kakaoJsKey,
+    introEffects,
     preview: true,
   }
   const fontCss = FONTS[resolveFont(meta.theme, meta.font)].css
