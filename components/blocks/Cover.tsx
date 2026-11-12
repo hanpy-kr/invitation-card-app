@@ -2,10 +2,13 @@ import classNames from 'classnames/bind'
 
 import type { CoverConfig } from '@/shared/blocks'
 import { COVER_RATIO, coverSrc, coverSrcSet, findCover } from '@/shared/covers'
+import { getEntitlements } from '@/shared/entitlements'
 import { formatShortDate, formatWeekdayEn } from '@/shared/date'
 import { mediaSrc } from '@/shared/media'
 
 import Section from './common/Section'
+import CoverEffect from './CoverEffect'
+import CoverShell from './CoverShell'
 import { fitCqw } from './coverFit'
 import styles from './Cover.module.scss'
 import type { BlockContext } from './types'
@@ -64,35 +67,76 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
     </>
   )
 
-  // 디자인 표지: 4:5 그림 위 가운데에 날짜 · 제목 · 부제. 글자색은 표지 톤, 포인트는 테마 색
+  // 디자인 표지: 화면 한 장(100svh)을 꽉 채움. 종이 색 바탕 가운데에 가로 116%짜리 4:5 그림을 놓고
+  // 위아래를 종이 색으로 녹이며, 날짜 · 제목 · 부제는 화면 가운데에 둔다.
   if (design) {
-    return (
-      <Section className={cx('container', 'design', design.tone)}>
-        <div
-          className={cx('wrap-design')}
-          style={
-            {
-              aspectRatio: `${COVER_RATIO.w} / ${COVER_RATIO.h}`,
-              '--cover-accent': design.accent,
-              '--pad-x': `${design.padX}%`,
-            } as React.CSSProperties
-          }
-        >
-          <img
-            src={coverSrc(design, 800)}
-            srcSet={coverSrcSet(design)}
-            sizes="(min-width: 480px) 480px, 100vw"
-            width={800}
-            height={1000}
-            alt=""
-            fetchPriority="high"
-          />
-          <div className={cx('over')}>
-            {dateBlock}
-            {titles}
+    const fx = getEntitlements().introEffects
+    const effect = fx && config.effect !== 'none' ? config.effect : null
+    const intro = fx && config.intro !== 'none' ? config.intro : null
+    const style = {
+      '--cover-accent': design.accent,
+      '--pad-x': `${design.padX}%`,
+      '--cv-paper': design.paper,
+      '--cv-surface': design.surface,
+      '--cv-line': design.line,
+      '--cv-accent': design.dark?.point ?? design.accent,
+      ...(ctx.preview ? { '--cover-h': '640px', '--fall': '640px' } : {}),
+    } as React.CSSProperties
+    const cls = cx('cover', design.tone)
+    const inner = (
+      <>
+        <div className={cx('art')}>
+          <div
+            className={cx('wrap-design')}
+            style={{ aspectRatio: `${COVER_RATIO.w} / ${COVER_RATIO.h}` }}
+          >
+            <img
+              src={coverSrc(design, 800)}
+              srcSet={coverSrcSet(design)}
+              sizes="(min-width: 480px) 560px, 116vw"
+              width={800}
+              height={1000}
+              alt=""
+              fetchPriority="high"
+            />
+            <div className={cx('over')}>
+              {dateBlock}
+              {titles}
+            </div>
           </div>
         </div>
-      </Section>
+        {effect ? (
+          <CoverEffect
+            kind={effect}
+            density={config.effectDensity}
+            once={config.effectDuration === 'once'}
+          />
+        ) : null}
+        <div className={cx('scroll')} aria-hidden="true">
+          <span>SCROLL</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor">
+            <path d="M2 4.5 7 9.5 12 4.5" strokeWidth="1" />
+          </svg>
+        </div>
+      </>
+    )
+    return intro ? (
+      <CoverShell
+        kind={intro}
+        slug={ctx.slug}
+        preview={Boolean(ctx.preview)}
+        title={config.title}
+        sealText={config.sealText}
+        imageSrc={coverSrc(design, 800)}
+        className={cls}
+        style={style}
+      >
+        {inner}
+      </CoverShell>
+    ) : (
+      <section className={cls} style={style}>
+        {inner}
+      </section>
     )
   }
 

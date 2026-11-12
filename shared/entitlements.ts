@@ -8,9 +8,11 @@ export interface Entitlements {
   photoLimit: number
   /** 하객 화면 맨 아래 'dearday로 만든 초대장' 문구 · 나도 만들기 카드 표시 */
   showMadeWith: boolean
+  /** 표지 봉투 열기 · 떨어지는 효과. false면 설정이 있어도 하객 화면에 나오지 않음 */
+  introEffects: boolean
 }
 
-const FREE: Entitlements = { photoLimit: 10, showMadeWith: true }
+const FREE: Entitlements = { photoLimit: 10, showMadeWith: true, introEffects: true }
 
 /** 로그인 없이 만들기 시작한 임시 사용자 (카카오로 로그인하면 FREE) */
 const ANONYMOUS: Entitlements = { ...FREE, photoLimit: 3 }

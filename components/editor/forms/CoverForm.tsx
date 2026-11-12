@@ -9,7 +9,7 @@ import {
   type CoverDef,
 } from '@/shared/covers'
 
-import { Segmented, TextField, Toggle } from '../fields'
+import { Segmented, Select, TextField, Toggle } from '../fields'
 import { SingleImageField } from '../ImageFields'
 import styles from './CoverForm.module.scss'
 import { patcher, type FormProps } from './types'
@@ -81,6 +81,65 @@ export default function CoverForm({
           ) : null}
           {grid(others)}
           <p className={styles.hint}>내 사진을 쓰고 싶으면 위에서 [사진]을 눌러 주세요.</p>
+          <Segmented
+            label="여는 방식"
+            value={config.intro}
+            options={[
+              { value: 'none', label: '없음' },
+              { value: 'seal', label: '도장 봉투' },
+              { value: 'door', label: '리본 카드' },
+              { value: 'book', label: '책 표지' },
+            ]}
+            onChange={(intro) => set({ intro })}
+          />
+          {config.intro !== 'none' ? (
+            <TextField
+              label="도장 글자 (최대 3자)"
+              value={config.sealText}
+              maxLength={3}
+              onChange={(sealText) => set({ sealText })}
+            />
+          ) : null}
+          {config.intro !== 'none' ? (
+            <p className={styles.hint}>비워 두면 제목에서 처음 나오는 글자를 써요.</p>
+          ) : null}
+          <Select
+            label="떨어지는 효과"
+            value={config.effect}
+            options={[
+              { value: 'none', label: '없음' },
+              { value: 'petal', label: '꽃잎' },
+              { value: 'snow', label: '눈' },
+              { value: 'party', label: '풍선 · 색종이' },
+              { value: 'bubble', label: '비눗방울' },
+              { value: 'leaf', label: '잎사귀' },
+              { value: 'ginkgo', label: '은행잎' },
+            ]}
+            onChange={(effect) => set({ effect })}
+          />
+          {config.effect !== 'none' ? (
+            <>
+              <Segmented
+                label="효과 세기"
+                value={config.effectDensity}
+                options={[
+                  { value: 'low', label: '약하게' },
+                  { value: 'mid', label: '보통' },
+                  { value: 'high', label: '많이' },
+                ]}
+                onChange={(effectDensity) => set({ effectDensity })}
+              />
+              <Segmented
+                label="효과 시간"
+                value={config.effectDuration}
+                options={[
+                  { value: 'loop', label: '계속' },
+                  { value: 'once', label: '처음 5초만' },
+                ]}
+                onChange={(effectDuration) => set({ effectDuration })}
+              />
+            </>
+          ) : null}
         </>
       ) : null}
       {config.layout === 'photo' ? (

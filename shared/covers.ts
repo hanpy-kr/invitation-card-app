@@ -1,4 +1,4 @@
-import type { EventType } from './blocks'
+import type { EffectKind, EventType, IntroKind } from './blocks'
 
 /**
  * 디자인 표지 목록. 새 표지는 아래 배열에 한 줄을 더하고,
@@ -21,6 +21,9 @@ export type CoverDef = {
   accent: string
   /** 그림 양옆 장식을 피해 글자를 둘 수 있는 가운데 폭을 정하는 좌우 여백(%). 기본 24 — 가운데가 좁은 그림은 크게 */
   padX: number
+  /** 이 표지에 어울리는 떨어지는 효과 · 첫 화면 봉투 (새 초대장이 이 값으로 시작) */
+  effect: EffectKind
+  intro: IntroKind
   /** 본문 종이 색: 그림 아래 가장자리 색에서 뽑아 표지와 본문이 한 장처럼 이어지게 함 (면 · 선은 거기서 파생) */
   paper: string
   surface: string
@@ -84,6 +87,7 @@ const cover = (
   tone: CoverTone,
   accent: string,
   padX = 24,
+  rec: { effect: EffectKind; intro: IntroKind } = { effect: 'none', intro: 'none' },
 ): CoverDef => {
   const paper = PAPER[key] ?? '#f3ede2'
   const isDark = tone === 'light'
@@ -94,6 +98,8 @@ const cover = (
     tone,
     accent,
     padX,
+    effect: rec.effect,
+    intro: rec.intro,
     paper,
     surface: isDark ? mix(paper, '#ffffff', 0.08) : mix(paper, '#ffffff', 0.5),
     line: isDark ? mix(paper, '#ffffff', 0.2) : mix(paper, '#4a4239', 0.16),
@@ -114,16 +120,43 @@ const cover = (
 }
 
 export const COVERS: readonly CoverDef[] = [
-  cover('wedding-poppy', '양귀비', ['wedding'], 'dark', '#a8715f'),
-  cover('wedding-rose', '장미', ['wedding'], 'dark', '#a76a64', 26),
-  cover('wedding-peony', '모란', ['wedding'], 'dark', '#b5706f', 25),
-  cover('thanks-wildflower', '들꽃', ['thanks'], 'dark', '#9b6f78', 25),
-  cover('dol-cloud', '구름', ['dol'], 'dark', '#a5788a', 22),
-  cover('yearend-snow', '눈꽃', ['yearend'], 'light', '#d4af6a', 22),
-  cover('prewedding-cheers', '건배', ['prewedding'], 'dark', '#a37b3c', 26),
-  cover('meetup-ginkgo', '은행잎', ['meetup'], 'dark', '#9a8a76', 26),
-  cover('birthday-balloon', '풍선', ['birthday'], 'dark', '#bf6a4c', 28),
-  cover('housewarming-eucalyptus', '유칼립투스', ['housewarming'], 'dark', '#55724f', 22),
+  cover('wedding-poppy', '양귀비', ['wedding'], 'dark', '#a8715f', 24, {
+    effect: 'petal',
+    intro: 'seal',
+  }),
+  cover('wedding-rose', '장미', ['wedding'], 'dark', '#a76a64', 26, {
+    effect: 'petal',
+    intro: 'seal',
+  }),
+  cover('wedding-peony', '모란', ['wedding'], 'dark', '#b5706f', 25, {
+    effect: 'petal',
+    intro: 'seal',
+  }),
+  cover('thanks-wildflower', '들꽃', ['thanks'], 'dark', '#9b6f78', 25, {
+    effect: 'leaf',
+    intro: 'seal',
+  }),
+  cover('dol-cloud', '구름', ['dol'], 'dark', '#a5788a', 22, { effect: 'bubble', intro: 'book' }),
+  cover('yearend-snow', '눈꽃', ['yearend'], 'light', '#d4af6a', 22, {
+    effect: 'snow',
+    intro: 'door',
+  }),
+  cover('prewedding-cheers', '건배', ['prewedding'], 'dark', '#a37b3c', 26, {
+    effect: 'party',
+    intro: 'door',
+  }),
+  cover('meetup-ginkgo', '은행잎', ['meetup'], 'dark', '#9a8a76', 26, {
+    effect: 'ginkgo',
+    intro: 'door',
+  }),
+  cover('birthday-balloon', '풍선', ['birthday'], 'dark', '#bf6a4c', 28, {
+    effect: 'party',
+    intro: 'book',
+  }),
+  cover('housewarming-eucalyptus', '유칼립투스', ['housewarming'], 'dark', '#55724f', 22, {
+    effect: 'leaf',
+    intro: 'book',
+  }),
 ]
 
 /** 처음 만든 표지 key(11/9)의 새 이름 */
@@ -182,4 +215,11 @@ export function designCoverOf(
   const b = blocks.find((x) => x.type === 'cover' && x.visible)
   const c = b?.config as { layout?: string; designKey?: string | null } | undefined
   return c?.layout === 'design' ? findCover(c.designKey) : undefined
+}
+
+/** 새 초대장 템플릿이 쓰는 표지 시작값: 그 행사 첫 표지의 추천 효과 · 봉투 */
+export function coverStart(eventType: string): { effect: EffectKind; intro: IntroKind } {
+  const key = defaultCoverKey(eventType)
+  const c = key ? findCover(key) : undefined
+  return { effect: c?.effect ?? 'none', intro: c?.intro ?? 'none' }
 }

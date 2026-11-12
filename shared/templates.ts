@@ -1,4 +1,4 @@
-import { defaultCoverKey } from './covers'
+import { coverStart, defaultCoverKey } from './covers'
 import {
   defaultShowAttendees,
   parseBlockConfig,
@@ -40,6 +40,7 @@ const TEMPLATES: Record<EventType, Template> = {
         config: {
           layout: 'design',
           designKey: defaultCoverKey('wedding'),
+          ...coverStart('wedding'),
           title: '[신랑 이름] · [신부 이름]',
           subtitle: '우리 결혼합니다',
         },
@@ -112,6 +113,7 @@ const TEMPLATES: Record<EventType, Template> = {
         config: {
           layout: 'design',
           designKey: defaultCoverKey('dol'),
+          ...coverStart('dol'),
           title: '[아기 이름]의 첫 번째 생일',
           subtitle: '돌잔치에 초대합니다',
         },
@@ -164,6 +166,7 @@ const TEMPLATES: Record<EventType, Template> = {
         config: {
           layout: 'design',
           designKey: defaultCoverKey('meetup'),
+          ...coverStart('meetup'),
           title: '[모임 이름]',
           subtitle: '오랜만에 얼굴 봐요',
         },
@@ -223,6 +226,7 @@ const TEMPLATES: Record<EventType, Template> = {
         config: {
           layout: 'design',
           designKey: defaultCoverKey('yearend'),
+          ...coverStart('yearend'),
           title: '[모임 이름] 송년회',
           subtitle: '올해도 수고 많았어요',
         },
@@ -292,6 +296,7 @@ const TEMPLATES: Record<EventType, Template> = {
         config: {
           layout: 'design',
           designKey: defaultCoverKey('prewedding'),
+          ...coverStart('prewedding'),
           title: '[신랑 이름] · [신부 이름]',
           subtitle: '청첩장 드리러 갈게요',
         },
@@ -326,6 +331,7 @@ const TEMPLATES: Record<EventType, Template> = {
         config: {
           layout: 'design',
           designKey: defaultCoverKey('thanks'),
+          ...coverStart('thanks'),
           title: '감사합니다',
           subtitle: '함께해 주신 마음 잊지 않겠습니다',
         },
@@ -353,6 +359,7 @@ const TEMPLATES: Record<EventType, Template> = {
         config: {
           layout: 'design',
           designKey: defaultCoverKey('birthday'),
+          ...coverStart('birthday'),
           title: '[이름]의 생일 파티',
           subtitle: '같이 축하해 줘요',
         },
@@ -389,6 +396,7 @@ const TEMPLATES: Record<EventType, Template> = {
         config: {
           layout: 'design',
           designKey: defaultCoverKey('housewarming'),
+          ...coverStart('housewarming'),
           title: '[이름]네 집들이',
           subtitle: '새 집에 놀러 오세요',
         },

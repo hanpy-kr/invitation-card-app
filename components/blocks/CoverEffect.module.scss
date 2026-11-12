@@ -1,0 +1,121 @@
+// 떨어지는 효과: transform · opacity만 움직임. 층은 표지 영역 안에만 있고 클릭을 가로채지 않음
+.fx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+
+  // 봉투가 아직 닫혀 있으면 열릴 때까지 멈춰 둠 (Cover의 data-intro)
+  :global([data-intro='pending']) & .p,
+  :global([data-intro='pending']) & {
+    animation-play-state: paused;
+  }
+
+  &.once {
+    // 처음 5초 뒤 1.6초에 걸쳐 사라짐
+    animation: fx-out 1.6s ease-in 5s forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx {
+    display: none;
+  }
+}
+
+@keyframes fx-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes fall {
+  from {
+    transform: translate3d(0, -40px, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--sway), calc(var(--fall, 100svh) + 40px), 0) rotate(var(--rot));
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translate3d(0, calc(var(--fall, 100svh) + 40px), 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--sway), -80px, 0) rotate(var(--rot));
+  }
+}
+
+.p {
+  position: absolute;
+  top: 0;
+  will-change: transform;
+  animation: fall var(--dur) var(--delay) linear infinite;
+
+  &.up {
+    animation-name: rise;
+  }
+}
+
+// 꽃잎
+.petal .p {
+  background: var(--c);
+  border-radius: 100% 0 100% 0;
+}
+
+// 눈 (5개 중 1개는 금색 반짝이)
+.snow .p {
+  background: var(--c);
+  border-radius: 50%;
+
+  &.alt {
+    box-shadow: 0 0 6px 1px var(--c);
+  }
+}
+
+// 풍선(위로) + 색종이
+.party .p {
+  background: var(--c);
+  border-radius: 1px;
+  aspect-ratio: 1 / 1.6;
+  height: auto !important;
+
+  &.alt {
+    border-radius: 50% 50% 48% 48%;
+    aspect-ratio: 1 / 1.2;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 1px;
+      height: 70%;
+      background: var(--c);
+      opacity: 0.7;
+    }
+  }
+}
+
+// 비눗방울: 테두리 + 하이라이트
+.bubble .p {
+  border: 1px solid var(--c);
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.55) 0 14%, transparent 15%);
+}
+
+// 잎사귀
+.leaf .p {
+  background: var(--c);
+  border-radius: 0 100% 0 100%;
+}
+
+// 은행잎: 부채꼴
+.ginkgo .p {
+  background: var(--c);
+  border-radius: 100% 100% 8% 8% / 100% 100% 8% 8%;
+  clip-path: polygon(0 100%, 0 30%, 25% 12%, 50% 25%, 75% 12%, 100% 30%, 100% 100%, 50% 80%);
+}

@@ -49,79 +49,128 @@
     font-weight: normal;
     color: var(--muted);
   }
+}
 
-  // 디자인 표지: 그림이 화면 너비를 다 쓰고 그 위에 글자를 올린다
-  &.design {
-    padding-top: 0;
+// 디자인 표지: 화면 한 장을 꽉 채움 (100svh). 바탕은 표지 종이 색
+.cover {
+  position: relative;
+  height: var(--cover-h, 100svh);
+  min-height: 520px;
+  overflow: hidden;
+  background: var(--bg);
+  text-align: center;
 
-    .wrap-design {
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-      background: var(--surface);
-      container-type: inline-size; // 글자 크기를 그림 가로폭(cqw)에 맞춰 자동 조절
+  .art {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 116%; // 양옆 8%씩 넘침
+    transform: translate(-50%, -50%);
+    // 위아래 16%를 종이 색에 녹임
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 16%,
+      #000 84%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
+  }
 
-      img {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
+  .wrap-design {
+    position: relative;
+    width: 100%;
+    container-type: inline-size; // 글자 크기를 그림 가로폭(cqw)에 맞춰 자동 조절
 
-    .over {
+    img {
       position: absolute;
       inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      // 그림의 장식이 양옆에 있어서 가운데 빈 면에만 글자를 둔다 (여백은 표지마다 shared/covers.ts)
-      padding: 0 var(--pad-x, 24%);
-      text-align: center;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
+  }
 
-    // 글자 톤: dark = 밝은 그림 위 어두운 글자, light = 어두운 그림 위 흰 글자
-    &.dark {
-      --cover-text: #4a4039;
-      --cover-sub: #7a6d63;
-    }
-    &.light {
-      --cover-text: #ffffff;
-      --cover-sub: rgba(255, 255, 255, 0.82);
-    }
+  .over {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    // 그림의 장식이 양옆에 있어서 가운데 빈 면에만 글자를 둔다 (여백은 표지마다 shared/covers.ts)
+    padding: 0 var(--pad-x, 24%);
+    z-index: 3;
+  }
 
-    .txt-date {
-      font-size: 24px;
-      margin-bottom: 4px;
-      color: var(--cover-accent, var(--accent)); // 포인트는 표지 색
-    }
+  .scroll {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 18px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    padding-left: 0.3em;
+    color: var(--cover-sub);
+    animation: nudge 2s ease-in-out infinite;
+  }
 
-    .txt-day {
-      font-size: 12px;
-      margin-bottom: 22px;
-      color: var(--cover-sub);
-    }
+  // 글자 톤: dark = 밝은 그림 위 어두운 글자, light = 어두운 그림 위 흰 글자
+  &.dark {
+    --cover-text: #4a4039;
+    --cover-sub: #7a6d63;
+  }
+  &.light {
+    --cover-text: #ffffff;
+    --cover-sub: rgba(255, 255, 255, 0.82);
+  }
 
-    .txt-title {
-      font-size: var(--fit, 22px);
-      line-height: 1.35;
-      margin-bottom: 8px;
-      color: var(--cover-text);
-      // 한 줄에 안 들어가면 단어 단위로 넘기고, 공백 없는 긴 글자는 억지로라도 끊음
-      word-break: keep-all;
-      overflow-wrap: anywhere;
-      text-wrap: balance;
-    }
+  .txt-date {
+    font-size: 24px;
+    margin-bottom: 4px;
+    color: var(--cover-accent, var(--accent)); // 포인트는 표지 색
+  }
 
-    .txt-subtitle {
-      font-size: var(--fit, 13px);
-      line-height: 1.5;
-      color: var(--cover-sub);
-      word-break: keep-all;
-      overflow-wrap: anywhere;
-      text-wrap: balance;
-    }
+  .txt-day {
+    font-size: 12px;
+    margin-bottom: 22px;
+    color: var(--cover-sub);
+  }
+
+  .txt-title {
+    font-size: var(--fit, 22px);
+    line-height: 1.35;
+    margin-bottom: 8px;
+    color: var(--cover-text);
+    // 한 줄에 안 들어가면 단어 단위로 넘기고, 공백 없는 긴 글자는 억지로라도 끊음
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  .txt-subtitle {
+    font-size: var(--fit, 13px);
+    line-height: 1.5;
+    color: var(--cover-sub);
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+}
+
+@keyframes nudge {
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover .scroll {
+    animation: none;
   }
 }

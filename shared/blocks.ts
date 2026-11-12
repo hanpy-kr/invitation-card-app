@@ -116,6 +116,11 @@ export function parseShareOverride(value: unknown): ShareOverride {
   return r.success ? r.data : shareOverrideSchema.parse({})
 }
 
+export const INTRO_KINDS = ['none', 'seal', 'door', 'book'] as const
+export type IntroKind = (typeof INTRO_KINDS)[number]
+export const EFFECT_KINDS = ['none', 'petal', 'snow', 'party', 'bubble', 'leaf', 'ginkgo'] as const
+export type EffectKind = (typeof EFFECT_KINDS)[number]
+
 const shortText = (max: number) => z.string().trim().max(max)
 
 export const coverConfigSchema = z.object({
@@ -130,6 +135,15 @@ export const coverConfigSchema = z.object({
   title: shortText(40).default(''),
   subtitle: shortText(60).default(''),
   showDate: z.boolean().default(true),
+  /** 첫 화면 여는 방식(봉투). 디자인 표지에서만 쓰며 기본은 없음 */
+  intro: z.enum(INTRO_KINDS).default('none'),
+  /** 표지 위에 떨어지는 효과. 디자인 표지에서만 쓰며 기본은 없음 */
+  effect: z.enum(EFFECT_KINDS).default('none'),
+  effectDensity: z.enum(['low', 'mid', 'high']).default('mid'),
+  /** loop: 계속 · once: 처음 5초 뒤 1.6초에 걸쳐 사라짐 */
+  effectDuration: z.enum(['loop', 'once']).default('loop'),
+  /** 도장 글자(최대 3자). 비어 있으면 표지 제목의 첫 글자 */
+  sealText: shortText(3).default(''),
 })
 
 export const greetingConfigSchema = z.object({

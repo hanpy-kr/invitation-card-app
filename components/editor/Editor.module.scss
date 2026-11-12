@@ -561,3 +561,18 @@ $wide: 960px;
     box-shadow: 0 0 0 1px var(--accent, var(--gold));
   }
 }
+
+.replayPreview {
+  position: sticky;
+  top: 8px;
+  z-index: 30;
+  display: block;
+  margin: 8px auto -44px;
+  min-height: var(--tap);
+  padding: 0 16px;
+  border: 1px solid var(--btn-line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--paper-surface) 92%, transparent);
+  font-size: 13px;
+  cursor: pointer;
+}

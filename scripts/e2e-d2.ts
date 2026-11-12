@@ -104,6 +104,7 @@ async function main() {
 
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
+    reducedMotion: 'reduce',
     deviceScaleFactor: 2,
     isMobile: true,
     hasTouch: true,
@@ -226,6 +227,7 @@ async function main() {
   // 8. 하객 화면 (로그인 안 한 새 브라우저)
   const guest = await browser.newContext({
     viewport: { width: 390, height: 844 },
+    reducedMotion: 'reduce',
     deviceScaleFactor: 2,
     isMobile: true,
     hasTouch: true,

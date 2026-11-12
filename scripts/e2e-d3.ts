@@ -18,6 +18,7 @@ function check(ok: unknown, label: string) {
 
 const mobile = {
   viewport: { width: 390, height: 844 },
+  reducedMotion: 'reduce' as const, // 봉투 · 효과 없이 바로 표지 (봉투 · 효과는 e2e-p3에서 따로)
   deviceScaleFactor: 2,
   isMobile: true,
   hasTouch: true,
