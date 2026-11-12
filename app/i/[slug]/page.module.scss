@@ -87,8 +87,12 @@
   font-size: 12px;
   color: var(--muted);
 
-  a {
+  .madeLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--tap);
     text-decoration: none;
-    font-weight: bold;
+    letter-spacing: 0.04em;
   }
 }

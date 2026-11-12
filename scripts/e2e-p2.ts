@@ -143,8 +143,11 @@ async function designFlow(browser: Browser) {
   const g2 = await guest(browser)
   await g2.goto(url2, { waitUntil: 'networkidle' })
   check(
-    (await g2.locator('link[rel=stylesheet][href*="/fonts/gowun"]').count()) === 0,
-    '기본 글씨체는 추가 글씨체 CSS 없음',
+    (await g2.locator('link[rel=stylesheet][href*="/fonts/gowun-batang"]').count()) === 1 &&
+      (await g2
+        .locator('link[rel=stylesheet][href*="/fonts/"]:not([href*="gowun-batang"])')
+        .count()) === 0,
+    '기본 글씨체(고운바탕) CSS 한 번만, 다른 글씨체 CSS 없음',
   )
   check((await g2.locator('ul[class*=ratio]').count()) === 1, '사진첩 원본 비율 렌더')
   await g2.screenshot({ path: `${OUT}/p2-design-ratio.png`, fullPage: true })

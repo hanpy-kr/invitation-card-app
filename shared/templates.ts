@@ -105,7 +105,7 @@ const TEMPLATES: Record<EventType, Template> = {
   },
   dol: {
     title: '[아기 이름]의 첫 생일에 초대합니다',
-    theme: 'blossom',
+    theme: 'classic',
     blocks: [
       {
         type: 'cover',
@@ -157,7 +157,7 @@ const TEMPLATES: Record<EventType, Template> = {
   },
   meetup: {
     title: '[모임 이름]에 초대합니다',
-    theme: 'navy',
+    theme: 'classic',
     blocks: [
       {
         type: 'cover',
@@ -203,7 +203,7 @@ const TEMPLATES: Record<EventType, Template> = {
   },
   etc: {
     title: '[행사 이름]에 초대합니다',
-    theme: 'mint',
+    theme: 'classic',
     blocks: [
       { type: 'cover', config: { layout: 'text', title: '[행사 이름]', subtitle: '초대합니다' } },
       {
@@ -216,7 +216,7 @@ const TEMPLATES: Record<EventType, Template> = {
   },
   yearend: {
     title: '[모임 이름] 송년회',
-    theme: 'navy',
+    theme: 'classic',
     blocks: [
       {
         type: 'cover',
@@ -319,7 +319,7 @@ const TEMPLATES: Record<EventType, Template> = {
   },
   thanks: {
     title: '[이름] 감사 인사',
-    theme: 'ivory',
+    theme: 'classic',
     blocks: [
       {
         type: 'cover',
@@ -346,7 +346,7 @@ const TEMPLATES: Record<EventType, Template> = {
   },
   birthday: {
     title: '[이름]의 생일 파티',
-    theme: 'blossom',
+    theme: 'classic',
     blocks: [
       {
         type: 'cover',
@@ -382,7 +382,7 @@ const TEMPLATES: Record<EventType, Template> = {
   },
   housewarming: {
     title: '[이름]네 집들이',
-    theme: 'mint',
+    theme: 'classic',
     blocks: [
       {
         type: 'cover',

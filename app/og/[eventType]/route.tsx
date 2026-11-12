@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 import { EVENT_TYPES, type EventType } from '@/shared/blocks'
+import { SEAL } from '@/shared/brand'
 
 /** 사진이 없는 초대장의 기본 OG 이미지. 빌드 때 행사 종류별로 미리 만들어 둔다. */
 export const runtime = 'nodejs'
@@ -10,22 +11,23 @@ export function generateStaticParams() {
   return EVENT_TYPES.map((eventType) => ({ eventType }))
 }
 
-const STYLE: Record<EventType, { label: string; bg: string; fg: string }> = {
-  wedding: { label: 'WEDDING INVITATION', bg: '#f6f5f5', fg: '#ea7664' },
-  dol: { label: 'FIRST BIRTHDAY', bg: '#fbf1f3', fg: '#e88ea6' },
-  meetup: { label: 'YOU ARE INVITED', bg: '#f0f2f7', fg: '#3d5a98' },
-  etc: { label: 'YOU ARE INVITED', bg: '#eff6f3', fg: '#4fa58f' },
-  yearend: { label: 'YEAR-END PARTY', bg: '#f4efe7', fg: '#b4533c' },
-  prewedding: { label: 'BEFORE THE WEDDING', bg: '#f6f5f5', fg: '#c96f5f' },
-  birthday: { label: 'BIRTHDAY PARTY', bg: '#fdf4e8', fg: '#dd8a32' },
-  housewarming: { label: 'HOUSEWARMING', bg: '#eef4ec', fg: '#5a8c57' },
-  thanks: { label: 'THANK YOU', bg: '#f7f3ec', fg: '#a9865b' },
+/** 행사별 영문 머리글. 바탕은 모두 종이 색, 글자는 금갈색 (A · 종이 편지) */
+const LABEL: Record<EventType, string> = {
+  wedding: 'WEDDING INVITATION',
+  dol: 'FIRST BIRTHDAY',
+  meetup: 'YOU ARE INVITED',
+  etc: 'YOU ARE INVITED',
+  yearend: 'YEAR-END PARTY',
+  prewedding: 'BEFORE THE WEDDING',
+  birthday: 'BIRTHDAY PARTY',
+  housewarming: 'HOUSEWARMING',
+  thanks: 'THANK YOU',
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ eventType: string }> }) {
   const { eventType } = await params
-  const s =
-    STYLE[(EVENT_TYPES as readonly string[]).includes(eventType) ? (eventType as EventType) : 'etc']
+  const label =
+    LABEL[(EVENT_TYPES as readonly string[]).includes(eventType) ? (eventType as EventType) : 'etc']
   return new ImageResponse(
     <div
       style={{
@@ -35,12 +37,26 @@ export async function GET(_req: Request, { params }: { params: Promise<{ eventTy
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: s.bg,
-        color: s.fg,
+        background: '#f3ede2',
+        color: '#8a6a43',
       }}
     >
-      <div style={{ fontSize: 40, letterSpacing: 12 }}>{s.label}</div>
-      <div style={{ marginTop: 28, fontSize: 28, color: '#89757a', letterSpacing: 4 }}>dearday</div>
+      <svg width="96" height="96" viewBox="0 0 30 30">
+        <circle cx="15" cy="15" r="15" fill={SEAL.gold} />
+        <circle
+          cx="15"
+          cy="15"
+          r={SEAL.ring.r}
+          fill="none"
+          stroke={SEAL.paper}
+          strokeWidth={SEAL.ring.width}
+          strokeDasharray={SEAL.ring.dash}
+        />
+        <path d={SEAL.d} fill={SEAL.letter} />
+      </svg>
+      <div style={{ marginTop: 44, fontSize: 36, letterSpacing: 14 }}>{label}</div>
+      <div style={{ marginTop: 14, width: 56, height: 1, background: '#b79a74' }} />
+      <div style={{ marginTop: 22, fontSize: 26, color: '#6b6156', letterSpacing: 6 }}>dearday</div>
     </div>,
     { width: 1200, height: 630 },
   )

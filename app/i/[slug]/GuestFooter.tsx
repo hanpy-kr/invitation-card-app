@@ -7,6 +7,8 @@ import { copyText } from '@/components/blocks/common/CopyButton'
 import { loadKakaoSdk } from '@/shared/kakao-sdk'
 import type { KakaoFeed } from '@/shared/share'
 
+import Seal from '@/components/site/Seal'
+
 import styles from './page.module.scss'
 
 /** 하객 화면 맨 아래: 친구에게 공유 · 링크 복사 · 이 디자인으로 나도 만들기 */
@@ -68,7 +70,10 @@ export default function GuestFooter({
             <span>로그인하고 1분이면 내 초대장이 생겨요 · 무료</span>
           </Link>
           <p className={styles.madeWith}>
-            <Link href="/">dearday</Link>로 만든 초대장
+            <Link href="/" className={styles.madeLink}>
+              <Seal size={22} />
+              <span>dearday로 만들었어요</span>
+            </Link>
           </p>
         </>
       ) : null}

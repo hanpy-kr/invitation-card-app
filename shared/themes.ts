@@ -4,16 +4,33 @@ import { DEFAULT_FONT, FONTS, isFontKey, type FontKey } from './fonts'
 
 /** 초대장 테마. CSS 변수로 블록 색을 바꾼다. */
 export const THEMES = {
+  // 기본 테마 = 종이 편지 팔레트 (styles/global.scss 토큰과 같은 값). 옛 초대장의 'classic'도 이 모양으로 보임
   classic: {
-    label: '클래식',
-    font: 'geumeunbohwa',
-    events: ['wedding', 'dol', 'etc'],
+    label: '종이 편지',
+    font: 'gowun-batang',
+    events: [
+      'wedding',
+      'dol',
+      'etc',
+      'thanks',
+      'meetup',
+      'yearend',
+      'prewedding',
+      'birthday',
+      'housewarming',
+    ],
     vars: {
-      accent: '#ea7664',
-      text: '#544f4f',
-      muted: '#89757a',
-      surface: '#f6f5f5',
-      bg: '#ffffff',
+      accent: '#8a6a43',
+      text: '#4a4239',
+      muted: '#6b6156',
+      surface: '#f7f2e9',
+      bg: '#f3ede2',
+      line: '#d9ccb8',
+      btn: '#6e5a44',
+      btnText: '#f7f2e9',
+      btnLine: '#cbb89c',
+      deco: '#b79a74',
+      photo: '#e6dccc',
     },
   },
   blossom: {
@@ -26,6 +43,7 @@ export const THEMES = {
       muted: '#9a8088',
       surface: '#fbf1f3',
       bg: '#fffdfd',
+      line: '#ecd5da',
     },
   },
   mint: {
@@ -38,6 +56,7 @@ export const THEMES = {
       muted: '#7a8c87',
       surface: '#eff6f3',
       bg: '#ffffff',
+      line: '#d3e2dc',
     },
   },
   navy: {
@@ -50,6 +69,7 @@ export const THEMES = {
       muted: '#737a8c',
       surface: '#f0f2f7',
       bg: '#ffffff',
+      line: '#d5d9e4',
     },
   },
   ivory: {
@@ -62,6 +82,7 @@ export const THEMES = {
       muted: '#8d8478',
       surface: '#f7f3ec',
       bg: '#fffdf9',
+      line: '#e4d9c6',
     },
   },
   sage: {
@@ -74,6 +95,7 @@ export const THEMES = {
       muted: '#7f8c80',
       surface: '#f0f4ee',
       bg: '#fdfefc',
+      line: '#d9e2d6',
     },
   },
   sunny: {
@@ -86,6 +108,7 @@ export const THEMES = {
       muted: '#8f8570',
       surface: '#fdf6e3',
       bg: '#fffefa',
+      line: '#efe2bd',
     },
   },
   sky: {
@@ -98,6 +121,7 @@ export const THEMES = {
       muted: '#7a8896',
       surface: '#eef5fb',
       bg: '#fdfeff',
+      line: '#d3e2ef',
     },
   },
   wine: {
@@ -110,6 +134,7 @@ export const THEMES = {
       muted: '#8a7378',
       surface: '#f8eff0',
       bg: '#fffdfd',
+      line: '#ebd3d7',
     },
   },
   pine: {
@@ -122,6 +147,7 @@ export const THEMES = {
       muted: '#71847c',
       surface: '#edf4f1',
       bg: '#fcfefd',
+      line: '#d0e0d9',
     },
   },
 } as const
@@ -146,8 +172,22 @@ export function resolveFont(theme: string, font: string | null | undefined): Fon
   return isFontKey(t) ? t : DEFAULT_FONT
 }
 
+type ThemeVars = {
+  accent: string
+  text: string
+  muted: string
+  surface: string
+  bg: string
+  line?: string
+  btn?: string
+  btnText?: string
+  btnLine?: string
+  deco?: string
+  photo?: string
+}
+
 export function themeStyle(theme: string, font?: string | null): CSSProperties {
-  const t = THEMES[isThemeKey(theme) ? theme : 'classic'].vars
+  const t: ThemeVars = THEMES[isThemeKey(theme) ? theme : 'classic'].vars
   const family = FONTS[resolveFont(theme, font)].family
   return {
     '--font-display': `'${family}'`,
@@ -160,5 +200,12 @@ export function themeStyle(theme: string, font?: string | null): CSSProperties {
     '--surface': t.surface,
     '--beige': t.surface,
     '--bg': t.bg,
+    // 종이 팔레트가 아닌 테마는 글자색 · 면 색에서 버튼 · 선 색을 만든다
+    '--line': t.line ?? `color-mix(in srgb, ${t.text} 14%, ${t.bg})`,
+    '--btn': t.btn ?? t.text,
+    '--btn-text': t.btnText ?? t.surface,
+    '--btn-line': t.btnLine ?? `color-mix(in srgb, ${t.text} 28%, ${t.bg})`,
+    '--deco': t.deco ?? `color-mix(in srgb, ${t.accent} 65%, ${t.bg})`,
+    '--photo': t.photo ?? `color-mix(in srgb, ${t.text} 10%, ${t.bg})`,
   } as CSSProperties
 }

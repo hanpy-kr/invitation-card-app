@@ -1,0 +1,27 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.words {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.name {
+  font-family: var(--font-display), serif;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+
+.ko {
+  font-family: var(--font-display), serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+}
