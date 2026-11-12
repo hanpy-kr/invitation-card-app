@@ -1,13 +1,31 @@
 'use client'
 
+import { GREETING_PRESETS } from '@/shared/greeting-presets'
+import type { EventType } from '@/shared/blocks'
+import { useState } from 'react'
+
 import fieldStyles from '../fields.module.scss'
 import { Segmented, TextArea, TextField, Toggle } from '../fields'
 import { patcher, type FormProps } from './types'
 
 const MAX_HOSTS = 4
 
-export default function GreetingForm({ config, update }: FormProps<'greeting'>) {
+export default function GreetingForm({
+  config,
+  update,
+  eventType,
+}: FormProps<'greeting'> & { eventType: string }) {
   const set = patcher(update)
+  const [picking, setPicking] = useState(false)
+  const presets = GREETING_PRESETS[eventType as EventType] ?? GREETING_PRESETS.etc
+
+  function choose(text: string) {
+    if (config.message.trim() && config.message !== text) {
+      if (!window.confirm('지금 쓴 인사말이 이 문구로 바뀌어요. 바꿀까요?')) return
+    }
+    set({ message: text })
+    setPicking(false)
+  }
   const hosts = config.hosts.length > 0 ? config.hosts : ['']
 
   const setHost = (idx: number, value: string) =>
@@ -43,6 +61,50 @@ export default function GreetingForm({ config, update }: FormProps<'greeting'>) 
         rows={8}
         onChange={(message) => set({ message })}
       />
+      <button
+        type="button"
+        aria-expanded={picking}
+        style={{
+          alignSelf: 'flex-start',
+          border: '1px solid var(--btn-line)',
+          background: 'none',
+          color: 'var(--accent)',
+          minHeight: 'var(--tap)',
+          padding: '0 14px',
+        }}
+        onClick={() => setPicking((v) => !v)}
+      >
+        추천 문구
+      </button>
+      {picking ? (
+        <ul
+          aria-label="추천 문구 목록"
+          style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 8 }}
+        >
+          {presets.map((text, i) => (
+            <li key={i}>
+              <button
+                type="button"
+                aria-label={`추천 문구 ${i + 1} 고르기`}
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  whiteSpace: 'pre-line',
+                  border: '1px solid var(--line)',
+                  background: 'var(--surface, transparent)',
+                  padding: '10px 12px',
+                  fontSize: 13,
+                  lineHeight: 1.7,
+                  minHeight: 'var(--tap)',
+                }}
+                onClick={() => choose(text)}
+              >
+                {text}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
       <div className={fieldStyles.field}>
         <span>

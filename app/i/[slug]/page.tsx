@@ -21,6 +21,7 @@ import { designCoverOf } from '@/shared/covers'
 import { resolveFont, themeStyle } from '@/shared/themes'
 
 import GuestFooter from './GuestFooter'
+import LargeTextToggle from './LargeTextToggle'
 import ViewBeacon from './ViewBeacon'
 import styles from './page.module.scss'
 
@@ -79,9 +80,10 @@ export default async function InvitationPage({ params }: Props) {
   return (
     <div className={styles.page} style={themeStyle(inv.theme, inv.font, designCoverOf(inv.blocks))}>
       {fontCss ? <link rel="stylesheet" href={fontCss} precedence="font" /> : null}
-      <main className={styles.column}>
+      <main className={styles.column} data-guest-column>
         <BlockRenderer blocks={inv.blocks} ctx={ctx} />
         <ViewBeacon slug={inv.slug} />
+        <LargeTextToggle />
         <GuestFooter
           slug={inv.slug}
           url={pageUrl}

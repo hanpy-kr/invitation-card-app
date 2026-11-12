@@ -77,13 +77,27 @@ export default function Notice({ config, ctx }: { config: NoticeConfig; ctx: Blo
     })
   }
   const items = entries
+  const parkingIdx = items.findIndex((e) => !e.locked && (e.title + e.body).includes('주차'))
+
+  // 행사 당일 띠의 [주차 안내]: 탭 안내면 주차 항목 탭을 연다
+  useEffect(() => {
+    if (parkingIdx < 0) return
+    const open = () => setActive(parkingIdx)
+    window.addEventListener('dearday:show-parking', open)
+    return () => window.removeEventListener('dearday:show-parking', open)
+  }, [parkingIdx])
   const button = config.buttonLabel && isWebUrl(config.buttonUrl) ? config : null
   if (items.length === 0 && !button) return null
   const tabs = items.length >= 3
   const current = Math.min(active, items.length - 1)
 
   return (
-    <Section eyebrow="NOTICE" title={config.title} className={cx('container')}>
+    <Section
+      eyebrow="NOTICE"
+      title={config.title}
+      className={cx('container')}
+      id={parkingIdx >= 0 ? 'notice-parking' : undefined}
+    >
       <div ref={ref} />
       {tabs ? (
         <>

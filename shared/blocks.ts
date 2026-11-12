@@ -67,6 +67,7 @@ export const BLOCK_TYPES = [
   'video',
   'music',
   'album',
+  'timeline',
 ] as const
 export type BlockType = (typeof BLOCK_TYPES)[number]
 
@@ -85,6 +86,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   video: '영상',
   music: '배경음악',
   album: '하객 앨범',
+  timeline: '진행 순서',
 }
 
 /** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
@@ -272,6 +274,23 @@ export const noticeConfigSchema = z.object({
   buttonUrl: z.string().trim().max(500).default(''),
 })
 
+export const MAX_TIMELINE_ITEMS = 12
+
+export const timelineConfigSchema = z.object({
+  title: shortText(30).default('진행 순서'),
+  items: z
+    .array(
+      z.object({
+        /** 짧은 글 (예: 오후 7시) */
+        time: shortText(12).default(''),
+        title: shortText(30).default(''),
+        body: shortText(200).default(''),
+      }),
+    )
+    .max(MAX_TIMELINE_ITEMS)
+    .default([]),
+})
+
 export const calendarConfigSchema = z.object({
   title: shortText(30).default(''),
   showDday: z.boolean().default(true),
@@ -365,6 +384,7 @@ export const blockConfigSchemas = {
   video: videoConfigSchema,
   music: musicConfigSchema,
   album: albumConfigSchema,
+  timeline: timelineConfigSchema,
 } as const satisfies Record<BlockType, z.ZodType>
 
 export type BlockConfigMap = { [K in BlockType]: z.infer<(typeof blockConfigSchemas)[K]> }
@@ -376,6 +396,7 @@ export type RsvpConfig = BlockConfigMap['rsvp']
 export type GuestbookConfig = BlockConfigMap['guestbook']
 export type AccountConfig = BlockConfigMap['account']
 export type NoticeConfig = BlockConfigMap['notice']
+export type TimelineConfig = BlockConfigMap['timeline']
 export type CalendarConfig = BlockConfigMap['calendar']
 export type ContactConfig = BlockConfigMap['contact']
 export type VoteConfig = BlockConfigMap['vote']
@@ -442,6 +463,7 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('video'), config: videoConfigSchema }),
   z.object({ type: z.literal('music'), config: musicConfigSchema }),
   z.object({ type: z.literal('album'), config: albumConfigSchema }),
+  z.object({ type: z.literal('timeline'), config: timelineConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>
 

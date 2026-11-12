@@ -1,0 +1,88 @@
+@use '../../../styles/utils' as *;
+
+.container {
+  .list {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 76px 22px 1fr;
+    column-gap: 6px;
+    min-height: 56px;
+  }
+
+  .time {
+    padding-top: 1px;
+    font-size: calc(13px * var(--read, 1));
+    line-height: 1.6;
+    text-align: right;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+
+  // 가는 세로선 + 점
+  .rail {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--line);
+      transform: translateX(-50%);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 7px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--deco, var(--accent));
+      transform: translateX(-50%);
+    }
+  }
+
+  .row:first-child .rail::before {
+    top: 11px;
+  }
+
+  .row:last-child .rail::before {
+    bottom: auto;
+    height: 12px;
+  }
+
+  .body {
+    padding: 0 0 22px;
+    min-width: 0;
+  }
+
+  .row:last-child .body {
+    padding-bottom: 0;
+  }
+
+  .title {
+    @include display-font;
+    display: block;
+    font-size: calc(16px * var(--read, 1));
+    font-weight: normal;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .desc {
+    margin-top: 2px;
+    font-size: calc(13px * var(--read, 1));
+    line-height: 1.7;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+}

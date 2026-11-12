@@ -14,6 +14,7 @@ import LocationForm from './LocationForm'
 import NoticeForm from './NoticeForm'
 import AlbumForm from './AlbumForm'
 import MusicForm from './MusicForm'
+import TimelineForm from './TimelineForm'
 import VideoForm from './VideoForm'
 import VoteForm from './VoteForm'
 import RsvpForm from './RsvpForm'
@@ -37,7 +38,7 @@ export default function BlockForm({
     case 'cover':
       return <CoverForm config={block.config} update={as<'cover'>(update)} eventType={eventType} />
     case 'greeting':
-      return <GreetingForm config={block.config} update={as<'greeting'>(update)} />
+      return <GreetingForm config={block.config} update={as<'greeting'>(update)} eventType={eventType} />
     case 'gallery':
       return <GalleryForm config={block.config} update={as<'gallery'>(update)} />
     case 'location':
@@ -56,6 +57,8 @@ export default function BlockForm({
       return <ContactForm config={block.config} update={as<'contact'>(update)} />
     case 'vote':
       return <VoteForm config={block.config} update={as<'vote'>(update)} />
+    case 'timeline':
+      return <TimelineForm config={block.config} update={as<'timeline'>(update)} />
     case 'video':
       return <VideoForm config={block.config} update={as<'video'>(update)} />
     case 'music':

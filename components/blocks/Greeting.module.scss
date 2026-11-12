@@ -26,7 +26,7 @@
 
   .txt-message {
     @include display-font;
-    font-size: 15px;
+    font-size: calc(15px * var(--read, 1));
     line-height: 2;
     color: var(--text);
   }

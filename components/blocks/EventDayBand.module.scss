@@ -1,0 +1,25 @@
+.band {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+
+  a,
+  button {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--tap);
+    padding: 0 8px;
+    border: 1px solid var(--btn-line, var(--line));
+    border-radius: var(--radius);
+    background: transparent;
+    font: inherit;
+    font-size: 14px;
+    color: var(--text);
+    text-decoration: none;
+    cursor: pointer;
+  }
+}

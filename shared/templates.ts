@@ -12,7 +12,12 @@ import type { ThemeKey } from './themes'
  * 새 초대장을 만들 때 행사 종류별로 깔아 주는 기본 블록 · 문구 · 테마.
  * 대괄호로 감싼 문구([신랑 이름] 등)는 바꿔야 하는 자리 — 발행 전에 남아 있으면 안내한다.
  */
-type Template = { title: string; theme: ThemeKey; blocks: { type: BlockType; config: unknown }[] }
+type Template = {
+  title: string
+  theme: ThemeKey
+  /** hidden: 숨김 상태로 기본 포함 (주최자가 켜서 씀) */
+  blocks: { type: BlockType; config: unknown; hidden?: boolean }[]
+}
 
 /** 돌잡이 예측: 후보 6개를 미리 채운 자유 투표(하나만 고르기). 주최자가 후보를 고치거나 뺄 수 있다 */
 const DOLJABI_VOTE = {
@@ -59,6 +64,18 @@ const TEMPLATES: Record<EventType, Template> = {
       { type: 'gallery', config: { title: '우리의 순간' } },
       { type: 'calendar', config: { title: '예식 일시' } },
       { type: 'location', config: { title: '오시는 길' } },
+      {
+        type: 'timeline',
+        hidden: true,
+        config: {
+          title: '진행 순서',
+          items: [
+            { time: '오후 12시 30분', title: '예식', body: '' },
+            { time: '오후 1시 30분', title: '식사', body: '' },
+            { time: '오후 3시', title: '마무리', body: '' },
+          ],
+        },
+      },
       {
         type: 'rsvp',
         config: {
@@ -183,6 +200,18 @@ const TEMPLATES: Record<EventType, Template> = {
       },
       { type: 'location', config: { title: '모이는 곳' } },
       {
+        type: 'timeline',
+        hidden: true,
+        config: {
+          title: '진행 순서',
+          items: [
+            { time: '오후 6시 30분', title: '모임 시작', body: '' },
+            { time: '오후 7시', title: '식사', body: '' },
+            { time: '오후 9시', title: '마무리', body: '' },
+          ],
+        },
+      },
+      {
         type: 'rsvp',
         config: {
           title: '참석 여부',
@@ -242,6 +271,18 @@ const TEMPLATES: Record<EventType, Template> = {
       },
       { type: 'location', config: { title: '1차', time: '오후 7시' } },
       { type: 'location', config: { title: '2차', time: '오후 9시부터' } },
+      {
+        type: 'timeline',
+        hidden: true,
+        config: {
+          title: '진행 순서',
+          items: [
+            { time: '오후 7시', title: '모임 시작', body: '인사와 자리 안내' },
+            { time: '오후 8시', title: '건배와 식사', body: '' },
+            { time: '오후 9시', title: '2차', body: '' },
+          ],
+        },
+      },
       {
         type: 'rsvp',
         config: {
@@ -441,7 +482,7 @@ export function withEventDefaults(eventType: EventType, type: BlockType, config:
 export function buildTemplate(eventType: EventType): {
   title: string
   theme: ThemeKey
-  blocks: BlockInput[]
+  blocks: (BlockInput & { visible?: boolean })[]
 } {
   const t = TEMPLATES[eventType]
   return {
@@ -452,7 +493,8 @@ export function buildTemplate(eventType: EventType): {
         ({
           type: b.type,
           config: parseBlockConfig(b.type, withEventDefaults(eventType, b.type, b.config)),
-        }) as BlockInput,
+          ...(b.hidden ? { visible: false } : {}),
+        }) as BlockInput & { visible?: boolean },
     ),
   }
 }

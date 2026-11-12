@@ -251,6 +251,8 @@ function checkBeforePublish(meta: InvitationMeta, blocks: EditorBlock[]): string
     if (b.type === 'video' && !parseYoutubeId(b.config.url))
       out.push('영상 블록의 유튜브 주소를 알아볼 수 없어요 (안 보여요).')
     if (b.type === 'music' && !b.config.audio) out.push('배경음악 파일이 없어요 (안 보여요).')
+    if (b.type === 'timeline' && !b.config.items.some((it) => it.time || it.title || it.body))
+      out.push('진행 순서 블록이 비어 있어요 (빈 블록은 안 보여요).')
     if (b.type === 'notice' && !b.config.items.some((it) => it.title || it.body))
       out.push('안내 블록이 비어 있어요 (빈 블록은 안 보여요).')
   }

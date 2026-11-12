@@ -3,7 +3,7 @@
 .container {
   .message {
     @include txt-content;
-    font-size: 15px;
+    font-size: calc(15px * var(--read, 1));
     color: var(--muted);
     margin-bottom: 20px;
   }
@@ -77,19 +77,19 @@
   }
 
   .relation {
-    font-size: 13px;
+    font-size: calc(13px * var(--read, 1));
     color: var(--muted);
     margin-bottom: 2px;
   }
 
   .number {
-    font-size: 15px;
+    font-size: calc(15px * var(--read, 1));
     font-weight: bold;
     word-break: break-all;
   }
 
   .holder {
-    font-size: 13px;
+    font-size: calc(13px * var(--read, 1));
     color: var(--muted);
     margin-top: 2px;
   }

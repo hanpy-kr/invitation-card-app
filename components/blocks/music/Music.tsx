@@ -56,7 +56,7 @@ export default function Music({ config, ctx }: { config: MusicConfig; ctx: Block
   }
 
   return (
-    <div className={cx('wrap', { inline: ctx.preview })}>
+    <div data-music-fab={ctx.preview ? undefined : ''} className={cx('wrap', { inline: ctx.preview })}>
       <button
         type="button"
         className={cx('btn', { on: playing })}

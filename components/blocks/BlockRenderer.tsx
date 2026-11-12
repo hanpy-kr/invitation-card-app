@@ -1,3 +1,5 @@
+import { Fragment } from 'react'
+
 import type { Block } from '@/shared/blocks'
 import { firstPlace } from '@/shared/calendar'
 import { isDateVoting } from '@/shared/vote'
@@ -7,8 +9,10 @@ import Account from './account/Account'
 import Calendar from './calendar/Calendar'
 import Contact from './contact/Contact'
 import Cover from './Cover'
+import EventDayBand from './EventDayBand'
 import Album from './album/Album'
 import Music from './music/Music'
+import Timeline from './timeline/Timeline'
 import Video from './video/Video'
 import Vote from './vote/Vote'
 import Gallery from './gallery/Gallery'
@@ -72,19 +76,25 @@ export function BlockView({
       return <Music config={block.config} ctx={ctx} />
     case 'album':
       return <Album config={block.config} ctx={ctx} />
+    case 'timeline':
+      return <Timeline config={block.config} />
   }
 }
 
 export default function BlockRenderer({ blocks, ctx }: { blocks: Block[]; ctx: BlockContext }) {
   const place = firstPlace(blocks)
   // 날짜 투표 중이면 아직 날짜가 없는 것처럼 (캘린더 · 인사말 날짜 숨김)
+  const coverId = blocks.find((b) => b.type === 'cover' && b.visible)?.id
   const view = isDateVoting(blocks) ? { ...ctx, eventAt: null, dateVoting: true } : ctx
   return (
     <>
       {[...blocks]
         .sort((a, b) => a.position - b.position)
         .map((block) => (
-          <BlockView key={block.id} block={block} ctx={view} place={place} />
+          <Fragment key={block.id}>
+            <BlockView block={block} ctx={view} place={place} />
+            {block.id === coverId ? <EventDayBand blocks={blocks} ctx={view} /> : null}
+          </Fragment>
         ))}
     </>
   )

@@ -46,6 +46,10 @@ export function displayTextOf(blocks: Block[], eventAt: string | null): string {
       case 'contact':
         if (b.config.people.some((p) => p.phone)) parts.push(b.config.title)
         break
+      case 'timeline':
+        for (const it of b.config.items) parts.push(it.title)
+        if (b.config.items.some((it) => it.time || it.title || it.body)) parts.push(b.config.title)
+        break
       case 'calendar':
         if (eventAt) parts.push(b.config.title)
         break

@@ -42,14 +42,14 @@
   }
 
   .item-title {
-    font-size: 15px;
+    font-size: calc(15px * var(--read, 1));
     font-weight: bold;
     margin-bottom: 6px;
   }
 
   .body {
-    font-size: 14px;
-    line-height: 22px;
+    font-size: calc(14px * var(--read, 1));
+    line-height: calc(22px * var(--read, 1));
     word-break: break-all;
 
     a {
