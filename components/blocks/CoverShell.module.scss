@@ -55,6 +55,11 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
   }
 }
 
+// 도장 봉투는 편지가 올라올 자리만큼 아래로 내려가 있으므로 안내 문구도 그만큼 내림
+.intro[data-kind='seal'] .hint {
+  margin-top: calc(min(90vw, 380px) / 350 * 44);
+}
+
 @keyframes hint {
   50% {
     opacity: 0.45;
@@ -77,15 +82,18 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
   }
 }
 
-// ── seal: 밀랍 도장 봉투 310×210 ─────────────────────────
+// ── seal: 밀랍 도장 봉투. 너비 min(90vw, 380px), 높이 = 너비 × 0.68 ──
+// 안쪽 치수는 모두 --u(= 너비 ÷ 350, 390px 폰 시안 350×238 기준 1px)에 비례
 .env {
+  --w: min(90vw, 380px);
+  --u: calc(var(--w) / 350);
   position: relative;
   display: block;
-  width: 310px;
-  height: 210px;
-  perspective: 900px;
+  width: var(--w);
+  height: calc(var(--w) * 0.68);
+  perspective: calc(var(--w) * 2.6);
   // 편지가 위로 올라오는 만큼 아래로 내려 가운데에 맞춤
-  transform: translateY(40px);
+  transform: translateY(calc(var(--u) * 44));
 
   .back,
   .letter,
@@ -101,21 +109,21 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
   }
 
   .letter {
-    left: 18px;
-    right: 18px;
-    top: 14px;
-    height: 182px;
+    left: calc(var(--u) * 20);
+    right: calc(var(--u) * 20);
+    top: calc(var(--u) * 16);
+    height: calc(var(--u) * 206);
     z-index: 2;
-    padding: 28px 30px 0;
+    padding: calc(var(--u) * 32) calc(var(--u) * 34) 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: calc(var(--u) * 14);
     background: color-mix(in srgb, var(--cv-surface) 55%, #fff);
     border: 1px solid var(--cv-line);
 
     i {
       display: block;
-      height: 3px;
+      height: max(2px, calc(var(--u) * 3));
       background: var(--cv-line);
 
       &:nth-child(1) {
@@ -151,7 +159,7 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
     left: 0;
     top: 0;
     width: 100%;
-    height: 122px;
+    height: calc(var(--u) * 136);
     z-index: 4;
     transform-origin: top center;
     background: color-mix(in srgb, var(--cv-surface) 92%, #000);
@@ -161,11 +169,11 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
   .stamp {
     position: absolute;
     left: 50%;
-    top: 92px;
+    top: calc(var(--u) * 103);
     z-index: 5;
-    width: 60px;
-    height: 60px;
-    margin-left: -30px;
+    width: calc(var(--u) * 70);
+    height: calc(var(--u) * 70);
+    margin-left: calc(var(--u) * -35);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -177,7 +185,7 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
 
     .ring {
       position: absolute;
-      inset: 5px;
+      inset: calc(var(--u) * 6);
       border: 1px dashed rgba(255, 255, 255, 0.7);
       border-radius: 50%;
     }
@@ -185,7 +193,7 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
     b {
       position: relative;
       font-family: var(--font-display), serif;
-      font-size: 22px;
+      font-size: calc(var(--u) * 26);
       font-weight: normal;
       line-height: 1;
     }
@@ -229,7 +237,7 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
 
 @keyframes letter-up {
   to {
-    transform: translateY(-168px);
+    transform: translateY(calc(var(--u) * -192));
   }
 }
 
@@ -246,13 +254,16 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
   }
 }
 
-// ── door: 리본 문 열림, 카드 280×350 ─────────────────────
+// ── door: 리본 문 열림. 너비 min(85vw, 360px), 높이 = 너비 × 1.25 ──
+// --u = 너비 ÷ 330 (시안 330×412 기준 1px)
 .card {
+  --w: min(85vw, 360px);
+  --u: calc(var(--w) / 330);
   position: relative;
   display: block;
-  width: 280px;
-  height: 350px;
-  perspective: 1200px;
+  width: var(--w);
+  height: calc(var(--w) * 1.25);
+  perspective: calc(var(--w) * 3.6);
   background: var(--cv-surface);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
 
@@ -273,8 +284,8 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
     border: 1px solid var(--cv-line);
     // 문 안쪽 장식 틀
     box-shadow:
-      inset 0 0 0 10px var(--cv-surface),
-      inset 0 0 0 11px var(--cv-line);
+      inset 0 0 0 calc(var(--u) * 12) var(--cv-surface),
+      inset 0 0 0 calc(var(--u) * 12 + 1px) var(--cv-line);
     backface-visibility: hidden;
 
     &.dl {
@@ -292,8 +303,8 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
     left: 0;
     right: 0;
     top: 50%;
-    height: 34px;
-    margin-top: -17px;
+    height: calc(var(--u) * 16);
+    margin-top: calc(var(--u) * -8);
     z-index: 3;
     display: flex;
     align-items: center;
@@ -306,15 +317,15 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    height: 44px;
-    padding: 0 6px;
+    min-width: calc(var(--u) * 88);
+    height: calc(var(--u) * 88);
+    padding: 0 calc(var(--u) * 10);
     border-radius: 50%;
     background: var(--cv-accent);
     border: 2px solid rgba(255, 255, 255, 0.6);
     color: #fff;
     font-family: var(--font-display), serif;
-    font-size: 17px;
+    font-size: calc(var(--u) * 32);
   }
 }
 
@@ -349,13 +360,16 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
   }
 }
 
-// ── book: 책 표지 넘김, 책 272×340 ───────────────────────
+// ── book: 책 표지 넘김. 너비 min(82vw, 350px), 높이 = 너비 × 1.25 ──
+// --u = 너비 ÷ 320 (시안 320×400 기준 1px)
 .book {
+  --w: min(82vw, 350px);
+  --u: calc(var(--w) / 320);
   position: relative;
   display: block;
-  width: 272px;
-  height: 340px;
-  perspective: 1400px;
+  width: var(--w);
+  height: calc(var(--w) * 1.25);
+  perspective: calc(var(--w) * 4.4);
   background: var(--cv-surface);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
 
@@ -381,7 +395,7 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
     backface-visibility: hidden;
     background: var(--cv-accent);
     border: 1px solid rgba(255, 255, 255, 0.35);
-    box-shadow: inset 6px 0 0 rgba(0, 0, 0, 0.12);
+    box-shadow: inset calc(var(--u) * 7) 0 0 rgba(0, 0, 0, 0.12);
   }
 
   .front {
@@ -389,8 +403,8 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 18px;
-    padding: 0 28px;
+    gap: calc(var(--u) * 22);
+    padding: 0 calc(var(--u) * 30);
     color: #fff;
   }
 
@@ -403,21 +417,25 @@ $ease: cubic-bezier(0.3, 0.7, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 56px;
-    height: 56px;
-    padding: 0 8px;
+    min-width: calc(var(--u) * 68);
+    height: calc(var(--u) * 68);
+    padding: 0 calc(var(--u) * 8);
     border: 1px solid rgba(255, 255, 255, 0.75);
     border-radius: 50%;
     font-family: var(--font-display), serif;
-    font-size: 22px;
+    font-size: calc(var(--u) * 26);
   }
 
   .bt {
     font-family: var(--font-display), serif;
-    font-size: 17px;
+    font-size: calc(var(--u) * 32);
     line-height: 1.5;
     text-align: center;
     word-break: keep-all;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
   }
 }
 
