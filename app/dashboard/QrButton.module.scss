@@ -1,0 +1,22 @@
+// 대시보드 카드의 글자 링크 모양(.actions button)에 맞춤
+.panel {
+  display: flex;
+  flex-basis: 100%;
+  gap: 0 16px;
+  padding: 0 0 4px;
+
+  button {
+    padding: 0 0 0 10px;
+    border: 0;
+    border-left: 1px solid var(--btn-line);
+    background: none;
+    min-height: var(--tap);
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+}

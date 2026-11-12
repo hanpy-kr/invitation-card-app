@@ -24,6 +24,7 @@
     "e2e:p1": "tsx scripts/e2e-p1.ts",
     "e2e:p2": "tsx scripts/e2e-p2.ts",
     "e2e:p3": "tsx scripts/e2e-p3.ts",
+    "e2e:p4": "tsx scripts/e2e-p4.ts",
     "backfill:share": "tsx scripts/backfill-share-images.ts",
     "perf": "tsx scripts/perf.ts"
   },
@@ -36,6 +37,7 @@
     "fflate": "^0.8.3",
     "next": "15.5.28",
     "postgres": "^3.4.9",
+    "qrcode-generator": "^2.0.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "server-only": "^0.0.1",

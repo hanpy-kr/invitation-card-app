@@ -10,6 +10,7 @@ import { formatLongDate } from '@/shared/date'
 
 import DuplicateButtons from './DuplicateButtons'
 import NotifyToggle from './NotifyToggle'
+import QrButton from './QrButton'
 import styles from './page.module.scss'
 import WithdrawButton from './WithdrawButton'
 
@@ -94,6 +95,13 @@ export default async function DashboardPage() {
                   <Link href={`/i/${inv.slug}`} target="_blank">
                     초대장 보기
                   </Link>
+                ) : null}
+                {inv.status === 'published' ? (
+                  <QrButton
+                    slug={inv.slug}
+                    title={inv.title || EVENT_TYPE_LABELS[inv.eventType]}
+                    dateLabel={inv.eventAt ? formatLongDate(inv.eventAt) : null}
+                  />
                 ) : null}
                 {inv.isOwner ? <DuplicateButtons id={inv.id} eventType={inv.eventType} /> : null}
               </div>
