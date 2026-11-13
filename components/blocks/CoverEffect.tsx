@@ -12,14 +12,17 @@ export default function CoverEffect({
   kind,
   density,
   once,
+  lightPaper = false,
 }: {
   kind: Exclude<EffectKind, 'none'>
   density: EffectDensity
   once: boolean
+  /** 밝은 종이 위: 흰 조각이 묻히지 않게 옅은 푸른 회색 그림자·테두리를 더함 */
+  lightPaper?: boolean
 }) {
   const pieces = makePieces(kind, density)
   return (
-    <div className={cx('fx', kind, { once })} aria-hidden="true">
+    <div className={cx('fx', kind, { once, light: lightPaper })} aria-hidden="true">
       {pieces.map((p, i) => (
         <span
           key={i}

@@ -106,7 +106,9 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
         </div>
         {effect ? (
           <CoverEffect
+            key={`${effect}-${config.effectDensity}-${config.effectDuration}`}
             kind={effect}
+            lightPaper={!design.dark}
             density={config.effectDensity}
             once={config.effectDuration === 'once'}
           />

@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 import {
   coverFits,
   coverSrc,
@@ -22,6 +24,14 @@ export default function CoverForm({
 }: FormProps<'cover'> & { eventType: string }) {
   const set = patcher(update)
   const env = useEditorEnv()
+  const [reduced, setReduced] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReduced(mq.matches)
+    const on = (e: MediaQueryListEvent) => setReduced(e.matches)
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [])
   // 지워진 표지 key를 가리키면 아무것도 고르지 않은 상태로 보여 줌 (초대장에는 글자만 표지로 나옴)
   const selected = findCover(config.designKey)
   const all = coversForEvent(eventType)
@@ -145,6 +155,11 @@ export default function CoverForm({
                 ]}
                 onChange={(effectDuration) => set({ effectDuration })}
               />
+              {reduced ? (
+                <p className={styles.hint}>
+                  이 기기는 &apos;동작 줄이기&apos;가 켜져 있어 효과가 보이지 않아요. 하객 화면에서는 설정에 따라 보여요.
+                </p>
+              ) : null}
             </>
           ) : null}
         </>

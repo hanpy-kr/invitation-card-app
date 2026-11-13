@@ -4,7 +4,7 @@ import type { EffectKind } from './blocks'
 export const EFFECT_COUNT = { low: 12, mid: 24, high: 36 } as const
 export type EffectDensity = keyof typeof EFFECT_COUNT
 
-/** 깊이 3겹: 크기 · 속도 · 투명도 */
+/** 깊이 3겹: 크기 · 낙하 시간 배율(클수록 느림, 먼 조각이 더 느리게) · 투명도 */
 const DEPTH = [
   { size: 0.55, speed: 1.5, opacity: 0.55 },
   { size: 0.8, speed: 1.2, opacity: 0.8 },
@@ -81,7 +81,7 @@ export function makePieces(kind: Exclude<EffectKind, 'none'>, density: EffectDen
     const d = DEPTH[i % 3]
     const alt = kind === 'snow' ? i % 5 === 2 : kind === 'party' ? i % 4 === 1 : false
     const base = BASE_SIZE[kind] * (kind === 'party' && alt ? 2.2 : 1)
-    const dur = (7 + rand() * 6) / d.speed
+    const dur = (7 + rand() * 6) * d.speed
     const up = kind === 'bubble' || (kind === 'party' && alt)
     return {
       x: Math.round(rand() * 1000) / 10,

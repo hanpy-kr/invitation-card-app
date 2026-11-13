@@ -76,6 +76,15 @@
   }
 }
 
+// 밝은 종이 위의 눈 · 비눗방울: 배경과 구분되게
+.light.snow .p:not(.alt) {
+  box-shadow: 0 0 3px 1px rgba(70, 90, 120, 0.35);
+}
+
+.light.bubble .p {
+  border-color: rgba(70, 95, 135, 0.75);
+}
+
 // 풍선(위로) + 색종이
 .party .p {
   background: var(--c);
