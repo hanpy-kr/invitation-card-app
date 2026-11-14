@@ -1,5 +1,13 @@
 @use '../styles/utils' as *;
 
+// 먹 음각(E7): 아래 흰 결 + 위 옅은 그림자 → 종이에 눌러 찍은 글자
+$deboss-ink:
+  0 1px 0 rgba(255, 255, 255, 0.85),
+  0 -1px 0 rgba(60, 40, 20, 0.14);
+$deboss-title:
+  0 1px 0 rgba(255, 255, 255, 0.95),
+  0 -1px 0 rgba(60, 40, 20, 0.18);
+
 // 작약 종이를 화면 전체에 (시안 E, 투명도 0.6을 이미지에 미리 입힘)
 .page {
   min-height: 100vh;
@@ -42,9 +50,13 @@
   min-height: var(--tap);
   padding: 0 4px;
   font-size: 14px;
-  color: var(--muted);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  font-weight: 500;
+  color: #a8906f;
+  text-decoration: none;
+  // 로고처럼 음각, 밑줄 없음
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95),
+    0 -1px 0 rgba(115, 82, 40, 0.42);
 }
 
 .hero {
@@ -60,12 +72,14 @@
     line-height: 1.4;
     letter-spacing: -0.03em;
     margin: 8px 0 14px;
+    text-shadow: $deboss-title;
   }
 
   .lead {
     color: var(--muted);
     font-size: 15px;
     line-height: 1.8;
+    text-shadow: $deboss-ink;
   }
 }
 
@@ -203,6 +217,10 @@
   font-size: 16px;
   font-weight: 500;
   text-decoration: none;
+  // 어두운 버튼 안으로 눌린 글자
+  text-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .sample {
@@ -219,6 +237,7 @@
   color: var(--text);
   font-size: 15px;
   text-decoration: none;
+  text-shadow: $deboss-ink;
 }
 
 .anon {
@@ -232,6 +251,7 @@
     color: var(--muted);
     text-decoration: underline;
     text-underline-offset: 3px;
+    text-shadow: $deboss-ink;
     cursor: pointer;
   }
 }
@@ -240,6 +260,7 @@
   margin-top: 8px;
   font-size: 12px;
   color: var(--muted);
+  text-shadow: $deboss-ink;
 }
 
 .why {
@@ -266,10 +287,17 @@
     font-size: 17px;
     font-weight: 700;
     margin-bottom: 4px;
+    text-shadow: $deboss-title;
   }
 
   small {
     font-size: 13px;
     color: var(--muted);
+    text-shadow: $deboss-ink;
   }
+}
+
+// 홈은 특징 목록 마지막 음각선이 경계 역할 → 푸터 윗선 생략
+.page .footer {
+  border-top: 0;
 }

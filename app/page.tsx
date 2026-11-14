@@ -139,7 +139,7 @@ export default async function Home({
         </ul>
       </section>
 
-      <SiteFooter />
+      <SiteFooter className={styles.footer} />
     </div>
   )
 }

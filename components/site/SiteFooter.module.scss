@@ -6,6 +6,10 @@
   line-height: 1.9;
   color: var(--muted);
   border-top: 1px solid var(--line);
+  // 글자 음각(밝은 종이 위에서만 티 남)
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85),
+    0 -1px 0 rgba(60, 40, 20, 0.14);
 
   nav {
     display: flex;
@@ -28,7 +32,7 @@
 
   // 상호 · 사업자 정보는 한 단계 흐리게(디자인 피드백)
   > p {
-    opacity: 0.5;
+    opacity: 0.35;
   }
 }
 
