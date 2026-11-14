@@ -114,11 +114,9 @@ export default async function Home({
         <div className={styles.actions}>
           <Start loggedIn={loggedIn} />
         </div>
-        <p className={styles.free}>
-          {loggedIn
-            ? `무료 · 사진 ${getEntitlements().photoLimit}장까지`
-            : '카카오 계정으로 바로 시작해요 · 무료'}
-        </p>
+        {loggedIn ? (
+          <p className={styles.free}>무료 · 사진 {getEntitlements().photoLimit}장까지</p>
+        ) : null}
       </section>
 
       <section className={styles.why}>

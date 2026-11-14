@@ -294,4 +294,6 @@ $deboss-title:
 // 홈은 특징 목록 마지막 음각선이 경계 역할 → 푸터 윗선 생략
 .page .footer {
   border-top: 0;
+  // 하단 링크 줄 위 여백 2배(약 97px → 194px): 기본 28px + 97px
+  padding-top: 125px;
 }

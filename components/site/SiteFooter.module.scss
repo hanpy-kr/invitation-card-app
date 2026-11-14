@@ -43,6 +43,7 @@
   border-radius: var(--radius);
   font-size: 10px;
   font-weight: normal;
-  color: var(--accent, #c0392b);
+  // 빨강은 너무 튀어서 회색으로(디자인 피드백)
+  color: #9a948b;
   vertical-align: 1px;
 }
