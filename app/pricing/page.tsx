@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import BackLink from '@/components/site/BackLink'
 import Logo from '@/components/site/Logo'
 import SiteFooter from '@/components/site/SiteFooter'
 import { paymentProvider, paymentsOpen } from '@/lib/plan'
@@ -26,22 +27,33 @@ export default function PricingPage() {
   for (const t of EVENT_TYPES) groups.set(PRICE_KRW[t], [...(groups.get(PRICE_KRW[t]) ?? []), t])
   const ordered = [...groups.entries()].sort((a, b) => b[0] - a[0])
 
+  // 결제 시작 전: 유료 안내(가격표 · 환불 규정)는 숨기고 무료 안내 한 줄만. 내용은 결제가 열리면 그대로 다시 보임
+  if (!open)
+    return (
+      <>
+        <main className={styles.page}>
+          <div style={{ marginBottom: 12 }}>
+            <Logo />
+          </div>
+          <BackLink href="/" label="처음 화면으로" />
+          <h1>가격 · 환불 안내</h1>
+          <aside className={styles.notice} aria-label="이용 요금 안내">
+            <p>현재는 모든 기능이 무료로 열려있어요.</p>
+          </aside>
+        </main>
+        <SiteFooter />
+      </>
+    )
+
   return (
     <>
       <main className={styles.page}>
         <div style={{ marginBottom: 12 }}>
           <Logo />
         </div>
-        <Link href="/">← dearday</Link>
+        <BackLink href="/" label="처음 화면으로" />
         <h1>가격 · 환불 안내</h1>
         <p className={styles.date}>모든 금액은 부가세 포함이에요.</p>
-
-        {open ? null : (
-          <aside className={styles.notice} aria-label="결제 시작 전 안내">
-            <strong>지금은 모든 기능을 무료로 열어 두었어요</strong>
-            <p>유료 결제는 아직 시작하지 않았어요. 시작하면 이 페이지의 금액으로 안내해요.</p>
-          </aside>
-        )}
 
         <h2>무료와 프리미엄</h2>
         <table>

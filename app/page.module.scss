@@ -26,14 +26,6 @@
   text-underline-offset: 3px;
 }
 
-.eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.4em;
-  padding-left: 0.4em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
 .hero {
   max-width: var(--column);
   margin: 0 auto;
@@ -42,14 +34,14 @@
 
   h1 {
     @include display-font;
-    font-size: 31px;
-    font-weight: normal;
+    font-size: 30px;
+    font-weight: 700;
     line-height: 1.4;
-    margin: 16px 0 14px;
+    letter-spacing: -0.03em;
+    margin: 8px 0 14px;
   }
 
   .lead {
-    @include display-font;
     color: var(--muted);
     font-size: 15px;
     line-height: 1.8;
@@ -106,13 +98,16 @@
     z-index: 1;
   }
 
+  // 엽서 위 글자: 카드 한가운데(상하좌우)
   .over {
     position: absolute;
-    inset: 22px 0 auto;
+    inset: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    color: #4a4239;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--ink);
 
     small {
       font-size: 10px;
@@ -121,8 +116,8 @@
 
     b {
       @include display-font;
-      font-size: 16px;
-      font-weight: normal;
+      font-size: 17px;
+      font-weight: 700;
     }
   }
 }
@@ -144,18 +139,18 @@
   align-items: center;
 }
 
-.kakao {
+.primary {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   max-width: 320px;
   min-height: var(--btn-h);
-  border-radius: 6px;
-  background: #fee500;
-  color: #191919;
+  border-radius: var(--radius);
+  background: var(--btn);
+  color: var(--btn-text);
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -199,11 +194,6 @@
   margin: 0 auto;
   padding: 24px 24px 56px;
 
-  .eyebrow {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
   li {
     padding: 20px 0;
     border-top: 1px solid var(--line);
@@ -218,7 +208,7 @@
     @include display-font;
     display: block;
     font-size: 17px;
-    font-weight: normal;
+    font-weight: 700;
     margin-bottom: 4px;
   }
 

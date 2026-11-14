@@ -2,7 +2,7 @@ import classNames from 'classnames/bind'
 
 import type { CoverConfig } from '@/shared/blocks'
 import { COVER_RATIO, coverSrc, coverSrcSet, findCover } from '@/shared/covers'
-import { formatShortDate, formatWeekdayEn } from '@/shared/date'
+import { formatShortDate, formatWeekday } from '@/shared/date'
 import { mediaSrc } from '@/shared/media'
 
 import Section from './common/Section'
@@ -25,8 +25,8 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
       {showDate ? (
         <>
           <div className={cx('txt-date')}>{formatShortDate(ctx.eventAt!)}</div>
-          {/* 요일은 날짜에서 계산 (레거시 하드코딩 SATURDAY 제거) */}
-          <div className={cx('txt-day')}>{formatWeekdayEn(ctx.eventAt!)}</div>
+          {/* 요일은 날짜에서 계산, 한국어로 (영문 머리글 없앰) */}
+          <div className={cx('txt-day')}>{formatWeekday(ctx.eventAt!)}</div>
         </>
       ) : null}
     </>

@@ -14,15 +14,14 @@ export default function Section({
   children: React.ReactNode
   className?: string
   title?: string | null
-  /** 영문 대문자 머리글 (INVITATION · GALLERY …). 제목 위에 금갈색으로 */
+  /** 옛 영문 머리글(INVITATION · GALLERY …). 디자인 피드백으로 화면에 그리지 않음 — 블록 구분용 표시로만 남김 */
   eyebrow?: string
   id?: string
 }) {
   return (
     <section id={id} className={cx('container', className)}>
-      {eyebrow || title ? (
-        <header className={cx('head')}>
-          {eyebrow ? <p className={cx('eyebrow')}>{eyebrow}</p> : null}
+      {title ? (
+        <header className={cx('head')} data-block={eyebrow?.toLowerCase()}>
           {/* 제목이 비어 있으면 제목 영역 자체를 그리지 않음 */}
           {title ? <h2 className={cx('txt-title')}>{title}</h2> : null}
         </header>

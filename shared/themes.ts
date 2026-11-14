@@ -8,7 +8,7 @@ export const THEMES = {
   // 기본 테마 = 종이 편지 팔레트 (styles/global.scss 토큰과 같은 값). 옛 초대장의 'classic'도 이 모양으로 보임
   classic: {
     label: '종이 편지',
-    font: 'gowun-batang',
+    font: 'noto-serif',
     events: [
       'wedding',
       'dol',
@@ -21,22 +21,22 @@ export const THEMES = {
       'housewarming',
     ],
     vars: {
-      accent: '#8a6a43',
-      text: '#4a4239',
-      muted: '#6b6156',
+      accent: '#7d3540',
+      text: '#2f2a26',
+      muted: '#6e655d',
       surface: '#f7f2e9',
       bg: '#f3ede2',
       line: '#d9ccb8',
-      btn: '#6e5a44',
+      btn: '#2f2a26',
       btnText: '#f7f2e9',
-      btnLine: '#cbb89c',
-      deco: '#b79a74',
+      btnLine: '#c9bcad',
+      deco: '#c4a39f',
       photo: '#e6dccc',
     },
   },
   blossom: {
     label: '블라썸',
-    font: 'geumeunbohwa',
+    font: 'noto-serif',
     events: ['wedding', 'dol', 'birthday'],
     vars: {
       accent: '#e88ea6',
@@ -49,7 +49,7 @@ export const THEMES = {
   },
   mint: {
     label: '민트',
-    font: 'geumeunbohwa',
+    font: 'noto-serif',
     events: ['housewarming', 'meetup', 'etc'],
     vars: {
       accent: '#4fa58f',
@@ -62,7 +62,7 @@ export const THEMES = {
   },
   navy: {
     label: '네이비',
-    font: 'geumeunbohwa',
+    font: 'noto-serif',
     events: ['yearend', 'meetup', 'prewedding'],
     vars: {
       accent: '#3d5a98',

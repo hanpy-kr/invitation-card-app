@@ -142,7 +142,7 @@ async function main() {
   await page.getByRole('textbox', { name: '보내는 사람 2' }).fill('한지우')
 
   // 5. 사진첩 3장
-  await page.getByRole('button', { name: '사진첩', exact: true }).click()
+  await page.getByRole('button', { name: '갤러리', exact: true }).click()
   await page.locator('input[type=file][multiple]').setInputFiles(photos.slice(1, 4))
   await page.getByAltText('사진 3').waitFor({ timeout: 60000 })
   check(

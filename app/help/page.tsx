@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import BackLink from '@/components/site/BackLink'
 import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 
@@ -180,9 +181,7 @@ export default function HelpPage() {
         <div style={{ marginBottom: 12 }}>
           <Logo />
         </div>
-        <Link href="/" className={styles.back}>
-          ← dearday
-        </Link>
+        <BackLink href="/" label="처음 화면으로" />
         <h1>도움말</h1>
         <p className={styles.lead}>
           자주 묻는 질문을 모았어요. 해결이 안 되면 아래로 문의해 주세요.

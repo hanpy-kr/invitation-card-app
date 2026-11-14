@@ -29,6 +29,11 @@ export function formatWeekdayEn(value: Date | string): string {
   return parts(toDate(value), { weekday: 'long' }, 'en-US').weekday.toUpperCase()
 }
 
+/** 토요일 */
+export function formatWeekday(value: Date | string): string {
+  return parts(toDate(value), { weekday: 'long' }).weekday
+}
+
 /** 2026년 11월 21일 토요일 */
 export function formatLongDate(value: Date | string): string {
   const p = parts(toDate(value), {

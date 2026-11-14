@@ -75,7 +75,7 @@ export type BlockType = (typeof BLOCK_TYPES)[number]
 export const BLOCK_LABELS: Record<BlockType, string> = {
   cover: '표지',
   greeting: '인사말',
-  gallery: '사진첩',
+  gallery: '갤러리',
   location: '오시는 길',
   rsvp: '참석 여부',
   guestbook: '방명록',
@@ -163,7 +163,7 @@ export const greetingConfigSchema = z.object({
 })
 
 export const galleryConfigSchema = z.object({
-  title: shortText(30).default('사진첩'),
+  title: shortText(30).default('갤러리'),
   images: z.array(mediaRefSchema).max(MAX_GALLERY_IMAGES).default([]),
   /** grid: 정사각 바둑판 · ratio: 원본 비율(2열) · slide: 옆으로 넘겨 보기 */
   layout: z.enum(['grid', 'ratio', 'slide']).default('grid'),

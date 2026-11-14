@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import BackLink from '@/components/site/BackLink'
 import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -44,9 +45,7 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
       <div style={{ marginBottom: 12 }}>
         <Logo />
       </div>
-      <Link href="/dashboard" className={styles.back}>
-        ← 내 초대장
-      </Link>
+      <BackLink href="/dashboard" label="내 초대장으로" />
       <h1 className={styles.title}>{data.title || EVENT_TYPE_LABELS[data.eventType]}</h1>
       <p className={styles.sub}>
         {data.eventAt ? formatLongDate(data.eventAt) : '날짜 미정'}

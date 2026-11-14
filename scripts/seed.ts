@@ -72,7 +72,7 @@ const seeds: SeedInvitation[] = [
           showEventDate: true,
         },
       },
-      { type: 'gallery', config: { title: '사진첩', images: photos.slice(1) } },
+      { type: 'gallery', config: { title: '갤러리', images: photos.slice(1) } },
       { type: 'calendar', config: { title: '예식 일시' } },
       {
         type: 'contact',

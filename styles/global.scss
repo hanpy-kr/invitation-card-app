@@ -11,23 +11,24 @@
   --paper: #f3ede2; /* 종이(배경) */
   --paper-surface: #f7f2e9; /* 면(카드 · 입력) */
   --paper-line: #d9ccb8; /* 선 */
-  --btn-line: #cbb89c; /* 보조 버튼 테두리 */
+  --btn-line: #c9bcad; /* 보조 버튼 테두리 */
   --photo: #e6dccc; /* 사진 자리 */
-  --ink: #4a4239; /* 글자 */
-  --ink-sub: #6b6156; /* 보조 글자 */
-  --gold: #8a6a43; /* 포인트 글자(금갈색) */
-  --deco: #b79a74; /* 장식선 */
-  --logo-gold: #a9865b; /* 로고 금색 */
-  --btn: #6e5a44; /* 주 버튼 배경 */
+  --ink: #2f2a26; /* 글자(먹색) */
+  --ink-sub: #6e655d; /* 보조 글자 */
+  --gold: #7d3540; /* 포인트(와인) — 이름은 옛 토큰 그대로 */
+  --deco: #c4a39f; /* 장식선 */
+  --logo-gold: #7d3540; /* 로고 색 */
+  --btn: #2f2a26; /* 주 버튼 배경(먹색) */
   --btn-text: #f7f2e9; /* 주 버튼 글자 */
   --radius: 2px; /* 모서리: 둥글지 않게 */
   --tap: 44px; /* 누르는 곳 최소 크기 */
   --btn-h: 54px; /* 주 버튼 높이 */
 
-  --font-display: 'Gowun Batang';
+  --font-display: 'Noto Serif KR';
+  --tracking: -0.02em; /* 자간 -2% (명조 · 고딕 공통) */
   --font-body:
-    -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR',
-    'Malgun Gothic', sans-serif;
+    'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic',
+    sans-serif;
 
   /* 기본값 = 종이 팔레트 */
   --accent: var(--gold);
@@ -53,6 +54,7 @@ html {
 
 body {
   font-family: var(--font-body);
+  letter-spacing: var(--tracking);
   color: var(--text);
   background: var(--bg);
   line-height: 1.5;
@@ -79,7 +81,7 @@ b {
   font-weight: bold;
 }
 
-/* 제목 글씨는 고운바탕. 입력칸 · 작은 설명은 고딕 그대로 */
+/* 제목 글씨는 Noto Serif KR. 입력칸 · 작은 설명은 고딕 그대로 */
 h1,
 h2 {
   font-family: var(--font-display), var(--font-body);

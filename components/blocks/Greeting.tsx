@@ -18,7 +18,8 @@ export default function Greeting({ config, ctx }: { config: GreetingConfig; ctx:
 
   return (
     <Section eyebrow="INVITATION" className={cx('container')}>
-      <LeafDivider />
+      {/* 아이콘이 없을 때만 가는 선 장식 (둘 다 있으면 장식이 겹쳐 보임) */}
+      {config.icon === 'none' ? <LeafDivider /> : null}
       {config.icon === 'flower' ? <IconFlower className={cx('ico-flower')} /> : null}
       {config.icon === 'post' ? <IconPost className={cx('ico-post')} /> : null}
       {config.title ? <h2 className={cx('txt-heading')}>{config.title}</h2> : null}

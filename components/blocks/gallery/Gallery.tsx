@@ -34,7 +34,8 @@ export default function Gallery({ title, layout = 'grid', images }: Props) {
 
   return (
     <>
-      <Section eyebrow="GALLERY" title={title}>
+      {/* 예전 기본 제목 '사진첩'은 새 기본 제목 '갤러리'로 보여 줌 (직접 고친 제목은 그대로) */}
+      <Section eyebrow="GALLERY" title={title === '사진첩' ? '갤러리' : title}>
         <ul
           ref={layout === 'slide' ? stripRef : undefined}
           onScroll={layout === 'slide' ? onScroll : undefined}

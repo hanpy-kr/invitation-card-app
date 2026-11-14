@@ -18,9 +18,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <head>
-        {/* 제목 · 본문 글씨(고운바탕): 쓰는 글자의 조각만 내려받음 */}
+        {/* 제목(Noto Serif KR) · 본문(Noto Sans KR): 쓰는 글자의 조각만 내려받음 */}
         {/* eslint-disable-next-line @next/next/no-css-tags */}
-        <link rel="stylesheet" href="/fonts/gowun-batang/v1/font.css" precedence="font" />
+        <link rel="stylesheet" href="/fonts/noto-serif-kr/v1/font.css" precedence="font" />
+        {/* eslint-disable-next-line @next/next/no-css-tags */}
+        <link rel="stylesheet" href="/fonts/noto-sans-kr/v1/font.css" precedence="font" />
       </head>
       <body>{children}</body>
     </html>

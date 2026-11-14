@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import BackLink from '@/components/site/BackLink'
 import SiteFooter from '@/components/site/SiteFooter'
 import { isNextInEffect, PRIVACY_CURRENT, PRIVACY_NEXT } from '@/shared/privacy'
 
@@ -17,7 +18,7 @@ export default function PrivacyPage() {
   return (
     <>
       <main className={styles.page}>
-        <Link href="/">← dearday</Link>
+        <BackLink href="/" label="처음 화면으로" />
         <h1>개인정보처리방침</h1>
         <p className={styles.date}>
           시행일 {nextLive ? PRIVACY_NEXT.label : PRIVACY_CURRENT.label}
