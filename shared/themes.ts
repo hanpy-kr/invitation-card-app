@@ -20,18 +20,21 @@ export const THEMES = {
       'birthday',
       'housewarming',
     ],
+    // 홈 시안 E9와 같은 결: 색을 뺀 흰 코튼지 + 작약 음각 무늬, 글자 음각, 먹색 테두리
     vars: {
       accent: '#7d3540',
       text: '#2f2a26',
       muted: '#6e655d',
-      surface: '#f7f2e9',
-      bg: '#f3ede2',
-      line: '#d9ccb8',
+      surface: '#f8f7f3',
+      bg: '#f3f1ec',
+      line: '#d9d4cb',
       btn: '#2f2a26',
-      btnText: '#f7f2e9',
-      btnLine: '#c9bcad',
+      btnText: '#f3eadb',
+      btnLine: 'rgba(47, 42, 38, 0.45)',
       deco: '#c4a39f',
-      photo: '#e6dccc',
+      photo: '#e6e2da',
+      paper: "url('/landing/page-peony-white.webp')",
+      deboss: '0 1px 0 rgba(255, 255, 255, 0.85), 0 -1px 0 rgba(60, 40, 20, 0.14)',
     },
   },
   blossom: {
@@ -185,6 +188,10 @@ type ThemeVars = {
   btnLine?: string
   deco?: string
   photo?: string
+  /** 종이 무늬 이미지(CSS url). 없으면 단색 */
+  paper?: string
+  /** 글자 음각 text-shadow. 없으면 평평한 글자 */
+  deboss?: string
 }
 
 export function themeStyle(theme: string, font?: string | null, cover?: CoverDef): CSSProperties {
@@ -208,6 +215,8 @@ export function themeStyle(theme: string, font?: string | null, cover?: CoverDef
     '--btn-line': t.btnLine ?? `color-mix(in srgb, ${t.text} 28%, ${t.bg})`,
     '--deco': t.deco ?? `color-mix(in srgb, ${t.accent} 65%, ${t.bg})`,
     '--photo': t.photo ?? `color-mix(in srgb, ${t.text} 10%, ${t.bg})`,
+    '--paper-img': t.paper ?? 'none',
+    '--deboss': t.deboss ?? 'none',
     ...(cover ? coverPaperVars(cover) : {}),
   } as CSSProperties
 }
@@ -224,9 +233,12 @@ function coverPaperVars(c: CoverDef): Record<string, string> {
     '--brown': c.sub,
     '--accent': c.point,
     '--red': c.point,
+    // 디자인 표지는 표지 종이 색을 따르므로 작약 무늬는 끈다
+    '--paper-img': 'none',
   }
   if (c.dark) {
     Object.assign(v, {
+      '--deboss': 'none',
       '--text': c.dark.ink,
       '--black': c.dark.ink,
       '--muted': c.dark.sub,
