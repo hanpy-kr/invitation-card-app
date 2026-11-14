@@ -76,12 +76,15 @@ export async function duplicateInvitation(
       font: src.font,
       eventAt: src.eventAt,
       share,
-      blocks: blocks.map((b) => ({
-        type: b.type,
-        visible: b.visible,
-        // 투표는 확정 전 상태로 (표는 복사하지 않음)
-        config: b.type === 'vote' ? { ...b.config, status: 'open', confirmedId: null } : b.config,
-      })) as (BlockInput & { visible: boolean })[],
+      blocks: blocks
+        // 정산 내역(대시보드가 만든 안내)은 복사하지 않음
+        .filter((b) => !(b.type === 'notice' && b.config.source === 'settlement'))
+        .map((b) => ({
+          type: b.type,
+          visible: b.visible,
+          // 투표는 확정 전 상태로 (표는 복사하지 않음)
+          config: b.type === 'vote' ? { ...b.config, status: 'open', confirmedId: null } : b.config,
+        })) as (BlockInput & { visible: boolean })[],
     }
   } else if (mode === 'prewedding') {
     if (src.eventType !== 'wedding')

@@ -51,3 +51,13 @@ export type VoteCancelInput = z.infer<typeof voteCancelSchema>
 export const guestbookDeleteSchema = z.object({ password: z.string().min(1).max(20) })
 
 export { isPastDeadline, type GuestbookEntryView } from './guest-rules'
+
+/** 나눠 맡기: 항목 하나를 맡음. 한 번에 한 칸(수량 1)씩, 맡은 건마다 취소 토큰이 따로 나옴 */
+export const bringInputSchema = z.object({
+  name,
+  itemId: z.string().regex(/^[a-z0-9]{4,12}$/),
+})
+export type BringInput = z.infer<typeof bringInputSchema>
+
+export const bringCancelSchema = rsvpCancelSchema
+export type BringCancelInput = z.infer<typeof bringCancelSchema>

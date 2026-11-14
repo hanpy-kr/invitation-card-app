@@ -3,6 +3,7 @@ import 'server-only'
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
 
 import { parseBlockConfig, parseShareOverride } from '@/shared/blocks'
+import { tallyBring, usableBringItems } from '@/shared/bring'
 import { choiceOptions, type Answers, type RsvpQuestion } from '@/shared/rsvp-questions'
 import { usableOptions } from '@/shared/vote'
 
@@ -84,6 +85,10 @@ export async function getResponses(id: string, userId: string) {
         columns: { name: true, choices: true },
         orderBy: [asc(schema.pollVotes.createdAt)],
       },
+      bringClaims: {
+        columns: { itemId: true, name: true, createdAt: true },
+        orderBy: [asc(schema.bringClaims.createdAt)],
+      },
     },
     extras: {
       views:
@@ -143,6 +148,18 @@ export async function getResponses(id: string, userId: string) {
         ...tallyVotes(voteConfig, row.pollVotes),
       }
     : null
+  const bringRow = row.blocks.find((b) => b.type === 'bring')
+  const bringConfig = bringRow ? parseBlockConfig('bring', bringRow.config) : null
+  const bring = bringConfig
+    ? {
+        title: bringConfig.title,
+        visible: bringRow!.visible,
+        items: usableBringItems(bringConfig.items).map((it) => {
+          const r = tallyBring([it], row.bringClaims).items[0]
+          return { id: it.id, name: it.name, need: it.need, count: r.count, names: r.names }
+        }),
+      }
+    : null
   const askMeal = Boolean(rsvpBlock?.askMeal)
   const questions: RsvpQuestion[] = (rsvpBlock?.questions ?? []).filter((q) => q.label.trim())
   // 선택형 질문: 보기별 응답 수 (보기 문구를 나중에 바꾸면 예전 답은 '기타'로)
@@ -183,6 +200,7 @@ export async function getResponses(id: string, userId: string) {
     rsvpDeadline: rsvpBlock?.deadline ?? null,
     hasAlbum: row.blocks.some((b) => b.type === 'album'),
     vote,
+    bring,
     questions,
     choiceStats,
     summary,

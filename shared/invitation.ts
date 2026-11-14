@@ -53,6 +53,7 @@ export const SINGLE_BLOCK_TYPES: readonly (typeof BLOCK_TYPES)[number][] = [
   'guestbook',
   'calendar',
   'vote',
+  'bring',
   'music',
   'album',
 ]

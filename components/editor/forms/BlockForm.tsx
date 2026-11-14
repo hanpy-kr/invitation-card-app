@@ -16,6 +16,7 @@ import AlbumForm from './AlbumForm'
 import MusicForm from './MusicForm'
 import TimelineForm from './TimelineForm'
 import VideoForm from './VideoForm'
+import BringForm from './BringForm'
 import VoteForm from './VoteForm'
 import RsvpForm from './RsvpForm'
 
@@ -57,6 +58,8 @@ export default function BlockForm({
       return <ContactForm config={block.config} update={as<'contact'>(update)} />
     case 'vote':
       return <VoteForm config={block.config} update={as<'vote'>(update)} />
+    case 'bring':
+      return <BringForm config={block.config} update={as<'bring'>(update)} />
     case 'timeline':
       return <TimelineForm config={block.config} update={as<'timeline'>(update)} />
     case 'video':

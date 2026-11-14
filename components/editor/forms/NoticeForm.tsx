@@ -11,6 +11,14 @@ export default function NoticeForm({ config, update }: FormProps<'notice'>) {
   const setItems = (fn: (items: Item[]) => Item[]) => update((c) => ({ ...c, items: fn(c.items) }))
   const urlError = config.buttonUrl !== '' && !/^https?:\/\/\S+$/.test(config.buttonUrl)
 
+  if (config.source === 'settlement')
+    return (
+      <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+        응답 보기 화면의 &lsquo;회비 정산 마무리&rsquo;에서 자동으로 만든 안내예요. 내용은 거기서
+        고치고, 하객에게 보이고 싶지 않으면 &lsquo;하객 화면에도 보이기&rsquo;를 끄세요.
+      </p>
+    )
+
   return (
     <>
       <TextField

@@ -37,6 +37,10 @@ export function displayTextOf(blocks: Block[], eventAt: string | null): string {
       case 'vote':
         parts.push(b.config.title)
         break
+      case 'bring':
+        for (const it of b.config.items) parts.push(it.name)
+        parts.push(b.config.title)
+        break
       case 'album':
         parts.push(b.config.title)
         break

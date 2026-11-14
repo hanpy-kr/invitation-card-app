@@ -11,6 +11,7 @@ import Contact from './contact/Contact'
 import Cover from './Cover'
 import EventDayBand from './EventDayBand'
 import Album from './album/Album'
+import Bring from './bring/Bring'
 import Music from './music/Music'
 import Timeline from './timeline/Timeline'
 import Video from './video/Video'
@@ -78,6 +79,8 @@ export function BlockView({
       return <Album config={block.config} ctx={ctx} />
     case 'timeline':
       return <Timeline config={block.config} />
+    case 'bring':
+      return <Bring config={block.config} ctx={ctx} />
   }
 }
 

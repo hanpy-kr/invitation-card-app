@@ -326,6 +326,19 @@ const TEMPLATES: Record<EventType, Template> = {
           ],
         },
       },
+      {
+        type: 'bring',
+        hidden: true,
+        config: {
+          title: '나눠 맡기',
+          message: '하나씩 가져오면 훨씬 풍성해져요. 맡을 걸 골라 주세요!',
+          items: [
+            { id: 'cake01', name: '케이크', need: 1 },
+            { id: 'drink1', name: '음료', need: 3 },
+            { id: 'fruit1', name: '과일', need: 2 },
+          ],
+        },
+      },
     ],
   },
   prewedding: {
@@ -420,6 +433,19 @@ const TEMPLATES: Record<EventType, Template> = {
         config: { title: '올 수 있어요?', maxPartySize: 3 },
       },
       {
+        type: 'bring',
+        hidden: true,
+        config: {
+          title: '나눠 맡기',
+          message: '가져오실 수 있는 걸 하나씩 맡아 주세요!',
+          items: [
+            { id: 'cake01', name: '케이크', need: 1 },
+            { id: 'drink1', name: '음료', need: 3 },
+            { id: 'fruit1', name: '과일', need: 2 },
+          ],
+        },
+      },
+      {
         type: 'notice',
         config: {
           title: '안내',
@@ -455,6 +481,19 @@ const TEMPLATES: Record<EventType, Template> = {
       {
         type: 'rsvp',
         config: { title: '올 수 있어요?', maxPartySize: 3 },
+      },
+      {
+        type: 'bring',
+        hidden: true,
+        config: {
+          title: '나눠 맡기',
+          message: '빈손으로 오셔도 되지만, 가져오고 싶은 게 있다면 골라 주세요.',
+          items: [
+            { id: 'cake01', name: '케이크', need: 1 },
+            { id: 'drink1', name: '음료', need: 3 },
+            { id: 'fruit1', name: '과일', need: 2 },
+          ],
+        },
       },
       {
         type: 'notice',

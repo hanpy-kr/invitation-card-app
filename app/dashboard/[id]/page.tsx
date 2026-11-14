@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import { requireSession } from '@/lib/auth/session'
 import { getResponses, markSeen } from '@/lib/dashboard'
 import { listEditors } from '@/lib/editors'
+import { loadHostTools } from '@/lib/host-tools'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
 import { getMediaBaseUrl } from '@/lib/media'
@@ -16,6 +17,9 @@ import { absolute, acceptsRsvp, shareImagePath } from '@/shared/share'
 import styles from './page.module.scss'
 import { GuestbookList, RsvpList } from './Responses'
 import AlbumPanel from './AlbumPanel'
+import BringPanel from './BringPanel'
+import InviteePanel from './InviteePanel'
+import SettlementPanel from './SettlementPanel'
 import EditorsPanel from './EditorsPanel'
 import ResendCards from './ResendCards'
 import VotePanel from './VotePanel'
@@ -28,9 +32,10 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
   const session = await requireSession(`/dashboard/${id}`)
   const data = await getResponses(id, session.userId)
   if (!data) notFound()
-  const [prevSeen, editors] = await Promise.all([
+  const [prevSeen, editors, tools] = await Promise.all([
     markSeen(data.id, session.userId),
     data.isOwner ? listEditors(data.id) : Promise.resolve(null),
+    loadHostTools(data.id),
   ])
   const s = data.summary
 
@@ -136,6 +141,8 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
         />
       ) : null}
 
+      {data.bring ? <BringPanel invitationId={data.id} bring={data.bring} /> : null}
+
       {data.choiceStats.map((q) => (
         <div key={q.id} className={styles.choice}>
           <h3>{q.label}</h3>
@@ -168,6 +175,27 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
           seenAt={prevSeen?.toISOString() ?? null}
         />
       </section>
+
+      <InviteePanel
+        invitationId={data.id}
+        initialNames={tools.invitees}
+        rsvps={data.rsvps.map((r) => ({ name: r.name, attending: r.attending }))}
+        url={data.status === 'published' ? `${siteUrl()}/i/${data.slug}` : null}
+        title={data.title}
+        deadline={data.rsvpDeadline ? formatLongDate(data.rsvpDeadline) : null}
+      />
+
+      {data.dues ? (
+        <SettlementPanel
+          invitationId={data.id}
+          title={data.title}
+          perPerson={data.dues.perPerson}
+          paidPeople={data.dues.paidPeople}
+          attendees={s.attendees}
+          initialExpenses={tools.expenses}
+          initialShow={tools.showGuests}
+        />
+      ) : null}
 
       {editors ? <EditorsPanel invitationId={data.id} editors={editors} /> : null}
 

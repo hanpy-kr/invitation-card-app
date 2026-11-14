@@ -120,6 +120,13 @@
       "when": 1794491876830,
       "tag": "0016_strong_argent",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794624627832,
+      "tag": "0017_known_radioactive_man",
+      "breakpoints": true
     }
   ]
 }

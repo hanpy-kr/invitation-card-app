@@ -68,6 +68,7 @@ export const BLOCK_TYPES = [
   'music',
   'album',
   'timeline',
+  'bring',
 ] as const
 export type BlockType = (typeof BLOCK_TYPES)[number]
 
@@ -87,6 +88,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   music: '배경음악',
   album: '하객 앨범',
   timeline: '진행 순서',
+  bring: '나눠 맡기',
 }
 
 /** 사진첩 스키마 상한. 실제 업로드 한도는 shared/entitlements.ts */
@@ -274,6 +276,8 @@ export const noticeConfigSchema = z.object({
   /** 선택 버튼 1개. 주소가 http(s)로 시작할 때만 하객 화면에 보임 */
   buttonLabel: shortText(20).default(''),
   buttonUrl: z.string().trim().max(500).default(''),
+  /** 대시보드가 자동으로 만든 안내('settlement' = 정산 내역). 편집기에서는 내용을 고치지 않고 대시보드에서 고친다 */
+  source: z.enum(['settlement']).nullable().default(null),
 })
 
 export const MAX_TIMELINE_ITEMS = 12
@@ -317,6 +321,23 @@ export const contactConfigSchema = z.object({
     )
     .max(MAX_CONTACTS)
     .default([]),
+})
+
+export const MAX_BRING_ITEMS = 20
+export const MAX_BRING_NEED = 20
+
+export const bringItemSchema = z.object({
+  id: z.string().regex(/^[a-z0-9]{4,12}$/),
+  name: shortText(30).default(''),
+  /** 필요한 수 (이만큼 맡으면 '마감') */
+  need: z.number().int().min(1).max(MAX_BRING_NEED).default(1),
+})
+export type BringItem = z.infer<typeof bringItemSchema>
+
+export const bringConfigSchema = z.object({
+  title: shortText(30).default('나눠 맡기'),
+  message: shortText(200).default(''),
+  items: z.array(bringItemSchema).max(MAX_BRING_ITEMS).default([]),
 })
 
 export const MAX_VOTE_OPTIONS = 6
@@ -387,6 +408,7 @@ export const blockConfigSchemas = {
   music: musicConfigSchema,
   album: albumConfigSchema,
   timeline: timelineConfigSchema,
+  bring: bringConfigSchema,
 } as const satisfies Record<BlockType, z.ZodType>
 
 export type BlockConfigMap = { [K in BlockType]: z.infer<(typeof blockConfigSchemas)[K]> }
@@ -402,6 +424,7 @@ export type TimelineConfig = BlockConfigMap['timeline']
 export type CalendarConfig = BlockConfigMap['calendar']
 export type ContactConfig = BlockConfigMap['contact']
 export type VoteConfig = BlockConfigMap['vote']
+export type BringConfig = BlockConfigMap['bring']
 export type VideoConfig = BlockConfigMap['video']
 export type MusicConfig = BlockConfigMap['music']
 export type AlbumConfig = BlockConfigMap['album']
@@ -466,6 +489,7 @@ export const blockInputSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('music'), config: musicConfigSchema }),
   z.object({ type: z.literal('album'), config: albumConfigSchema }),
   z.object({ type: z.literal('timeline'), config: timelineConfigSchema }),
+  z.object({ type: z.literal('bring'), config: bringConfigSchema }),
 ])
 export type BlockInput = z.infer<typeof blockInputSchema>
 

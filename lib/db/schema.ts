@@ -245,6 +245,47 @@ export const pollVotes = pgTable(
   ],
 )
 
+/** (2차) 나눠 맡기: 한 행 = 한 사람이 항목 1개(수량 1)를 맡음. 취소 토큰 해시는 행마다 따로 */
+export const bringClaims = pgTable(
+  'bring_claims',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    invitationId: uuid('invitation_id')
+      .notNull()
+      .references(() => invitations.id, { onDelete: 'cascade' }),
+    /** 나눠 맡기 블록 항목 id (항목을 지우면 이 행은 집계에서 빠짐) */
+    itemId: varchar('item_id', { length: 12 }).notNull(),
+    name: varchar('name', { length: 20 }).notNull(),
+    editTokenHash: text('edit_token_hash'),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index('bring_claims_invitation_idx').on(t.invitationId),
+    index('bring_claims_edit_token_idx').on(t.editTokenHash),
+  ],
+)
+
+/** (2차) 초대 명단 체크 — 대시보드 전용. 하객 화면 · 공개 API · OG에는 절대 싣지 않는다 (공개 쿼리는 이 테이블을 읽지 않음) */
+export const inviteeLists = pgTable('invitee_lists', {
+  invitationId: uuid('invitation_id')
+    .primaryKey()
+    .references(() => invitations.id, { onDelete: 'cascade' }),
+  /** 이름 문자열 배열 (이름만, 연락처 없음) */
+  names: jsonb('names').notNull().default([]),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+/** (2차) 회비 정산 마무리 — 대시보드 전용. 지출 항목 [{name, amount}]. dearday는 돈을 받거나 보내지 않음(계산 · 복사만) */
+export const settlements = pgTable('settlements', {
+  invitationId: uuid('invitation_id')
+    .primaryKey()
+    .references(() => invitations.id, { onDelete: 'cascade' }),
+  items: jsonb('items').notNull().default([]),
+  /** 정산 내역을 하객 화면(안내 블록)에 보이기 */
+  showGuests: boolean('show_guests').notNull().default(false),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
 /** (2차) 공동 편집자. 삭제 · 편집자 관리는 소유자만 */
 export const invitationEditors = pgTable(
   'invitation_editors',
@@ -302,11 +343,16 @@ export const invitationsRelations = relations(invitations, ({ one, many }) => ({
   rsvps: many(rsvps),
   guestbookEntries: many(guestbookEntries),
   pollVotes: many(pollVotes),
+  bringClaims: many(bringClaims),
   coverMedia: one(media, { fields: [invitations.coverMediaId], references: [media.id] }),
 }))
 
 export const blocksRelations = relations(blocks, ({ one }) => ({
   invitation: one(invitations, { fields: [blocks.invitationId], references: [invitations.id] }),
+}))
+
+export const bringClaimsRelations = relations(bringClaims, ({ one }) => ({
+  invitation: one(invitations, { fields: [bringClaims.invitationId], references: [invitations.id] }),
 }))
 
 export const rsvpsRelations = relations(rsvps, ({ one }) => ({

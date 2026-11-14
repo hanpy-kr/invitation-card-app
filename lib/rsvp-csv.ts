@@ -5,7 +5,7 @@ import { toKstDateString, toKstTimeString } from '@/shared/date'
 import type { ResponsesData } from './dashboard'
 
 /** 엑셀에서 =, +, -, @ 로 시작하는 칸이 수식으로 실행되지 않게 */
-function cell(value: string | number | null | undefined): string {
+export function cell(value: string | number | null | undefined): string {
   let v = value === null || value === undefined ? '' : String(value)
   if (/^[=+\-@\t\r]/.test(v)) v = `'${v}`
   return /[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
