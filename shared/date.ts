@@ -24,6 +24,17 @@ export function formatShortDate(value: Date | string): string {
   return `${p.year}.${p.month}.${p.day}`
 }
 
+/** 2027.12.26 */
+export function formatDotDate(value: Date | string): string {
+  return toKstDateString(value).replaceAll('-', '.')
+}
+
+/** 2027.12.26(일) */
+export function formatDotDateDay(value: Date | string): string {
+  const wd = parts(toDate(value), { weekday: 'short' }).weekday
+  return `${formatDotDate(value)}(${wd})`
+}
+
 /** SATURDAY — 날짜에서 요일을 계산 */
 export function formatWeekdayEn(value: Date | string): string {
   return parts(toDate(value), { weekday: 'long' }, 'en-US').weekday.toUpperCase()

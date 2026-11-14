@@ -10,6 +10,15 @@
     color: var(--accent);
   }
 
+  // 여덟 갈래 별: 금박 느낌의 샴페인 골드
+  .ico-star {
+    width: 26px;
+    height: 26px;
+    margin: 0 auto 14px;
+    color: var(--foil, #b39b6b);
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.7));
+  }
+
   .ico-post {
     width: 30px;
     height: 30px;
@@ -43,7 +52,7 @@
     margin: 32px 0 8px;
 
     .ico-heart {
-      fill: var(--accent);
+      fill: var(--text);
       width: 14px;
       height: 14px;
       margin: 0 8px;
@@ -52,6 +61,39 @@
     .sep-dot {
       margin: 0 10px;
       color: var(--muted);
+    }
+  }
+
+  // 혼주 줄: 위에 음각 선 하나
+  .families {
+    margin: 36px auto 0;
+    padding-top: 28px;
+    max-width: 300px;
+    border-top: 1px solid rgba(110, 85, 55, 0.24);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    li {
+      @include display-font;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .parents {
+      letter-spacing: 0.04em;
+    }
+
+    .rel {
+      margin: 0 10px 0 4px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    b {
+      font-weight: 700;
+      letter-spacing: 0.06em;
     }
   }
 

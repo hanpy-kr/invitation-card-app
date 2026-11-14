@@ -153,13 +153,24 @@ export const coverConfigSchema = z.object({
 })
 
 export const greetingConfigSchema = z.object({
-  icon: z.enum(['flower', 'post', 'none']).default('flower'),
+  icon: z.enum(['flower', 'post', 'star', 'none']).default('flower'),
   title: shortText(30).default(''),
   message: shortText(1000).default(''),
   /** 주최자 이름. 결혼식은 [신랑, 신부]를 하트로 이어 보여 줌 */
   hosts: z.array(shortText(20)).max(4).default([]),
   hostSeparator: z.enum(['heart', 'dot']).default('dot'),
   showEventDate: z.boolean().default(true),
+  /** 혼주 줄: '강춘근 · 심남숙 의 아들 강창현'. 비어 있으면 안 보임 */
+  families: z
+    .array(
+      z.object({
+        parents: shortText(40).default(''),
+        relation: z.enum(['아들', '딸']).default('아들'),
+        name: shortText(20).default(''),
+      }),
+    )
+    .max(2)
+    .default([]),
 })
 
 export const galleryConfigSchema = z.object({
@@ -167,6 +178,8 @@ export const galleryConfigSchema = z.object({
   images: z.array(mediaRefSchema).max(MAX_GALLERY_IMAGES).default([]),
   /** grid: 정사각 바둑판 · ratio: 원본 비율(2열) · slide: 옆으로 넘겨 보기 */
   layout: z.enum(['grid', 'ratio', 'slide']).default('grid'),
+  /** 처음엔 4장(2×2)만 보이고 '더보기'로 나머지를 펼침 */
+  collapse: z.boolean().default(false),
 })
 
 export const locationConfigSchema = z.object({

@@ -27,7 +27,12 @@ export const invitationMetaSchema = z.object({
     .enum(FONT_KEYS as [string, ...string[]])
     .nullable()
     .default(null),
-  share: shareOverrideSchema.default({ title: '', description: '', image: null, hideMadeWith: false }),
+  share: shareOverrideSchema.default({
+    title: '',
+    description: '',
+    image: null,
+    hideMadeWith: false,
+  }),
 })
 export type InvitationMeta = z.infer<typeof invitationMetaSchema>
 

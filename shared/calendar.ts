@@ -115,6 +115,14 @@ export function buildIcs(opts: {
 }
 
 /** 장소 블록에서 캘린더에 넣을 장소 글자 (첫 번째 보이는 장소) */
+/** 캘린더 카드에 보일 장소: '더채플앳청담 3F 커티지홀' (장소명 + 층 · 홀) */
+export function firstVenue(blocks: { type: string; visible: boolean; config: unknown }[]): string {
+  const b = blocks.find((x) => x.type === 'location' && x.visible)
+  if (!b) return ''
+  const c = b.config as { placeName?: string; detail?: string }
+  return [c.placeName, c.detail].filter(Boolean).join(' ')
+}
+
 export function firstPlace(blocks: { type: string; visible: boolean; config: unknown }[]): string {
   const b = blocks.find((x) => x.type === 'location' && x.visible)
   if (!b) return ''

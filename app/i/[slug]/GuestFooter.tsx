@@ -71,7 +71,8 @@ export default function GuestFooter({
           </Link>
           <p className={styles.madeWith}>
             <Link href="/" className={styles.madeLink}>
-              <Seal size={22} />
+              {/* 초대장 안에서는 와인 대신 글자색(먹색) 도장 */}
+              <Seal size={22} color="var(--text)" />
               <span>dearday로 만들었어요</span>
             </Link>
           </p>

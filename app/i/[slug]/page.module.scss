@@ -7,8 +7,9 @@
 .column {
   max-width: var(--column);
   margin: 0 auto;
-  // 종이 편지 테마: 홈과 같은 작약 코튼지(이미지에 투명도 0.6을 미리 입힘), 글자 음각
-  background: var(--bg) var(--paper-img, none) center top / 100% auto repeat-y;
+  // 종이 편지 테마: 흰 코튼지 결(곱하기로 아주 옅게), 글자 음각
+  background: var(--bg) var(--paper-img, none) 0 0 / 512px repeat;
+  background-blend-mode: multiply;
   text-shadow: var(--deboss, none);
   min-height: 100vh;
   overflow-x: hidden;

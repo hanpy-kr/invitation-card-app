@@ -87,3 +87,25 @@
   font-size: 13px;
   color: var(--muted);
 }
+
+// 4장 접기: 2열 바둑판 + 더보기
+.wrap-images.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--tap);
+  margin-top: 16px;
+  border: 1px solid var(--btn-line, var(--line));
+  border-radius: var(--radius);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  text-shadow: inherit;
+  cursor: pointer;
+}

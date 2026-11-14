@@ -52,6 +52,44 @@ export function IconFlower({ className }: IconProps) {
   )
 }
 
+/** 여덟 갈래 별 (금박 느낌, 색은 currentColor 기준 그라데이션 대신 단색) */
+export function IconStar({ className }: IconProps) {
+  const pts: string[] = []
+  for (let i = 0; i < 16; i++) {
+    const r = i % 2 === 0 ? 15 : 3.2
+    const a = (Math.PI / 8) * i - Math.PI / 2
+    pts.push(`${(16 + r * Math.cos(a)).toFixed(2)},${(16 + r * Math.sin(a)).toFixed(2)}`)
+  }
+  return (
+    <svg className={className} viewBox="0 0 32 32" aria-hidden="true">
+      <polygon points={pts.join(' ')} fill="currentColor" />
+    </svg>
+  )
+}
+
+/** 표지 맨 위 꽃 한 송이(선 그림). 종이에 눌러 찍은 음각으로 보이게 CSS에서 그림자를 준다 */
+export function IconTulip({ className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 120 220"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M36 52c0-16 8-24 15-21 3-8 6-12 9-16 3 4 6 8 9 16 7-3 15 5 15 21 0 21-10 35-24 36-14-1-24-15-24-36Z" />
+      <path d="M51 31c2 20 5 40 9 57M69 31c-2 20-5 40-9 57" />
+      <path d="M60 88c-2 32-4 72 2 122" />
+      <path d="M59 176c-18-9-31-28-34-52 15 11 27 29 34 52Z" />
+      <path d="M60 154c15-9 28-27 32-50-13 9-25 27-32 50Z" />
+      <path d="M44 112c5 15 10 25 15 34M77 120c-6 12-11 20-16 27" opacity=".7" />
+    </svg>
+  )
+}
+
 export function IconClose({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>

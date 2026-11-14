@@ -4,8 +4,20 @@
   text-align: center;
   padding-top: 48px;
 
+  // 종이 편지 테마에서만 보임(--cover-flower). 선 색은 종이보다 조금 진하게 + 위 그림자 · 아래 흰 결 = 음각
+  .flower {
+    display: var(--cover-flower, none);
+    width: 96px;
+    height: 176px;
+    margin: 0 auto 36px;
+    color: color-mix(in srgb, var(--bg) 74%, #5a4a38);
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.95))
+      drop-shadow(0 -1px 0 rgba(60, 50, 40, 0.16));
+  }
+
+  // 바탕은 초대장 종이(결 포함)를 그대로 비치게
   &.text {
-    background: var(--bg);
+    background: transparent;
     padding: 96px 24px 88px;
   }
 
@@ -13,13 +25,15 @@
     @include display-font;
     font-size: 30px;
     margin-bottom: 8px;
-    letter-spacing: 1px;
+    letter-spacing: 0.06em;
   }
 
+  // 날짜와 같은 먹색 (요일 · 시간)
   .txt-day {
+    @include display-font;
     font-size: 15px;
     letter-spacing: 0.2em;
-    color: var(--muted);
+    color: var(--text);
     margin-bottom: 28px;
   }
 

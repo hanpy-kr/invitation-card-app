@@ -4,7 +4,7 @@ import { Fragment } from 'react'
 import type { GreetingConfig } from '@/shared/blocks'
 import { formatLongDate, formatTime } from '@/shared/date'
 
-import { IconFlower, IconHeart, IconPost } from './common/icons'
+import { IconFlower, IconHeart, IconPost, IconStar } from './common/icons'
 import Section, { LeafDivider } from './common/Section'
 import Text from './common/Text'
 import styles from './Greeting.module.scss'
@@ -22,6 +22,7 @@ export default function Greeting({ config, ctx }: { config: GreetingConfig; ctx:
       {config.icon === 'none' ? <LeafDivider /> : null}
       {config.icon === 'flower' ? <IconFlower className={cx('ico-flower')} /> : null}
       {config.icon === 'post' ? <IconPost className={cx('ico-post')} /> : null}
+      {config.icon === 'star' ? <IconStar className={cx('ico-star')} /> : null}
       {config.title ? <h2 className={cx('txt-heading')}>{config.title}</h2> : null}
       {config.message ? <Text className={cx('txt-message')}>{config.message}</Text> : null}
 
@@ -47,6 +48,19 @@ export default function Greeting({ config, ctx }: { config: GreetingConfig; ctx:
           <span>{formatLongDate(ctx.eventAt)}</span>
           <span>{formatTime(ctx.eventAt)}</span>
         </div>
+      ) : null}
+      {config.families.some((f) => f.name) ? (
+        <ul className={cx('families')}>
+          {config.families
+            .filter((f) => f.name)
+            .map((f, i) => (
+              <li key={i}>
+                {f.parents ? <span className={cx('parents')}>{f.parents}</span> : null}
+                <span className={cx('rel')}>의 {f.relation}</span>
+                <b>{f.name}</b>
+              </li>
+            ))}
+        </ul>
       ) : null}
     </Section>
   )

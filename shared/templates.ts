@@ -53,7 +53,7 @@ const TEMPLATES: Record<EventType, Template> = {
       {
         type: 'greeting',
         config: {
-          icon: 'flower',
+          icon: 'star',
           title: '초대합니다',
           message:
             '서로 다른 길을 걸어온 두 사람이\n이제 같은 길을 함께 걸어가려 합니다.\n\n바쁘시더라도 귀한 걸음 하시어\n저희의 시작을 축복해 주세요.',
@@ -61,8 +61,8 @@ const TEMPLATES: Record<EventType, Template> = {
           hostSeparator: 'heart',
         },
       },
-      { type: 'gallery', config: { title: '우리의 순간' } },
-      { type: 'calendar', config: { title: '예식 일시' } },
+      { type: 'calendar', config: { title: '예식 일시', showDday: false } },
+      { type: 'gallery', config: { title: '', collapse: true } },
       { type: 'location', config: { title: '오시는 길' } },
       {
         type: 'timeline',
@@ -74,15 +74,6 @@ const TEMPLATES: Record<EventType, Template> = {
             { time: '오후 1시 30분', title: '식사', body: '' },
             { time: '오후 3시', title: '마무리', body: '' },
           ],
-        },
-      },
-      {
-        type: 'rsvp',
-        config: {
-          title: '참석 의사 전달',
-          message: '참석 여부를 미리 알려 주시면\n정성껏 준비하겠습니다.',
-          askMeal: true,
-          maxPartySize: 5,
         },
       },
       {
@@ -103,6 +94,15 @@ const TEMPLATES: Record<EventType, Template> = {
             { label: '신랑 측', accounts: [{ relation: '신랑' }] },
             { label: '신부 측', accounts: [{ relation: '신부' }] },
           ],
+        },
+      },
+      {
+        type: 'rsvp',
+        config: {
+          title: '참석 의사 전달',
+          message: '참석 여부를 미리 알려 주시면\n정성껏 준비하겠습니다.',
+          askMeal: true,
+          maxPartySize: 5,
         },
       },
       {

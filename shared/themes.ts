@@ -20,9 +20,10 @@ export const THEMES = {
       'birthday',
       'housewarming',
     ],
-    // 홈 시안 E9와 같은 결: 색을 뺀 흰 코튼지 + 작약 음각 무늬, 글자 음각, 먹색 테두리
+    // 홈 시안 E9와 같은 결: 흰 코튼지(무늬 없이 옅은 결만, 본문이 잘 읽히게), 글자 음각, 먹색 테두리.
+    // 와인색은 빼고 포인트는 금박 계열(샴페인 골드)
     vars: {
-      accent: '#7d3540',
+      accent: '#8a7350',
       text: '#2f2a26',
       muted: '#6e655d',
       surface: '#f8f7f3',
@@ -31,9 +32,9 @@ export const THEMES = {
       btn: '#2f2a26',
       btnText: '#f3eadb',
       btnLine: 'rgba(47, 42, 38, 0.45)',
-      deco: '#c4a39f',
+      deco: '#c9b48a',
       photo: '#e6e2da',
-      paper: "url('/landing/page-peony-white.webp')",
+      paper: "url('/landing/paper-grain.webp')",
       deboss: '0 1px 0 rgba(255, 255, 255, 0.85), 0 -1px 0 rgba(60, 40, 20, 0.14)',
     },
   },
@@ -217,6 +218,7 @@ export function themeStyle(theme: string, font?: string | null, cover?: CoverDef
     '--photo': t.photo ?? `color-mix(in srgb, ${t.text} 10%, ${t.bg})`,
     '--paper-img': t.paper ?? 'none',
     '--deboss': t.deboss ?? 'none',
+    '--cover-flower': t.deboss ? 'block' : 'none',
     ...(cover ? coverPaperVars(cover) : {}),
   } as CSSProperties
 }
