@@ -122,7 +122,11 @@ export default async function DashboardPage() {
                 <div className={styles.row}>
                   <div className={styles.title}>{o.orderName}</div>
                   <span className={styles.badge}>
-                    {o.status === 'canceled' ? '환불됨' : '결제 완료'}
+                    {o.status === 'canceled'
+                      ? '환불됨'
+                      : o.status === 'cancel_requested'
+                        ? '환불 요청됨'
+                        : '결제 완료'}
                   </span>
                 </div>
                 <div className={styles.meta}>
@@ -142,9 +146,26 @@ export default async function DashboardPage() {
                       영수증
                     </a>
                   ) : null}
-                  {o.refundable && o.invitationId ? <RefundButton invitationId={o.invitationId} /> : null}
+                  {o.refundable && o.invitationId && o.provider !== 'groble' ? (
+                    <RefundButton invitationId={o.invitationId} />
+                  ) : null}
+                  {o.provider === 'groble' && o.refundable && o.refundUrl ? (
+                    <a href={o.refundUrl} target="_blank" rel="noopener noreferrer">
+                      그로블에서 환불 신청
+                    </a>
+                  ) : null}
                 </div>
-                {o.refundNote ? <div className={styles.meta}>{o.refundNote}</div> : null}
+                {o.refundNote ? (
+                  <div className={styles.meta}>
+                    {o.refundNote}
+                    {o.provider === 'groble' && o.refundable
+                      ? ' 그로블 주문조회에서 환불을 신청해 주세요. 환불이 확인되면 이 내역이 바뀌어요.'
+                      : ''}
+                  </div>
+                ) : null}
+                {o.status === 'cancel_requested' ? (
+                  <div className={styles.meta}>그로블에 환불이 요청됐어요. 처리되면 환불됨으로 바뀌어요.</div>
+                ) : null}
               </li>
             ))}
           </ul>

@@ -196,7 +196,11 @@ export const orders = pgTable(
     orderName: text('order_name').notNull(),
     /** 원 단위, 부가세 포함. 서버가 shared/pricing.ts로 계산한 값 */
     amount: integer('amount').notNull(),
+    /** pending | paid | canceled | failed | cancel_requested(그로블에서 환불 요청됨) */
     status: text('status').notNull().default('pending'),
+    /** 결제 수단 제공처: 'toss'(결제위젯) | 'groble'(그로블 결제 링크 · 웹훅) */
+    provider: text('provider').notNull().default('toss'),
+    /** 토스 paymentKey, 그로블이면 그로블 주문번호(merchantUid) */
     paymentKey: text('payment_key'),
     /** 결제 방법(카드 · 간편결제 등, 토스 응답의 method) */
     method: text('method'),
@@ -216,6 +220,13 @@ export const orders = pgTable(
     uniqueIndex('orders_one_paid_idx').on(t.invitationId).where(sql`${t.status} = 'paid'`),
   ],
 )
+
+/** 결제 웹훅 중복 차단: 제공처가 보내는 멱등 키를 한 번만 처리 */
+export const webhookEvents = pgTable('webhook_events', {
+  key: text('key').primaryKey(),
+  provider: text('provider').notNull(),
+  createdAt: createdAt(),
+})
 
 /** 하객 쓰기 API용 간단한 rate limit. key는 IP+slug+종류의 해시(원래 IP는 저장 안 함) */
 export const rateLimits = pgTable('rate_limits', {

@@ -2,21 +2,22 @@ import 'server-only'
 
 import { randomUUID } from 'node:crypto'
 
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, inArray } from 'drizzle-orm'
 
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
-import {
-  orderNameFor,
-  priceFor,
-  refundEligibility,
-  REFUND_DAYS,
-} from '@/shared/pricing'
+import { orderNameFor, priceFor, refundEligibility, REFUND_DAYS } from '@/shared/pricing'
 
 import { getAccess } from './access'
 import { ApiError } from './api'
 import { getDb, schema } from './db/client'
 import { isUuid } from './editor'
-import { canCheckout, derivedPremiumSql, hasPaidPremium } from './plan'
+import {
+  canCheckout,
+  derivedPremiumSql,
+  grobleLinkFor,
+  hasPaidPremium,
+  paymentProvider,
+} from './plan'
 
 /**
  * 토스페이먼츠 결제 승인 · 취소 (서버 전용). 시크릿 키(TOSS_SECRET_KEY)는 여기서만 쓴다.
@@ -54,12 +55,18 @@ async function toss<T>(path: string, body?: unknown, method: 'POST' | 'GET' = 'P
   }
   const data = (await res.json().catch(() => ({}))) as T & TossError
   if (!res.ok) {
-    const err = new ApiError(res.status === 429 ? 429 : 400, data.message || '결제를 처리하지 못했어요.')
+    const err = new ApiError(
+      res.status === 429 ? 429 : 400,
+      data.message || '결제를 처리하지 못했어요.',
+    )
     ;(err as ApiError & { tossCode?: string }).tossCode = data.code
     throw err
   }
   return data
 }
+
+/** 그로블 주문조회(구매자가 환불을 신청하는 곳). 바뀌면 GROBLE_ORDER_URL 환경변수로 */
+const GROBLE_ORDER_URL = process.env.GROBLE_ORDER_URL?.trim() || 'https://www.groble.im'
 
 const tossCodeOf = (e: unknown) => (e as { tossCode?: string }).tossCode
 
@@ -91,13 +98,23 @@ async function loadInvitation(id: string) {
   return row
 }
 
-export type CheckoutInfo = {
-  orderId: string
-  orderName: string
-  amount: number
-  customerKey: string
-  clientKey: string
-}
+export type CheckoutInfo =
+  | {
+      provider: 'toss'
+      orderId: string
+      orderName: string
+      amount: number
+      customerKey: string
+      clientKey: string
+    }
+  | {
+      provider: 'groble'
+      orderId: string
+      orderName: string
+      amount: number
+      /** 그로블 결제창 링크 + ?ref=주문번호 (웹훅의 sellerReference로 돌아옴) */
+      redirectUrl: string
+    }
 
 /** 결제 시작: 금액은 서버가 가격표로 계산하고, 주문(pending)을 만든 뒤 결제창에 넘길 값을 준다 */
 export async function startCheckout(
@@ -112,6 +129,14 @@ export async function startCheckout(
   if (hasPaidPremium(inv)) throw new ApiError(409, '이미 프리미엄이 적용된 초대장이에요.')
 
   const amount = priceFor(inv.eventType)
+  const provider = paymentProvider()
+  // 그로블: 금액에 맞는 링크가 없으면 결제를 막는다
+  const link = provider === 'groble' ? grobleLinkFor(amount) : null
+  if (provider === 'groble' && !link)
+    throw new ApiError(
+      503,
+      '이 금액의 결제 링크가 아직 준비되지 않았어요. 결제를 시작하지 않았어요.',
+    )
   const orderId = `dd-${randomUUID().replaceAll('-', '')}`
   const orderName = orderNameFor(inv.eventType)
   await getDb().insert(schema.orders).values({
@@ -121,9 +146,16 @@ export async function startCheckout(
     orderName,
     amount,
     status: 'pending',
+    provider,
     refundAgreedAt: new Date(),
   })
+  if (link) {
+    const url = new URL(link)
+    url.searchParams.set('ref', orderId)
+    return { provider: 'groble', orderId, orderName, amount, redirectUrl: url.toString() }
+  }
   return {
+    provider: 'toss',
     orderId,
     orderName,
     amount,
@@ -149,12 +181,9 @@ export async function confirmPayment(input: {
     .select()
     .from(schema.orders)
     .where(eq(schema.orders.orderId, input.orderId))
-  if (
-    !order ||
-    order.invitationId !== input.invitationId ||
-    order.userId !== input.userId
-  )
+  if (!order || order.invitationId !== input.invitationId || order.userId !== input.userId)
     throw new ApiError(404, '주문을 찾을 수 없어요.')
+  if (order.provider !== 'toss') throw new ApiError(400, '이 주문은 토스 결제가 아니에요.')
   if (order.status === 'paid') return { ok: true }
   if (order.status !== 'pending') throw new ApiError(409, '이미 처리된 주문이에요.')
 
@@ -180,7 +209,11 @@ export async function confirmPayment(input: {
     await markFailed(order.id, (err as Error).message)
     throw err
   }
-  if (paid.status !== 'DONE' || paid.totalAmount !== order.amount || paid.orderId !== order.orderId) {
+  if (
+    paid.status !== 'DONE' ||
+    paid.totalAmount !== order.amount ||
+    paid.orderId !== order.orderId
+  ) {
     await cancelQuietly(paid.paymentKey ?? input.paymentKey, '승인 결과 불일치')
     await markFailed(order.id, '승인 결과 불일치')
     throw new ApiError(400, '결제 승인 결과를 확인하지 못했어요. 결제는 취소했어요.')
@@ -266,6 +299,8 @@ export async function requestRefund(invitationId: string, userId: string): Promi
     invitationPublishedAt: inv.publishedAt,
   })
   if (!ok.ok) throw new ApiError(409, ok.reason)
+  if (order.provider === 'groble')
+    throw new ApiError(409, '그로블 결제는 그로블 주문조회에서 환불을 신청해 주세요.')
   if (!order.paymentKey) throw new ApiError(409, '결제 정보를 찾을 수 없어요. 문의해 주세요.')
 
   try {
@@ -301,21 +336,35 @@ export async function applyPaymentWebhook(paymentKey: string): Promise<'applied'
     .from(schema.orders)
     .where(eq(schema.orders.paymentKey, paymentKey))
   if (!order) return 'ignored'
-  const live = await toss<TossPayment>(`/v1/payments/${encodeURIComponent(paymentKey)}`, undefined, 'GET')
+  const live = await toss<TossPayment>(
+    `/v1/payments/${encodeURIComponent(paymentKey)}`,
+    undefined,
+    'GET',
+  )
   if (live.orderId !== order.orderId) return 'ignored'
   // 전액 취소만 반영 (부분 취소는 프리미엄을 유지)
   if (live.status !== 'CANCELED' || order.status !== 'paid') return 'ignored'
-  await db.transaction(async (tx) => {
+  await markOrderCanceled(order.id)
+  return 'applied'
+}
+
+/** 환불 · 취소가 확인된 주문을 취소로 기록하고 프리미엄을 해제 (토스 · 그로블 웹훅 공용) */
+export async function markOrderCanceled(orderRowId: string): Promise<void> {
+  await getDb().transaction(async (tx) => {
     await tx
       .update(schema.orders)
       .set({ status: 'canceled', canceledAt: new Date() })
-      .where(and(eq(schema.orders.id, order.id), eq(schema.orders.status, 'paid')))
+      .where(
+        and(
+          eq(schema.orders.id, orderRowId),
+          inArray(schema.orders.status, ['paid', 'cancel_requested']),
+        ),
+      )
     await tx
       .update(schema.invitations)
       .set({ premiumOrderId: null })
-      .where(eq(schema.invitations.premiumOrderId, order.id))
+      .where(eq(schema.invitations.premiumOrderId, orderRowId))
   })
-  return 'applied'
 }
 
 export type OrderRow = {
@@ -326,6 +375,9 @@ export type OrderRow = {
   orderName: string
   amount: number
   status: string
+  provider: string
+  /** 그로블 주문이면 환불을 신청할 그로블 주문조회 주소 */
+  refundUrl: string | null
   method: string | null
   receiptUrl: string | null
   approvedAt: string | null
@@ -350,7 +402,7 @@ export async function listOrders(userId: string): Promise<OrderRow[]> {
     .where(eq(schema.orders.userId, userId))
     .orderBy(desc(schema.orders.createdAt))
   return rows
-    .filter((r) => r.o.status === 'paid' || r.o.status === 'canceled')
+    .filter((r) => ['paid', 'canceled', 'cancel_requested'].includes(r.o.status))
     .map((r) => {
       const el =
         r.o.status === 'paid' && r.premiumOrderId === r.o.id
@@ -368,6 +420,8 @@ export async function listOrders(userId: string): Promise<OrderRow[]> {
         orderName: r.o.orderName,
         amount: r.o.amount,
         status: r.o.status,
+        provider: r.o.provider,
+        refundUrl: r.o.provider === 'groble' ? GROBLE_ORDER_URL : null,
         method: r.o.method,
         receiptUrl: r.o.receiptUrl,
         approvedAt: r.o.approvedAt?.toISOString() ?? null,

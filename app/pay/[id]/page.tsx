@@ -7,13 +7,14 @@ import { requireKakaoSession } from '@/lib/auth/session'
 import { getAccess } from '@/lib/access'
 import { getDb, schema } from '@/lib/db/client'
 import { isUuid } from '@/lib/editor'
-import { canCheckout, derivedPremiumSql, hasPaidPremium } from '@/lib/plan'
+import { canCheckout, derivedPremiumSql, hasPaidPremium, paymentProvider } from '@/lib/plan'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { PLAN_FEATURES } from '@/shared/entitlements'
 import { formatWon, priceFor, REFUND_NOTICE } from '@/shared/pricing'
 import { eq } from 'drizzle-orm'
 
 import styles from '../pay.module.scss'
+import GroblePayClient from './GroblePayClient'
 import PayClient from './PayClient'
 
 export const dynamic = 'force-dynamic'
@@ -61,13 +62,17 @@ export default async function PayPage({ params }: { params: Promise<{ id: string
         <p className={styles.note}>
           초대장 1개당 1회 결제 · 부가세 포함. 이용료만 결제하며 축의금 · 회비는 받지 않아요.
         </p>
-        <PayClient
-          invitationId={id}
-          amount={price}
-          clientKey={process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? ''}
-          customerKey={session.userId}
-          refundNotice={REFUND_NOTICE}
-        />
+        {paymentProvider() === 'groble' ? (
+          <GroblePayClient invitationId={id} amount={price} refundNotice={REFUND_NOTICE} />
+        ) : (
+          <PayClient
+            invitationId={id}
+            amount={price}
+            clientKey={process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? ''}
+            customerKey={session.userId}
+            refundNotice={REFUND_NOTICE}
+          />
+        )}
       </main>
       <SiteFooter />
     </>

@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import Logo from '@/components/site/Logo'
 import SiteFooter from '@/components/site/SiteFooter'
-import { paymentsOpen } from '@/lib/plan'
+import { paymentProvider, paymentsOpen } from '@/lib/plan'
 import { EVENT_TYPE_LABELS, EVENT_TYPES, type EventType } from '@/shared/blocks'
 import { PLAN_FEATURES } from '@/shared/entitlements'
 import { formatWon, PRICE_KRW, REFUND_DAYS } from '@/shared/pricing'
@@ -54,7 +54,9 @@ export default function PricingPage() {
           </thead>
           <tbody>
             <tr>
-              <td>초대장 만들기 · 모든 블록 · 디자인 표지 · 참석 응답 · 방명록 · 투표 · QR · 카톡 공유</td>
+              <td>
+                초대장 만들기 · 모든 블록 · 디자인 표지 · 참석 응답 · 방명록 · 투표 · QR · 카톡 공유
+              </td>
               <td>✓</td>
               <td>✓</td>
             </tr>
@@ -103,14 +105,25 @@ export default function PricingPage() {
             유료 결제가 시작되기 전에 만든 초대장은 그때 쓰던 기능(봉투 열기 · 효과, 사진{' '}
             {f.free.photoLimit}장)을 그대로 쓸 수 있어요.
           </li>
-          <li>dearday는 이용료만 받아요. 축의금 · 회비는 받거나 보관하지 않고, 하객과 주최자가 직접 주고받아요.</li>
+          <li>
+            dearday는 이용료만 받아요. 축의금 · 회비는 받거나 보관하지 않고, 하객과 주최자가 직접
+            주고받아요.
+          </li>
         </ul>
 
         <h2>결제 방법</h2>
-        <p>
-          토스페이먼츠 결제창에서 신용 · 체크카드, 간편결제 등으로 결제해요. 카드 정보는 결제대행사가
-          직접 받고 dearday는 받거나 저장하지 않아요.
-        </p>
+        {paymentProvider() === 'groble' ? (
+          <p>
+            통신판매중개 플랫폼 그로블의 결제창에서 결제해요. 카드 정보와 구매자 정보는 그로블 ·
+            결제대행사가 직접 받고 dearday는 받거나 저장하지 않아요. 그로블 결제에는 그로블 표준
+            환불 규정이 함께 적용돼요.
+          </p>
+        ) : (
+          <p>
+            토스페이먼츠 결제창에서 신용 · 체크카드, 간편결제 등으로 결제해요. 카드 정보는
+            결제대행사가 직접 받고 dearday는 받거나 저장하지 않아요.
+          </p>
+        )}
 
         <h2>환불 규정</h2>
         <ul>
@@ -119,11 +132,13 @@ export default function PricingPage() {
           </li>
           <li>
             초대장을 <b>발행한 뒤에는 환불되지 않아요</b>. 서비스 제공이 시작된 것으로 보기
-            때문이에요. 결제 전에 이 내용을 알려 드리고 동의를 받아요.
+            때문이에요(서비스 제공 후에는 실제 제공분을 공제해요). 결제 전에 이 내용을 알려 드리고
+            동의를 받아요.
           </li>
           <li>
-            환불은 &lsquo;내 초대장&rsquo; 화면의 결제 내역에서 직접 요청해요. 환불하면 프리미엄이
-            해제되고, 카드사에 따라 취소가 반영되는 데 며칠 걸릴 수 있어요.
+            {paymentProvider() === 'groble'
+              ? '환불은 \u2018내 초대장\u2019 화면의 결제 내역에서 안내하는 그로블 주문조회에서 신청해요. 환불이 확인되면 프리미엄이 해제되고, 카드사에 따라 취소가 반영되는 데 며칠 걸릴 수 있어요.'
+              : '환불은 \u2018내 초대장\u2019 화면의 결제 내역에서 직접 요청해요. 환불하면 프리미엄이 해제되고, 카드사에 따라 취소가 반영되는 데 며칠 걸릴 수 있어요.'}
           </li>
           <li>
             dearday의 사정으로 프리미엄 기능을 쓰지 못한 경우에는 발행 여부와 관계없이 환불해요.

@@ -270,11 +270,42 @@ export async function saveInvitation(
           parseBlockConfig('vote', prevVote.config),
         )
       : { status: 'open' as const, confirmedId: null }
-    const blocksToSave = input.blocks.map((b) =>
-      b.type === 'vote' ? { ...b, config: { ...b.config, ...voteState } } : b,
-    )
+    // 대시보드가 자동으로 만든 블록(source가 있는 안내 = 정산 내역)은 편집기 저장이 지우거나 바꾸지 않는다:
+    // 편집기가 보낸 같은 종류 블록은 버리고, DB에 있는 것을 그대로 다시 넣는다
+    const isManaged = (b: { type: string; config: unknown }) =>
+      b.type === 'notice' && Boolean((b.config as { source?: string | null }).source)
+    const managed = await tx
+      .select({
+        id: schema.blocks.id,
+        type: schema.blocks.type,
+        visible: schema.blocks.visible,
+        config: schema.blocks.config,
+      })
+      .from(schema.blocks)
+      .where(
+        and(
+          eq(schema.blocks.invitationId, id),
+          eq(schema.blocks.type, 'notice'),
+          sql`${schema.blocks.config}->>'source' is not null`,
+        ),
+      )
+    const blocksToSave = input.blocks
+      .filter((b) => !isManaged(b))
+      .map((b) => (b.type === 'vote' ? { ...b, config: { ...b.config, ...voteState } } : b))
 
     await tx.delete(schema.blocks).where(eq(schema.blocks.invitationId, id))
+    if (managed.length > 0) {
+      await tx.insert(schema.blocks).values(
+        managed.map((b, i) => ({
+          id: b.id,
+          invitationId: id,
+          type: b.type,
+          position: blocksToSave.length + i,
+          visible: b.visible,
+          config: b.config,
+        })),
+      )
+    }
     if (blocksToSave.length > 0) {
       await tx.insert(schema.blocks).values(
         blocksToSave.map((b, position) => ({

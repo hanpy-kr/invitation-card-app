@@ -127,6 +127,13 @@
       "when": 1794624627832,
       "tag": "0017_known_radioactive_man",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794626508932,
+      "tag": "0018_mighty_sunfire",
+      "breakpoints": true
     }
   ]
 }

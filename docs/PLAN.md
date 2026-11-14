@@ -102,7 +102,7 @@ main 푸시 = 운영 배포이므로 항목마다 `pnpm lint && pnpm typecheck &
 - [x] **공동 편집 + 새 응답 표시**
   - `invitation_editors`(invitation_id, user_id) + 초대 링크(7일 만료 토큰). 소유자 확인을 '소유자 또는 편집자' 도우미 하나로 통일. 삭제 · 편집자 관리는 소유자만
   - 대시보드에 마지막 확인 이후 '새 응답 n' 표시
-- [x] **방문 통계 + 운영 지표** (⏸ `ADMIN_KAKAO_IDS` 비어 있음 → `/admin/stats`는 아무도 못 봄)
+- [x] **방문 통계 + 운영 지표** (`ADMIN_KAKAO_IDS` 설정 완료 — 11/14 `/admin/stats` 열림 확인)
   - 하객 화면 로드 후 `sendBeacon`으로 일별 열람 수 집계(`invitation_views_daily`). 페이지 렌더링에 DB 쓰기를 넣지 않음
   - 주최자 대시보드: 열람 수, 응답률
   - `/admin/stats`(환경변수 `ADMIN_KAKAO_IDS`에 있는 사용자만): 주간 발행 수(행사 종류별), 열람 → 응답 전환율, `created_from` 기준 하객 → 주최자 전환
@@ -123,7 +123,7 @@ main 푸시 = 운영 배포이므로 항목마다 `pnpm lint && pnpm typecheck &
 | `/i/demomeet` (송년회, 장소 2 · 계좌 · 안내 · 명단 공개) | 709ms | 824ms | 824ms | 313KB (JS 123KB) |
 
 - DB 마이그레이션 0005~0010은 모두 추가(컬럼 · 테이블 · 인덱스)와 PLAN에 적힌 `users.kakao_id` NOT NULL 해제뿐
-- ⏸ 사용자: `ADMIN_KAKAO_IDS`(Amplify 환경변수, 넣고 재배포), 운영에서 R2 서버 측 복사(복제 · 청첩장 모임 만들기)가 되는지 한 번 확인 — R2 토큰에 읽기 · 쓰기 권한이 있어야 함
+- ⏸ 사용자: (`ADMIN_KAKAO_IDS`는 11/14 완료) 운영에서 R2 서버 측 복사(복제 · 청첩장 모임 만들기)가 되는지 한 번 확인 — R2 토큰에 읽기 · 쓰기 권한이 있어야 함
 
 ## P2 · 12/5까지 — 결혼 완성도 (유료 후보, 일단 무료)
 
@@ -171,7 +171,7 @@ main 푸시 = 운영 배포이므로 항목마다 `pnpm lint && pnpm typecheck &
 1. **배포 확인**: push는 끝났고 Amplify 빌드가 마이그레이션 0011~0015를 적용했는지 `/api/health`로 확인
 2. **운영 R2 확인** (샌드박스에서는 못 해 봄): 하객 앨범 업로드(`album/…` presigned PUT), 복제 · 청첩장 모임 · 감사장의 서버 측 복사(CopyObject), 전체 받기의 파일 읽기(GetObject). R2 토큰에 읽기 · 쓰기 권한 필요
 3. **새 응답 카톡 알림 켜기** (`docs/DEPLOY.md` 맨 아래 절차): ① 카카오 콘솔 동의항목 '카카오톡 메시지 전송' 설정 ② Amplify 환경변수 `KAKAO_TOKEN_KEY` (`openssl rand -hex 32`) 추가 후 재배포 ③ 대시보드에서 [알림 켜기]로 본인 카톡에 오는지 확인. 키는 한 번 정하면 바꾸지 말 것
-4. `ADMIN_KAKAO_IDS` 환경변수 넣고 재배포 (`/admin/stats`)
+4. ~~`ADMIN_KAKAO_IDS` 환경변수 넣고 재배포 (`/admin/stats`)~~ — 완료(11/14 열림 확인)
 5. 카카오톡 채널 주소를 `app/help/page.tsx`의 `KAKAO_CHANNEL_URL`에 넣기
 6. **실기기 확인**: 배경음악 재생(iOS Safari 구간 요청 포함, 자동재생 안 됨), YouTube 썸네일 → 재생, 하객 앨범 업로드(아이폰 사진 → webp 축소), 슬라이드형 사진첩 스와이프, 참석자 전용 안내(응답 전 잠김 → 응답 후 보임)
 7. 위가 끝나면 유료 범위와 가격 결정 (`shared/entitlements.ts`에서만 조절) → 결제(토스페이먼츠) 계획 작성
@@ -328,6 +328,25 @@ DB 마이그레이션 `0017`(추가만): 테이블 `bring_claims` · `invitee_li
 - [x] ④ DEPLOY.md 8장 '결제 켜는 순서' 다시 씀(토스 키 2개 → 재배포 → 웹훅 → 관리자 미리 보기 → 신고번호 → 약관 · 방침 시행 7일 전 공지 → 키 교체 → `PAYMENTS_LIVE` **미래 시각** → 재배포, 과거 시각 금지 경고 · 이유)
 - e2e p5 확장: 서버 B에 토스 키 + `ADMIN_KAKAO_IDS=dev-1`(dev-1 관리자, `as=2` 일반 회원), 가짜 토스에 조회(GET) 추가. 관리자 미리 보기 결제 · 환불, 일반 회원 403, 웹훅(위조 본문은 조회로 걸러짐 · 취소 반영), 지우기 확인창. 이미 있던 p5 두 곳의 경쟁 상태(환불 응답 · 저장 응답 기다리기)도 고침
 
+## 그로블 결제 임시 연결 (11/14, 토스는 그대로 · 전환식)
+
+- [x] ① `PAYMENT_PROVIDER=toss|groble`(기본 toss). `lib/plan.ts`의 `paymentsOpen`/`canCheckout`은 '고른 수단이 모두 설정됨'으로 일반화(그로블: 링크 2개 + 웹훅 시크릿). 관리자 미리 보기 동작은 그대로. 환경변수 `GROBLE_LINK_14900` · `GROBLE_LINK_3900` · `GROBLE_WEBHOOK_SECRET`(+ 선택 `GROBLE_ORDER_URL`)을 amplify.yml · .env.example · DEPLOY.md에 추가
+- [x] ② 결제 시작: 서버가 금액대로 pending 주문(`orders.provider='groble'`, 마이그레이션 0018, 추가만)을 만들고 `${링크}?ref=${주문번호}`로 보냄. 금액에 맞는 링크가 없으면 503으로 막음
+- [x] ③ `POST /api/webhooks/groble`: HMAC-SHA256(`타임스탬프.원문`) · ±5분 · timingSafeEqual, 멱등 키는 새 테이블 `webhook_events`. completed → 주문이 pending이고 금액(결제=주문=현재 가격)이 같을 때만 paid + 프리미엄(한 트랜잭션), 불일치면 paid로 안 바꾸고 `fail_reason` 기록. refunded → canceled + 프리미엄 해제(토스와 같은 `markOrderCanceled`). cancel_requested → '환불 요청됨'. 구매자 이름 · 연락처는 저장 · 로그 안 함
+- [x] ④ `/pay/return`: 로그인한 회원의 최근 그로블 주문을 2초마다 15번 확인 → paid면 편집기, 아니면 '결제 확인 중이에요. 잠시 뒤 대시보드에서 확인해 주세요'
+- [x] ⑤ 환불: 그로블 주문은 dearday에서 취소하지 않음. 대시보드에 환불 가능 안내 + [그로블에서 환불 신청] 링크, `/pay` 동의 문구에 그로블 표준 환불 규정 한 줄
+- [x] ⑥ 약관 · 방침 초안(`/terms/payments`, `/privacy/payments`)에 결제 대행 그로블(통신판매중개) 반영, 환불 조항을 그로블 기준과 맞춤. 시행 중 문서는 안 건드림
+- [x] ⑦ DEPLOY.md 9장 '그로블 켜는 순서'
+- [x] ⑧ ⏸ `ADMIN_KAKAO_IDS` 완료 표시
+- [x] ⑨ 편집기 저장이 `source`가 있는 블록(정산 안내)을 지우지 않고 보존
+- e2e는 p6 이름이 이미 있어 **`pnpm e2e:p7`** 로 추가(서명 틀림 401 · 시각 지남/앞 · 멱등 키 없음 · 금액 불일치 · 중복 · 완료 → 프리미엄 · 요청 → 환불 → 해제 · return 폴링 · 정산 블록 보존). p0~p6 · d2 · d3 회귀 통과
+
+**가정 (그로블 문서를 못 찾아 확인 필요)**
+- 웹훅 본문: 이벤트 종류는 `type|event|eventType`, 주문번호는 `data.object.sellerReference`(없으면 `data.sellerReference`), 결제 번호는 `merchantUid`, 금액은 `amount|paidAmount|totalAmount|paymentAmount|totalPrice|price` 중 하나로 읽음. 실제 이름이 다르면 금액 불일치로 기록되니 `fail_reason`을 보고 `lib/groble.ts parseGrobleEvent`만 고치면 됨
+- `GROBLE_ORDER_URL` 기본값 `https://www.groble.im`(주문조회 주소가 다르면 환경변수로 교체)
+
+**사용자 할 일**: DEPLOY.md 9장 순서대로(상품 2개 · 웹훅 · 링크 · 시크릿 → `PAYMENT_PROVIDER=groble` → 재배포 → 관리자 3,900원 실결제 + 환불 확인)
+
 ## 공통 규칙 (2차)
 
 - 공개 초대장 성능 유지: 서버 쿼리 1회 유지, 새 블록의 데이터(명단 · 투표 결과 · 방명록)는 화면 근처에서 API로. `/i/[slug]` First Load JS 140kB 이하
@@ -337,7 +356,7 @@ DB 마이그레이션 `0017`(추가만): 테이블 `bring_claims` · `invitee_li
 ## ⏸ 사용자 대기 항목
 
 - [ ] 카카오톡 채널 개설(문의용) → 채널 주소 전달 (P0 도움말)
-- [ ] 관리자 카카오 ID 확인 → Amplify 환경변수 `ADMIN_KAKAO_IDS` (P1 운영 지표)
+- [x] 관리자 카카오 ID 확인 → Amplify 환경변수 `ADMIN_KAKAO_IDS` (P1 운영 지표) — 11/14 `/admin/stats` 열림 확인
 - [ ] 카카오 콘솔 '카카오톡 메시지 전송' 동의항목 (P2 알림)
 - [ ] (결제) 통신판매업 신고번호 · 토스 계약 · 테스트/운영 키 · `PAYMENTS_LIVE` · 약관 · 방침 개정 시행일 → 위 '결제 결과' 참고
 
