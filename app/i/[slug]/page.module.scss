@@ -15,6 +15,22 @@
   overflow-x: hidden;
 }
 
+// 섹션 사이 음각 선(종이 편지 테마만, --section-rule). 오시는 길 · 마음 전하실 곳 · 참석 의사 · 방명록 위
+.column
+  :is(
+    :global(section[data-block='location']),
+    :global(section[data-block='with heart']),
+    :global(section[data-block='r.s.v.p.']),
+    :global(section[data-block='guestbook'])
+  )::before {
+  content: '';
+  display: var(--section-rule, none);
+  height: 0;
+  margin: -16px 0 52px;
+  border-top: 1px solid rgba(110, 85, 55, 0.24);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
 .footer {
   padding: 32px 24px 48px;
   display: flex;
@@ -22,18 +38,10 @@
   gap: 12px;
 }
 
+// 공유: 상자 없이 버튼만, 아래 여백은 예전(약 30px)의 3배
 .shareCard {
-  padding: 18px 16px;
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-  background: var(--surface);
+  margin-bottom: 78px;
   text-align: center;
-
-  > p {
-    font-size: 14px;
-    color: var(--text);
-    margin-bottom: 12px;
-  }
 }
 
 .shareButtons {
@@ -66,38 +74,38 @@
   color: var(--muted);
 }
 
-.makeOwn {
+.brand {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  align-items: center;
+  gap: 4px;
   text-align: center;
-  text-decoration: none;
-
-  strong {
-    font-size: 15px;
-    color: var(--accent);
-  }
-
-  span {
-    font-size: 12px;
-    color: var(--muted);
-  }
 }
 
-.madeWith {
-  text-align: center;
+// 자간 넓힌 대문자 워드마크
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-family: var(--font-display), serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.makeOwn {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-size: 13px;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.copyright {
   font-size: 12px;
   color: var(--muted);
-
-  .madeLink {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: var(--tap);
-    text-decoration: none;
-    letter-spacing: 0.04em;
-  }
 }

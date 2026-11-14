@@ -30,7 +30,6 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
   const base = `/api/i/${ctx.slug}/guestbook`
   const [entries, setEntries] = useState<GuestbookEntryView[]>(ctx.preview ? SAMPLE : [])
   const [next, setNext] = useState<string | null>(null)
-  const [loaded, setLoaded] = useState(Boolean(ctx.preview))
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({ name: '', password: '', message: '' })
   const [busy, setBusy] = useState(false)
@@ -48,7 +47,6 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
       const data = (await res.json()) as { entries: GuestbookEntryView[]; next: string | null }
       setEntries((list) => (before ? [...list, ...data.entries] : data.entries))
       setNext(data.next)
-      setLoaded(true)
     },
     [base],
   )
@@ -156,7 +154,6 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
       )}
 
       <div ref={listRef} style={{ minHeight: 1 }} aria-hidden />
-      {loaded && entries.length === 0 ? <p className={cx('empty')}>첫 글을 남겨 주세요.</p> : null}
       {entries.length > 0 ? (
         <ul className={cx('list')}>
           {entries.map((entry) => (

@@ -40,12 +40,16 @@ const mock = createServer((req, res) => {
       res.writeHead(code, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify(obj))
     }
-    const okAuth = req.headers.authorization === `Basic ${Buffer.from(`${SECRET}:`).toString('base64')}`
+    const okAuth =
+      req.headers.authorization === `Basic ${Buffer.from(`${SECRET}:`).toString('base64')}`
     if (!okAuth) return send(401, { code: 'UNAUTHORIZED_KEY', message: '인증되지 않은 키예요.' })
     if (path === '/v1/payments/confirm') {
       if (String(body.paymentKey).startsWith('pk_reject'))
         return send(400, { code: 'REJECT_CARD_PAYMENT', message: '카드사에서 결제를 거절했어요.' })
-      paid.set(String(body.paymentKey), { orderId: String(body.orderId), amount: Number(body.amount) })
+      paid.set(String(body.paymentKey), {
+        orderId: String(body.orderId),
+        amount: Number(body.amount),
+      })
       return send(200, {
         paymentKey: body.paymentKey,
         orderId: body.orderId,
@@ -154,7 +158,13 @@ async function publish(page: Page): Promise<string> {
   return url
 }
 
-async function pay(page: Page, base: string, id: string, mode: 'ok' | 'cancel' | 'reject' = 'ok', tamper?: number) {
+async function pay(
+  page: Page,
+  base: string,
+  id: string,
+  mode: 'ok' | 'cancel' | 'reject' = 'ok',
+  tamper?: number,
+) {
   await page.goto(`${base}/pay/${id}`)
   await page.evaluate(
     ([m, t]) => {
@@ -178,22 +188,44 @@ async function main() {
     const { ctx, page } = await login(browser, OFF, {}, 2)
     const id = await create(page, OFF, /송년회/, 'E2E 결제꺼짐')
     const sheet = await openPublish(page)
-    check((await sheet.getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0, '꺼짐: 발행 창에 결제 버튼 없음')
-    check((await sheet.getByText('프리미엄', { exact: false }).count()) === 0, '꺼짐: 프리미엄 안내 문구 없음')
+    check(
+      (await sheet.getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0,
+      '꺼짐: 발행 창에 결제 버튼 없음',
+    )
+    check(
+      (await sheet.getByText('프리미엄', { exact: false }).count()) === 0,
+      '꺼짐: 프리미엄 안내 문구 없음',
+    )
     await sheet.getByRole('button', { name: '발행하기' }).click()
     await sheet.getByRole('heading', { name: '초대장이 발행됐어요' }).waitFor()
-    check(await sheet.getByLabel(/문구 숨기기/).count(), '꺼짐: 모두 프리미엄 권한 (하단 문구 숨기기 가능)')
+    check(
+      await sheet.getByLabel(/문구 숨기기/).count(),
+      '꺼짐: 모두 프리미엄 권한 (하단 문구 숨기기 가능)',
+    )
     const url = await sheet.getByLabel('초대장 주소').inputValue()
     const r = await page.goto(`${OFF}/pay/${id}`)
     check(r?.status() === 404, '꺼짐: /pay 는 404')
     const guest = await newPage(await browser.newContext(mobile))
     await guest.goto(url.replace(/^https?:\/\/[^/]+/, OFF))
-    check(await guest.getByText('dearday로 만들었어요').count(), '꺼짐: 하단 문구는 기본 표시(지금처럼)')
+    check(
+      await guest.getByText('이 디자인으로 나도 만들기').count(),
+      '꺼짐: 하단 문구는 기본 표시(지금처럼)',
+    )
     await guest.goto(`${OFF}/pricing`)
-    check(await guest.getByText('모든 기능을 무료로 열어 두었어요').count(), '꺼짐: /pricing 에 무료 안내')
+    check(
+      await guest.getByText('모든 기능을 무료로 열어 두었어요').count(),
+      '꺼짐: /pricing 에 무료 안내',
+    )
     check(await guest.getByText('통신판매업 신고번호').count(), '푸터에 통신판매업 신고번호 자리')
     const sneak = await page.evaluate(
-      async (i) => (await fetch(`/api/invitations/${i}/checkout`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ agreedRefund: true }) })).status,
+      async (i) =>
+        (
+          await fetch(`/api/invitations/${i}/checkout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agreedRefund: true }),
+          })
+        ).status,
       id,
     )
     check(sneak === 403, '꺼짐: 일반 회원이 결제 API를 직접 불러도 403')
@@ -205,7 +237,10 @@ async function main() {
     const { ctx, page } = await login(browser, OFF, {}, 1)
     const id = await create(page, OFF, /송년회/, 'E2E 관리자 미리 보기')
     const sh = await openPublish(page)
-    check(await sh.getByText('프리미엄 3,900원').count(), '관리자: 꺼져 있어도 프리미엄 안내가 보임')
+    check(
+      await sh.getByText('프리미엄 3,900원').count(),
+      '관리자: 꺼져 있어도 프리미엄 안내가 보임',
+    )
     await sh.getByRole('link', { name: '프리미엄 결제하기' }).click()
     await page.waitForURL(/\/pay\//)
     await page.evaluate(() => ((window as unknown as Record<string, unknown>).__tossMode = 'ok'))
@@ -214,13 +249,36 @@ async function main() {
     await page.waitForTimeout(300)
     await page.getByRole('button', { name: /3,900원 결제하기/ }).click()
     await page.waitForURL(/\/pay\/.*\/done/)
-    check(rowCount0(`select count(*) from orders where invitation_id='${id}' and status='paid'`) === 1, '관리자: 꺼져 있어도 결제가 orders에 paid로 기록')
-    check(sql(`select premium_order_id is not null from invitations where id='${id}'`) === 't', '관리자: 프리미엄 기록')
+    check(
+      rowCount0(`select count(*) from orders where invitation_id='${id}' and status='paid'`) === 1,
+      '관리자: 꺼져 있어도 결제가 orders에 paid로 기록',
+    )
+    check(
+      sql(`select premium_order_id is not null from invitations where id='${id}'`) === 't',
+      '관리자: 프리미엄 기록',
+    )
     await page.goto(`${OFF}/pricing`)
-    check(await page.getByText('모든 기능을 무료로 열어 두었어요').count(), '관리자도 /pricing 결제 안내는 숨김(무료 안내)')
-    const refunded = await page.evaluate(async (i) => (await fetch(`/api/invitations/${i}/refund`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).status, id)
+    check(
+      await page.getByText('모든 기능을 무료로 열어 두었어요').count(),
+      '관리자도 /pricing 결제 안내는 숨김(무료 안내)',
+    )
+    const refunded = await page.evaluate(
+      async (i) =>
+        (
+          await fetch(`/api/invitations/${i}/refund`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}',
+          })
+        ).status,
+      id,
+    )
     check(refunded === 200, '관리자: 꺼져 있어도 환불 가능')
-    check(rowCount0(`select count(*) from orders where invitation_id='${id}' and status='canceled'`) === 1, '관리자: 환불 기록 canceled')
+    check(
+      rowCount0(`select count(*) from orders where invitation_id='${id}' and status='canceled'`) ===
+        1,
+      '관리자: 환불 기록 canceled',
+    )
     await ctx.close()
   }
 
@@ -232,7 +290,10 @@ async function main() {
   const id1 = await create(page, ON, /송년회/, 'E2E 결제 성공')
   let sheet = await openPublish(page)
   check(await sheet.getByText('프리미엄 3,900원').count(), '켜짐: 발행 창에 프리미엄 3,900원 안내')
-  check(await sheet.getByText('발행한 뒤에는 서비스 제공이 시작된 것으로 보아 환불되지 않아요').count(), '켜짐: 발행 후 환불 불가 고지')
+  check(
+    await sheet.getByText('발행한 뒤에는 서비스 제공이 시작된 것으로 보아 환불되지 않아요').count(),
+    '켜짐: 발행 후 환불 불가 고지',
+  )
   await sheet.getByRole('link', { name: '프리미엄 결제하기' }).click()
   await page.waitForURL(/\/pay\//)
   await page.evaluate(() => ((window as unknown as Record<string, unknown>).__tossMode = 'ok'))
@@ -244,24 +305,55 @@ async function main() {
   check(await payBtn.isEnabled(), '동의 체크하면 결제 버튼 활성')
   await payBtn.click()
   await page.waitForURL(/\/pay\/.*\/done/)
-  check(await page.getByRole('heading', { name: '결제가 완료됐어요' }).count(), '성공: 결제 완료 화면')
+  check(
+    await page.getByRole('heading', { name: '결제가 완료됐어요' }).count(),
+    '성공: 결제 완료 화면',
+  )
   check(await page.getByRole('link', { name: '영수증 보기' }).count(), '성공: 영수증 링크')
   const confirmCall = calls.find((c) => c.path === '/v1/payments/confirm')
-  check(confirmCall && Number(confirmCall.body.amount) === 3900, '서버가 토스 승인 API를 금액 3900으로 호출')
-  check(rowCount(`select count(*) from orders where invitation_id='${id1}' and status='paid' and amount=3900`) === 1, 'orders: paid 1건 · 3900원')
-  check(sql(`select premium_order_id is not null from invitations where id='${id1}'`) === 't', '초대장에 프리미엄 적용')
-  check(sql(`select refund_agreed_at is not null from orders where invitation_id='${id1}'`) === 't', '환불 동의 시각 기록')
+  check(
+    confirmCall && Number(confirmCall.body.amount) === 3900,
+    '서버가 토스 승인 API를 금액 3900으로 호출',
+  )
+  check(
+    rowCount(
+      `select count(*) from orders where invitation_id='${id1}' and status='paid' and amount=3900`,
+    ) === 1,
+    'orders: paid 1건 · 3900원',
+  )
+  check(
+    sql(`select premium_order_id is not null from invitations where id='${id1}'`) === 't',
+    '초대장에 프리미엄 적용',
+  )
+  check(
+    sql(`select refund_agreed_at is not null from orders where invitation_id='${id1}'`) === 't',
+    '환불 동의 시각 기록',
+  )
 
   // 2. 중복 결제 막기
   await page.goto(`${ON}/pay/${id1}`)
   check(page.url().includes(`/edit/${id1}`), '이미 프리미엄이면 /pay 가 편집으로 돌려보냄')
   const dup = await page.evaluate(
-    async (id) => (await fetch(`/api/invitations/${id}/checkout`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ agreedRefund: true }) })).status,
+    async (id) =>
+      (
+        await fetch(`/api/invitations/${id}/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agreedRefund: true }),
+        })
+      ).status,
     id1,
   )
   check(dup === 409, '중복 결제 시작은 409')
   const noAgree = await page.evaluate(
-    async (id) => (await fetch(`/api/invitations/${id}/checkout`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ agreedRefund: false }) })).status,
+    async (id) =>
+      (
+        await fetch(`/api/invitations/${id}/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agreedRefund: false }),
+        })
+      ).status,
     id1,
   )
   check(noAgree === 400, '동의 없이 결제 시작은 400')
@@ -269,13 +361,19 @@ async function main() {
   // 3. 프리미엄 적용 후 편집기: 안내 없음 · 문구 숨기기
   await page.goto(`${ON}/edit/${id1}`)
   sheet = await openPublish(page)
-  check((await sheet.getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0, '프리미엄이면 결제 안내 없음')
+  check(
+    (await sheet.getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0,
+    '프리미엄이면 결제 안내 없음',
+  )
   await sheet.getByRole('button', { name: '닫기' }).click()
 
   // 4. 대시보드 결제 내역 · 환불
   await page.goto(`${ON}/dashboard`)
   await page.getByRole('region', { name: '결제 내역' }).waitFor()
-  check(await page.getByRole('region', { name: '결제 내역' }).getByText('결제 완료').count(), '대시보드: 결제 내역')
+  check(
+    await page.getByRole('region', { name: '결제 내역' }).getByText('결제 완료').count(),
+    '대시보드: 결제 내역',
+  )
   check(await page.getByRole('link', { name: '영수증' }).count(), '대시보드: 영수증 링크')
   const refundRes = page.waitForResponse((r) => /\/refund$/.test(r.url()))
   await page.getByRole('button', { name: '환불 요청' }).first().click()
@@ -283,8 +381,15 @@ async function main() {
   await page.getByText('환불됨').first().waitFor()
   const cancelCall = calls.find((c) => c.path.endsWith('/cancel'))
   check(cancelCall && cancelCall.path.includes('pk_ok_'), '환불: 토스 취소 API 호출')
-  check(rowCount(`select count(*) from orders where invitation_id='${id1}' and status='canceled'`) === 1, 'orders: canceled')
-  check(sql(`select premium_order_id is null from invitations where id='${id1}'`) === 't', '환불 후 프리미엄 해제')
+  check(
+    rowCount(`select count(*) from orders where invitation_id='${id1}' and status='canceled'`) ===
+      1,
+    'orders: canceled',
+  )
+  check(
+    sql(`select premium_order_id is null from invitations where id='${id1}'`) === 't',
+    '환불 후 프리미엄 해제',
+  )
   await page.goto(`${ON}/edit/${id1}`)
   sheet = await openPublish(page)
   check(await sheet.getByText('프리미엄 3,900원').count(), '환불 후 다시 결제 안내')
@@ -300,10 +405,26 @@ async function main() {
   await publish(page)
   await page.goto(`${ON}/dashboard`)
   await page.getByRole('region', { name: '결제 내역' }).waitFor()
-  check((await page.getByRole('button', { name: '환불 요청' }).count()) === 0, '발행 후에는 환불 요청 버튼 없음')
-  const refundAfter = await page.evaluate(async (id) => (await fetch(`/api/invitations/${id}/refund`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).status, id1)
+  check(
+    (await page.getByRole('button', { name: '환불 요청' }).count()) === 0,
+    '발행 후에는 환불 요청 버튼 없음',
+  )
+  const refundAfter = await page.evaluate(
+    async (id) =>
+      (
+        await fetch(`/api/invitations/${id}/refund`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}',
+        })
+      ).status,
+    id1,
+  )
   check(refundAfter === 409, '발행 후 환불 API는 409')
-  check(sql(`select premium_order_id is not null from invitations where id='${id1}'`) === 't', '발행 후 환불 시도해도 프리미엄 유지')
+  check(
+    sql(`select premium_order_id is not null from invitations where id='${id1}'`) === 't',
+    '발행 후 환불 시도해도 프리미엄 유지',
+  )
 
   // 6. 7일 지나면 환불 불가
   const id6 = await create(page, ON, /송년회/, 'E2E 7일')
@@ -313,7 +434,17 @@ async function main() {
   await btn.click()
   await page.waitForURL(/\/pay\/.*\/done/)
   sql(`update orders set approved_at = now() - interval '8 days' where invitation_id='${id6}'`)
-  const late = await page.evaluate(async (id) => (await fetch(`/api/invitations/${id}/refund`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).status, id6)
+  const late = await page.evaluate(
+    async (id) =>
+      (
+        await fetch(`/api/invitations/${id}/refund`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}',
+        })
+      ).status,
+    id6,
+  )
   check(late === 409, '결제 후 7일이 지나면 환불 API는 409')
 
   // 6b. 결제한 초대장 지우기: 환불 안내 확인창
@@ -321,10 +452,16 @@ async function main() {
   await page.getByRole('button', { name: '초대장 지우기' }).click()
   const dlg0 = page.getByRole('alertdialog')
   check(await dlg0.getByText('환불 조건').count(), '지우기(7일 지남): 환불 불가 안내')
-  check((await dlg0.getByRole('link', { name: '환불하기' }).count()) === 0, '지우기(7일 지남): 환불하기 링크 없음')
+  check(
+    (await dlg0.getByRole('link', { name: '환불하기' }).count()) === 0,
+    '지우기(7일 지남): 환불하기 링크 없음',
+  )
   await dlg0.getByRole('button', { name: '취소' }).click()
   check((await page.getByRole('alertdialog').count()) === 0, '지우기 확인창 취소로 닫힘')
-  check(rowCount(`select count(*) from invitations where id='${id6}'`) === 1, '취소하면 초대장 그대로')
+  check(
+    rowCount(`select count(*) from invitations where id='${id6}'`) === 1,
+    '취소하면 초대장 그대로',
+  )
 
   const id6c = await create(page, ON, /송년회/, 'E2E 웹훅')
   btn = await pay(page, ON, id6c)
@@ -335,27 +472,64 @@ async function main() {
   await page.goto(`${ON}/edit/${id6c}`)
   await page.getByRole('button', { name: '초대장 지우기' }).click()
   const dlg1 = page.getByRole('alertdialog')
-  check(await dlg1.getByText('결제 후 7일 안이고 발행 전이면 먼저 환불할 수 있어요').count(), '지우기(환불 가능): 환불 안내 문구')
-  check((await dlg1.getByRole('link', { name: '환불하기' }).getAttribute('href')) === '/dashboard#orders', '지우기: [환불하기]가 결제 내역으로 연결')
+  check(
+    await dlg1.getByText('결제 후 7일 안이고 발행 전이면 먼저 환불할 수 있어요').count(),
+    '지우기(환불 가능): 환불 안내 문구',
+  )
+  check(
+    (await dlg1.getByRole('link', { name: '환불하기' }).getAttribute('href')) ===
+      '/dashboard#orders',
+    '지우기: [환불하기]가 결제 내역으로 연결',
+  )
   await dlg1.getByRole('button', { name: '취소' }).click()
 
   // 6c. 웹훅: 토스 대시보드에서 취소된 결제 반영
   const hook = (body: unknown) =>
-    fetch(`${ON}/api/webhooks/toss`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    fetch(`${ON}/api/webhooks/toss`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
   const pk = sql(`select payment_key from orders where invitation_id='${id6c}' and status='paid'`)
-  let h = await hook({ eventType: 'PAYMENT_STATUS_CHANGED', data: { paymentKey: pk, status: 'CANCELED' } })
+  let h = await hook({
+    eventType: 'PAYMENT_STATUS_CHANGED',
+    data: { paymentKey: pk, status: 'CANCELED' },
+  })
   check(h.status === 200, '웹훅: 200')
-  check(sql(`select status from orders where invitation_id='${id6c}' order by created_at desc limit 1`) === 'paid', '웹훅: 토스 조회가 DONE이면 본문이 CANCELED라고 해도 반영하지 않음')
-  h = await hook({ eventType: 'PAYMENT_STATUS_CHANGED', data: { paymentKey: 'pk_unknown', status: 'CANCELED' } })
+  check(
+    sql(
+      `select status from orders where invitation_id='${id6c}' order by created_at desc limit 1`,
+    ) === 'paid',
+    '웹훅: 토스 조회가 DONE이면 본문이 CANCELED라고 해도 반영하지 않음',
+  )
+  h = await hook({
+    eventType: 'PAYMENT_STATUS_CHANGED',
+    data: { paymentKey: 'pk_unknown', status: 'CANCELED' },
+  })
   check(h.status === 200, '웹훅: 모르는 결제 키도 200(무시)')
   h = await hook({ eventType: 'DEPOSIT_CALLBACK', data: { paymentKey: pk } })
-  check(h.status === 200 && sql(`select status from orders where invitation_id='${id6c}'`) === 'paid', '웹훅: 다른 이벤트는 무시')
-  check((await fetch(`${ON}/api/webhooks/toss`, { method: 'POST', body: 'garbage' })).status === 200, '웹훅: 형식이 잘못된 본문도 200')
+  check(
+    h.status === 200 && sql(`select status from orders where invitation_id='${id6c}'`) === 'paid',
+    '웹훅: 다른 이벤트는 무시',
+  )
+  check(
+    (await fetch(`${ON}/api/webhooks/toss`, { method: 'POST', body: 'garbage' })).status === 200,
+    '웹훅: 형식이 잘못된 본문도 200',
+  )
   canceledKeys.add(pk)
-  h = await hook({ eventType: 'PAYMENT_STATUS_CHANGED', data: { paymentKey: pk, status: 'CANCELED' } })
+  h = await hook({
+    eventType: 'PAYMENT_STATUS_CHANGED',
+    data: { paymentKey: pk, status: 'CANCELED' },
+  })
   check(h.status === 200, '웹훅: 취소된 결제 처리 200')
-  check(sql(`select status from orders where invitation_id='${id6c}'`) === 'canceled', '웹훅: 토스에서 취소하면 orders canceled')
-  check(sql(`select premium_order_id is null from invitations where id='${id6c}'`) === 't', '웹훅: 프리미엄 해제')
+  check(
+    sql(`select status from orders where invitation_id='${id6c}'`) === 'canceled',
+    '웹훅: 토스에서 취소하면 orders canceled',
+  )
+  check(
+    sql(`select premium_order_id is null from invitations where id='${id6c}'`) === 't',
+    '웹훅: 프리미엄 해제',
+  )
 
   // 7. 실패 · 취소 · 카드 거절 · 금액 조작
   const id7 = await create(page, ON, /송년회/, 'E2E 실패')
@@ -365,7 +539,10 @@ async function main() {
   await btn.click()
   await page.waitForURL(/\/fail/)
   check(await page.getByRole('heading', { name: '결제를 취소했어요' }).count(), '취소: 취소 화면')
-  check(sql(`select premium_order_id is null from invitations where id='${id7}'`) === 't', '취소: 프리미엄 아님')
+  check(
+    sql(`select premium_order_id is null from invitations where id='${id7}'`) === 't',
+    '취소: 프리미엄 아님',
+  )
   check(await page.getByRole('link', { name: '다시 결제하기' }).count(), '취소: 다시 결제하기 링크')
 
   btn = await pay(page, ON, id7, 'reject')
@@ -373,9 +550,18 @@ async function main() {
   await page.waitForTimeout(300)
   await btn.click()
   await page.waitForURL(/\/fail/)
-  check(await page.getByText('카드사에서 결제를 거절했어요.').count(), '카드 거절: 토스 메시지 표시')
-  check(sql(`select count(*) from orders where invitation_id='${id7}' and status='failed'`) !== '0', '실패 주문은 failed로 기록')
-  check(sql(`select premium_order_id is null from invitations where id='${id7}'`) === 't', '거절: 프리미엄 아님')
+  check(
+    await page.getByText('카드사에서 결제를 거절했어요.').count(),
+    '카드 거절: 토스 메시지 표시',
+  )
+  check(
+    sql(`select count(*) from orders where invitation_id='${id7}' and status='failed'`) !== '0',
+    '실패 주문은 failed로 기록',
+  )
+  check(
+    sql(`select premium_order_id is null from invitations where id='${id7}'`) === 't',
+    '거절: 프리미엄 아님',
+  )
 
   const before = calls.filter((c) => c.path === '/v1/payments/confirm').length
   btn = await pay(page, ON, id7, 'ok', 100)
@@ -384,8 +570,14 @@ async function main() {
   await btn.click()
   await page.waitForURL(/\/fail/)
   check(await page.getByText('결제 금액이 달라서').count(), '금액 조작(100원): 서버가 거부')
-  check(calls.filter((c) => c.path === '/v1/payments/confirm').length === before, '금액 조작: 토스 승인 API를 부르지 않음')
-  check(sql(`select premium_order_id is null from invitations where id='${id7}'`) === 't', '금액 조작: 프리미엄 아님')
+  check(
+    calls.filter((c) => c.path === '/v1/payments/confirm').length === before,
+    '금액 조작: 토스 승인 API를 부르지 않음',
+  )
+  check(
+    sql(`select premium_order_id is null from invitations where id='${id7}'`) === 't',
+    '금액 조작: 프리미엄 아님',
+  )
 
   // 8. 결혼 14,900원 · 파생(청첩장 모임) 권한 · 복제는 별도
   const id8 = await create(page, ON, /결혼식/, 'E2E 결혼 파생')
@@ -393,28 +585,79 @@ async function main() {
   check(await sheet.getByText('프리미엄 14,900원').count(), '결혼: 14,900원')
   await sheet.getByRole('button', { name: '닫기' }).click()
   btn = await pay(page, ON, id8)
-  check(await page.getByRole('button', { name: /14,900원 결제하기/ }).count(), '결제 화면에도 14,900원')
+  check(
+    await page.getByRole('button', { name: /14,900원 결제하기/ }).count(),
+    '결제 화면에도 14,900원',
+  )
   await page.getByRole('checkbox').check()
   await page.waitForTimeout(300)
   await btn.click()
   await page.waitForURL(/\/pay\/.*\/done/)
-  check(Number(calls.filter((c) => c.path === '/v1/payments/confirm').at(-1)?.body.amount) === 14900, '결혼 승인 금액 14900')
+  check(
+    Number(calls.filter((c) => c.path === '/v1/payments/confirm').at(-1)?.body.amount) === 14900,
+    '결혼 승인 금액 14900',
+  )
 
-  const dupPre = await page.evaluate(async (id) => (await (await fetch(`/api/invitations/${id}/duplicate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'prewedding' }) })).json()).id, id8)
-  const dupCopy = await page.evaluate(async (id) => (await (await fetch(`/api/invitations/${id}/duplicate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'copy' }) })).json()).id, id8)
-  check(sql(`select derived_from_id='${id8}' from invitations where id='${dupPre}'`) === 't', 'derived_from_id 기록 (청첩장 모임)')
+  const dupPre = await page.evaluate(
+    async (id) =>
+      (
+        await (
+          await fetch(`/api/invitations/${id}/duplicate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'prewedding' }),
+          })
+        ).json()
+      ).id,
+    id8,
+  )
+  const dupCopy = await page.evaluate(
+    async (id) =>
+      (
+        await (
+          await fetch(`/api/invitations/${id}/duplicate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'copy' }),
+          })
+        ).json()
+      ).id,
+    id8,
+  )
+  check(
+    sql(`select derived_from_id='${id8}' from invitations where id='${dupPre}'`) === 't',
+    'derived_from_id 기록 (청첩장 모임)',
+  )
   await page.goto(`${ON}/edit/${dupPre}`)
   sheet = await openPublish(page)
-  check((await sheet.getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0, '파생 청첩장 모임: 추가 결제 없이 프리미엄')
+  check(
+    (await sheet.getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0,
+    '파생 청첩장 모임: 추가 결제 없이 프리미엄',
+  )
   await sheet.getByRole('button', { name: '닫기' }).click()
   await page.goto(`${ON}/edit/${dupCopy}`)
   sheet = await openPublish(page)
   check(await sheet.getByText('프리미엄 14,900원').count(), '결혼 복제본은 파생 아님(별도 결제)')
   await sheet.getByRole('button', { name: '닫기' }).click()
-  const dupThanks = await page.evaluate(async (id) => (await (await fetch(`/api/invitations/${id}/duplicate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'thanks' }) })).json()).id, id8)
+  const dupThanks = await page.evaluate(
+    async (id) =>
+      (
+        await (
+          await fetch(`/api/invitations/${id}/duplicate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'thanks' }),
+          })
+        ).json()
+      ).id,
+    id8,
+  )
   await page.goto(`${ON}/edit/${dupThanks}`)
   sheet = await openPublish(page)
-  check((await sheet.getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0, '파생 감사장: 프리미엄')
+  check(
+    (await sheet.getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0,
+    '파생 감사장: 프리미엄',
+  )
   await sheet.getByRole('button', { name: '닫기' }).click()
 
   // 9. 봉투 · 효과: 프리미엄 O / 무료 새 초대장 X / 결제 전에 만든 초대장 유지
@@ -423,7 +666,9 @@ async function main() {
     const g = await newPage(await browser.newContext({ ...mobile, ...motion }))
     await g.goto(url.replace(/^https?:\/\/[^/]+/, ON))
     await g.waitForTimeout(500)
-    const n = await g.getByRole('button', { name: /도장 봉투 열기|리본 카드 열기|책 표지 넘기기/ }).count()
+    const n = await g
+      .getByRole('button', { name: /도장 봉투 열기|리본 카드 열기|책 표지 넘기기/ })
+      .count()
     await g.close()
     return n > 0
   }
@@ -441,28 +686,39 @@ async function main() {
   check(await hasIntro(oldUrl), '결제 시작 전에 만든 초대장: 봉투 그대로 유지(소급 없음)')
   await page.goto(`${ON}/edit/${idOld}`)
   sheet = await openPublish(page)
-  check(await sheet.getByText('프리미엄 14,900원').count(), '결제 전에 만든 초대장도 원하면 프리미엄 구매 가능')
+  check(
+    await sheet.getByText('프리미엄 14,900원').count(),
+    '결제 전에 만든 초대장도 원하면 프리미엄 구매 가능',
+  )
   await sheet.getByRole('button', { name: '닫기' }).click()
 
   // 10. 하단 문구 숨기기: 프리미엄만
   await page.goto(`${ON}/edit/${id8}`)
   sheet = await openPublish(page)
-  const saveRes = page.waitForResponse((r) => r.request().method() !== 'GET' && /\/api\/invitations\//.test(r.url()))
+  const saveRes = page.waitForResponse(
+    (r) => r.request().method() !== 'GET' && /\/api\/invitations\//.test(r.url()),
+  )
   await sheet.getByLabel(/문구 숨기기/).check()
   await saveRes
   await waitSaved(page)
   const g2 = await newPage(await browser.newContext(mobile))
   await g2.goto(premiumUrl.replace(/^https?:\/\/[^/]+/, ON))
-  check((await g2.getByText('dearday로 만들었어요').count()) === 0, '프리미엄: 하단 문구 숨김 적용')
+  check(
+    (await g2.getByText('이 디자인으로 나도 만들기').count()) === 0,
+    '프리미엄: 하단 문구 숨김 적용',
+  )
   await g2.goto(freeUrl.replace(/^https?:\/\/[^/]+/, ON))
-  check(await g2.getByText('dearday로 만들었어요').count(), '무료: 하단 문구 표시')
+  check(await g2.getByText('이 디자인으로 나도 만들기').count(), '무료: 하단 문구 표시')
 
   // 11. 가격 페이지
   await g2.goto(`${ON}/pricing`)
   check(await g2.getByRole('cell', { name: '14,900원' }).count(), '/pricing: 14,900원')
   check(await g2.getByRole('cell', { name: '3,900원' }).count(), '/pricing: 3,900원')
   check(await g2.getByText('발행한 뒤에는 환불되지 않아요').count(), '/pricing: 환불 규정')
-  check((await g2.getByText('모든 기능을 무료로 열어 두었어요').count()) === 0, '켜짐: /pricing 에 무료 안내 없음')
+  check(
+    (await g2.getByText('모든 기능을 무료로 열어 두었어요').count()) === 0,
+    '켜짐: /pricing 에 무료 안내 없음',
+  )
   await g2.goto(`${ON}/terms/payments`)
   check(await g2.getByRole('heading', { name: /유료 서비스/ }).count(), '/terms/payments 개정안')
   await g2.goto(`${ON}/privacy/payments`)

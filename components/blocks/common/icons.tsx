@@ -67,25 +67,64 @@ export function IconStar({ className }: IconProps) {
   )
 }
 
-/** 표지 맨 위 꽃 한 송이(선 그림). 종이에 눌러 찍은 음각으로 보이게 CSS에서 그림자를 준다 */
-export function IconTulip({ className }: IconProps) {
+const line = {
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.4,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+} as const
+
+/** 지하철: 열차 앞모습 (가는 선) */
+export function IconSubway({ className }: IconProps) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 120 220"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M36 52c0-16 8-24 15-21 3-8 6-12 9-16 3 4 6 8 9 16 7-3 15 5 15 21 0 21-10 35-24 36-14-1-24-15-24-36Z" />
-      <path d="M51 31c2 20 5 40 9 57M69 31c-2 20-5 40-9 57" />
-      <path d="M60 88c-2 32-4 72 2 122" />
-      <path d="M59 176c-18-9-31-28-34-52 15 11 27 29 34 52Z" />
-      <path d="M60 154c15-9 28-27 32-50-13 9-25 27-32 50Z" />
-      <path d="M44 112c5 15 10 25 15 34M77 120c-6 12-11 20-16 27" opacity=".7" />
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <rect x="5.5" y="3" width="13" height="14" rx="3" />
+      <path d="M5.5 10h13M9 14h.01M15 14h.01M8 20.5l2-3.5M16 20.5l-2-3.5" />
+    </svg>
+  )
+}
+
+/** 버스: 옆이 아닌 앞모습 (가는 선) */
+export function IconBus({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <rect x="4.5" y="3.5" width="15" height="14" rx="2.5" />
+      <path d="M4.5 11h15M8 14.5h.01M16 14.5h.01M7.5 17.5V20M16.5 17.5V20M9 6.5h6" />
+    </svg>
+  )
+}
+
+/** 주차: 자동차 앞모습 (가는 선) */
+export function IconCar({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <path d="M5 16.5V12l1.8-4.6A2 2 0 0 1 8.7 6h6.6a2 2 0 0 1 1.9 1.4L19 12v4.5" />
+      <path d="M4 12.5h16v4H4zM7 16.5V19M17 16.5V19M7.5 14.5h.01M16.5 14.5h.01" />
+    </svg>
+  )
+}
+
+/** 전화 (검정 채움) */
+export function IconPhone({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M6.6 3.2c.5-.3 1.1-.2 1.5.2l2.3 2.6c.4.5.4 1.2 0 1.7l-1.3 1.5c.9 1.9 2.4 3.5 4.3 4.5l1.6-1.2c.5-.4 1.2-.3 1.6.1l2.5 2.4c.4.4.5 1 .2 1.5l-1 1.7c-.5.8-1.4 1.2-2.3 1C9.6 18.6 5.2 14 4.2 7.7c-.1-.9.3-1.8 1.1-2.3l1.3-2.2Z"
+      />
+    </svg>
+  )
+}
+
+/** 문자 (검정 채움 말풍선) */
+export function IconMessage({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12 3.5c-4.9 0-8.8 3.2-8.8 7.2 0 2.3 1.3 4.4 3.4 5.7l-.7 3.3c-.1.4.4.7.7.5l3.6-2.4c.6.1 1.2.1 1.8.1 4.9 0 8.8-3.2 8.8-7.2S16.9 3.5 12 3.5Z"
+      />
     </svg>
   )
 }

@@ -1,31 +1,31 @@
 @use '../../styles/utils' as *;
 
+@font-face {
+  font-family: 'Bodoni Moda';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/bodoni-moda/v1/bodoni-moda-digits-500.woff2') format('woff2');
+  unicode-range: U+0020, U+002D-003A;
+}
+
 .container {
   text-align: center;
   padding-top: 48px;
 
-  // 종이 편지 테마에서만 보임(--cover-flower). 선 색은 종이보다 조금 진하게 + 위 그림자 · 아래 흰 결 = 음각
+  // 종이 편지 테마에서만 보임(--cover-flower): 칼라 꽃다발 엠보싱
   .flower {
     display: var(--cover-flower, none);
-    width: 96px;
-    height: 176px;
-    margin: 0 auto 36px;
-    color: color-mix(in srgb, var(--bg) 74%, #5a4a38);
-    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.95))
-      drop-shadow(0 -1px 0 rgba(60, 50, 40, 0.16));
-  }
-
-  // 바탕은 초대장 종이(결 포함)를 그대로 비치게
-  &.text {
-    background: transparent;
-    padding: 96px 24px 88px;
+    width: 128px;
+    height: 240px;
+    margin: 0 auto 40px;
   }
 
   .txt-date {
     @include display-font;
-    font-size: 30px;
-    margin-bottom: 8px;
-    letter-spacing: 0.06em;
+    font-size: 34px;
+    margin-bottom: 10px;
+    letter-spacing: 0.04em;
   }
 
   // 날짜와 같은 먹색 (요일 · 시간)
@@ -35,6 +35,18 @@
     letter-spacing: 0.2em;
     color: var(--text);
     margin-bottom: 28px;
+  }
+
+  // 날짜 · 시간 숫자는 Bodoni Moda (숫자 · 점 · 콜론만 담은 2KB 조각)
+  .txt-date.num,
+  .num {
+    font-family: 'Bodoni Moda', var(--font-display), serif;
+    font-weight: 500;
+  }
+
+  // 요일은 노토 산스
+  .wd {
+    font-family: var(--font-body);
   }
 
   .wrap-photo {

@@ -2,11 +2,9 @@
 
 // THE DAY: 테두리 카드 안에 날짜 · 달력 · D-day · 캘린더 저장
 .container {
+  // 테두리 · 바탕 없이 종이 위에 바로
   .card {
-    border: 1px solid var(--line);
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 28px 20px 22px;
+    padding: 4px 0 0;
     text-align: center;
   }
 

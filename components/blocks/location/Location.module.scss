@@ -77,20 +77,37 @@
     }
   }
 
+  // 지하철 · 버스 · 주차 안내: 아이콘 + 굵은 이름, 아래 설명은 아이콘 너비만큼 들여씀
   .list-ways {
-    border-top: 1px solid var(--line);
-
     li {
-      padding: 16px 0;
-      border-bottom: 1px solid var(--line);
+      padding: 18px 0;
       font-size: 14px;
       line-height: 22px;
+
+      & + li {
+        border-top: 1px solid var(--line);
+      }
     }
 
     .txt-label {
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .ico {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .txt-way {
+      padding-left: 30px;
+      color: var(--text);
     }
   }
 }

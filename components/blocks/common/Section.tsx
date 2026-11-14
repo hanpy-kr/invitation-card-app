@@ -19,7 +19,7 @@ export default function Section({
   id?: string
 }) {
   return (
-    <section id={id} className={cx('container', className)}>
+    <section id={id} className={cx('container', className)} data-block={eyebrow?.toLowerCase()}>
       {title ? (
         <header className={cx('head')} data-block={eyebrow?.toLowerCase()}>
           {/* 제목이 비어 있으면 제목 영역 자체를 그리지 않음 */}

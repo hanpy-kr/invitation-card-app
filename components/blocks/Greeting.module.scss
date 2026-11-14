@@ -16,7 +16,9 @@
     height: 26px;
     margin: 0 auto 14px;
     color: var(--foil, #b39b6b);
-    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.7));
+    // 금박을 종이에 눌러 찍은 음각: 아래 흰 결 + 위 옅은 그림자
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.95))
+      drop-shadow(0 -1px 0 rgba(90, 70, 40, 0.35));
   }
 
   .ico-post {

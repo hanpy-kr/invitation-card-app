@@ -7,11 +7,9 @@ import { copyText } from '@/components/blocks/common/CopyButton'
 import { loadKakaoSdk } from '@/shared/kakao-sdk'
 import type { KakaoFeed } from '@/shared/share'
 
-import Seal from '@/components/site/Seal'
-
 import styles from './page.module.scss'
 
-/** 하객 화면 맨 아래: 친구에게 공유 · 링크 복사 · 이 디자인으로 나도 만들기 */
+/** 하객 화면 맨 아래: 친구에게 공유 · 링크 복사 · 워드마크(나도 만들기) */
 export default function GuestFooter({
   slug,
   url,
@@ -41,7 +39,6 @@ export default function GuestFooter({
   return (
     <footer className={styles.footer}>
       <div className={styles.shareCard}>
-        <p>이 초대장을 친구에게도 알려 주세요</p>
         <div className={styles.shareButtons}>
           {kakaoJsKey ? (
             <button type="button" className={styles.kakao} onClick={shareKakao}>
@@ -63,20 +60,17 @@ export default function GuestFooter({
           </p>
         ) : null}
       </div>
+      {/* 맨 아래: 자간 넓힌 워드마크 + 나도 만들기 + 저작권 줄 (참고: 청첩장 사이트 하단 서명) */}
       {showMadeWith ? (
-        <>
-          <Link href={`/new?from=${slug}`} className={styles.makeOwn}>
-            <strong>이 디자인으로 나도 만들기</strong>
-            <span>로그인하고 1분이면 내 초대장이 생겨요 · 무료</span>
+        <div className={styles.brand}>
+          <Link href="/" className={styles.wordmark} aria-label="dearday 홈">
+            DEARDAY
           </Link>
-          <p className={styles.madeWith}>
-            <Link href="/" className={styles.madeLink}>
-              {/* 초대장 안에서는 와인 대신 글자색(먹색) 도장 */}
-              <Seal size={22} color="var(--text)" />
-              <span>dearday로 만들었어요</span>
-            </Link>
-          </p>
-        </>
+          <Link href={`/new?from=${slug}`} className={styles.makeOwn}>
+            이 디자인으로 나도 만들기
+          </Link>
+          <p className={styles.copyright}>Copyright © 2026. dearday. All rights reserved.</p>
+        </div>
       ) : null}
     </footer>
   )

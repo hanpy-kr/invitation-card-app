@@ -219,6 +219,7 @@ export function themeStyle(theme: string, font?: string | null, cover?: CoverDef
     '--paper-img': t.paper ?? 'none',
     '--deboss': t.deboss ?? 'none',
     '--cover-flower': t.deboss ? 'block' : 'none',
+    '--section-rule': t.deboss ? 'block' : 'none',
     ...(cover ? coverPaperVars(cover) : {}),
   } as CSSProperties
 }

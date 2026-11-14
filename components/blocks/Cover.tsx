@@ -5,7 +5,7 @@ import { COVER_RATIO, coverSrc, coverSrcSet, findCover } from '@/shared/covers'
 import { formatDotDate, formatShortDate, formatWeekday, toKstTimeString } from '@/shared/date'
 import { mediaSrc } from '@/shared/media'
 
-import { IconTulip } from './common/icons'
+import CallaEmboss from './common/CallaEmboss'
 import Section from './common/Section'
 import CoverEffect from './CoverEffect'
 import CoverShell from './CoverShell'
@@ -145,13 +145,14 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
   // 사진 · 글자 표지: 2027.12.26 / 일요일 17:30 (종이 편지 테마는 맨 위에 꽃 한 송이 음각)
   return (
     <Section className={cx('container', { text: !photo })}>
-      <IconTulip className={cx('flower')} />
+      <CallaEmboss className={cx('flower')} />
       {config.showDate && ctx.dateVoting ? <div className={cx('txt-day')}>날짜 투표 중</div> : null}
       {showDate ? (
         <>
-          <div className={cx('txt-date')}>{formatDotDate(ctx.eventAt!)}</div>
+          <div className={cx('txt-date', 'num')}>{formatDotDate(ctx.eventAt!)}</div>
           <div className={cx('txt-day')}>
-            {formatWeekday(ctx.eventAt!)} {toKstTimeString(ctx.eventAt!)}
+            <span className={cx('wd')}>{formatWeekday(ctx.eventAt!)}</span>{' '}
+            <span className={cx('num')}>{toKstTimeString(ctx.eventAt!)}</span>
           </div>
         </>
       ) : null}

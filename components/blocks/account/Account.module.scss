@@ -29,13 +29,10 @@
     }
   }
 
+  // 상자 없이 종이 위에 바로 (펼침 줄만)
   .group {
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    overflow: hidden;
-
     & + .group {
-      margin-top: 10px;
+      margin-top: 2px;
     }
   }
 
@@ -45,9 +42,9 @@
     align-items: center;
     width: 100%;
     min-height: 52px;
-    padding: 0 16px;
+    padding: 0 4px;
     border: 0;
-    background: var(--surface);
+    background: transparent;
     font: inherit;
     font-size: 15px;
     color: var(--text);
