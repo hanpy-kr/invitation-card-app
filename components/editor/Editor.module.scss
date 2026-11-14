@@ -623,3 +623,65 @@ $wide: 960px;
   min-height: var(--tap, 44px);
   font-size: 13px;
 }
+
+.dialogBack {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(30, 26, 22, 0.45);
+}
+
+.dialog {
+  width: min(100%, 360px);
+  padding: 22px 20px 16px;
+  border-radius: 14px;
+  background: var(--paper, #fff);
+  color: var(--ink, #2b2620);
+  font-size: 14px;
+  line-height: 1.6;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0 0 8px;
+  }
+}
+
+.refundHint {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(138, 106, 67, 0.1);
+
+  a {
+    font-weight: 600;
+    text-decoration: underline;
+  }
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+
+  button {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    background: none;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  button[data-danger] {
+    border-color: #c24a4a;
+    color: #c24a4a;
+  }
+}

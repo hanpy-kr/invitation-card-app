@@ -7,7 +7,7 @@ import { requireKakaoSession } from '@/lib/auth/session'
 import { getAccess } from '@/lib/access'
 import { getDb, schema } from '@/lib/db/client'
 import { isUuid } from '@/lib/editor'
-import { derivedPremiumSql, paymentsOpen, planOf } from '@/lib/plan'
+import { canCheckout, derivedPremiumSql, hasPaidPremium } from '@/lib/plan'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { PLAN_FEATURES } from '@/shared/entitlements'
 import { formatWon, priceFor, REFUND_NOTICE } from '@/shared/pricing'
@@ -22,7 +22,7 @@ export const metadata: Metadata = { title: '프리미엄 결제 — dearday', ro
 export default async function PayPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const session = await requireKakaoSession(`/pay/${id}`)
-  if (!isUuid(id) || !paymentsOpen()) notFound()
+  if (!isUuid(id) || !(await canCheckout(session.userId))) notFound()
   const access = await getAccess(id, session.userId)
   if (!access || !access.isOwner) notFound()
   const inv = await getDb().query.invitations.findFirst({
@@ -31,7 +31,7 @@ export default async function PayPage({ params }: { params: Promise<{ id: string
     extras: { derivedPremium: derivedPremiumSql().as('derived_premium') },
   })
   if (!inv) notFound()
-  if (planOf(inv) === 'premium') redirect(`/edit/${id}`)
+  if (hasPaidPremium(inv)) redirect(`/edit/${id}`)
 
   const price = priceFor(inv.eventType)
   const f = PLAN_FEATURES.premium

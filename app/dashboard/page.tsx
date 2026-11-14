@@ -114,7 +114,7 @@ export default async function DashboardPage() {
         </ul>
       )}
       {orders.length > 0 ? (
-        <section className={styles.orders} aria-label="결제 내역">
+        <section id="orders" className={styles.orders} aria-label="결제 내역">
           <h2>결제 내역</h2>
           <ul>
             {orders.map((o) => (

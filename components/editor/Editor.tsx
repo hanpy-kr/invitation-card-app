@@ -41,6 +41,8 @@ export type EditorProps = {
   canHideMadeWith: boolean
   /** 프리미엄 안내 · 결제 버튼 (결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음) */
   upsell: { price: number } | null
+  /** 결제한 초대장이면 환불 가능 여부 */
+  paid: { refundable: boolean } | null
 }
 
 const SAVE_LABEL: Record<SaveState, string> = {
@@ -119,9 +121,16 @@ export default function Editor(props: EditorProps) {
   const existing = new Set(blocks.map((b) => b.type))
   const addable = BLOCK_TYPES.filter((t) => !(SINGLE_BLOCK_TYPES.includes(t) && existing.has(t)))
 
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  function askRemove() {
+    // 결제한 초대장은 환불 안내가 들어간 확인창, 아니면 기본 확인창
+    if (props.paid) setConfirmDelete(true)
+    else if (window.confirm('초대장을 지울까요? 받은 응답과 사진도 함께 지워지고 되돌릴 수 없어요.'))
+      void removeInvitation()
+  }
+
   async function removeInvitation() {
-    if (!window.confirm('초대장을 지울까요? 받은 응답과 사진도 함께 지워지고 되돌릴 수 없어요.'))
-      return
     try {
       await api(`/api/invitations/${props.id}`, { method: 'DELETE' })
       router.replace('/dashboard')
@@ -270,9 +279,36 @@ export default function Editor(props: EditorProps) {
 
             {props.isOwner ? (
               <div className={styles.danger}>
-                <button type="button" onClick={removeInvitation}>
+                <button type="button" onClick={askRemove}>
                   초대장 지우기
                 </button>
+              </div>
+            ) : null}
+            {confirmDelete && props.paid ? (
+              <div className={styles.dialogBack} role="presentation">
+                <div className={styles.dialog} role="alertdialog" aria-labelledby="del-title">
+                  <h2 id="del-title">결제한 초대장을 지울까요?</h2>
+                  <p>받은 응답과 사진도 함께 지워지고 되돌릴 수 없어요.</p>
+                  {props.paid.refundable ? (
+                    <p className={styles.refundHint}>
+                      결제 후 7일 안이고 발행 전이면 먼저 환불할 수 있어요.{' '}
+                      <Link href="/dashboard#orders">환불하기</Link>
+                    </p>
+                  ) : (
+                    <p className={styles.refundHint}>
+                      지금은 환불 조건(결제 후 7일 이내 · 발행 전)이 아니라서, 지우면 결제 금액은 돌려받지
+                      못해요.
+                    </p>
+                  )}
+                  <div className={styles.dialogActions}>
+                    <button type="button" onClick={() => setConfirmDelete(false)}>
+                      취소
+                    </button>
+                    <button type="button" data-danger onClick={() => void removeInvitation()}>
+                      그래도 지우기
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : null}
           </div>

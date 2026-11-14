@@ -16,7 +16,7 @@ import { getAccess } from './access'
 import { ApiError } from './api'
 import { getDb, schema } from './db/client'
 import { isUuid } from './editor'
-import { derivedPremiumSql, paymentsOpen, planOf } from './plan'
+import { canCheckout, derivedPremiumSql, hasPaidPremium } from './plan'
 
 /**
  * 토스페이먼츠 결제 승인 · 취소 (서버 전용). 시크릿 키(TOSS_SECRET_KEY)는 여기서만 쓴다.
@@ -35,18 +35,18 @@ type TossPayment = {
   receipt?: { url?: string } | null
 }
 
-async function toss<T>(path: string, body: unknown): Promise<T> {
+async function toss<T>(path: string, body?: unknown, method: 'POST' | 'GET' = 'POST'): Promise<T> {
   const secret = process.env.TOSS_SECRET_KEY
   if (!secret) throw new ApiError(503, '결제를 아직 열지 않았어요.')
   let res: Response
   try {
     res = await fetch(`${base()}${path}`, {
-      method: 'POST',
+      method,
       headers: {
         Authorization: `Basic ${Buffer.from(`${secret}:`).toString('base64')}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: method === 'POST' ? JSON.stringify(body ?? {}) : undefined,
       signal: AbortSignal.timeout(15000),
     })
   } catch {
@@ -105,11 +105,11 @@ export async function startCheckout(
   userId: string,
   agreedRefund: boolean,
 ): Promise<CheckoutInfo> {
-  if (!paymentsOpen()) throw new ApiError(403, '결제를 아직 열지 않았어요.')
+  if (!(await canCheckout(userId))) throw new ApiError(403, '결제를 아직 열지 않았어요.')
   if (!agreedRefund) throw new ApiError(400, '환불 규정에 동의해 주세요.')
   await requireOwner(invitationId, userId)
   const inv = await loadInvitation(invitationId)
-  if (planOf(inv) === 'premium') throw new ApiError(409, '이미 프리미엄이 적용된 초대장이에요.')
+  if (hasPaidPremium(inv)) throw new ApiError(409, '이미 프리미엄이 적용된 초대장이에요.')
 
   const amount = priceFor(inv.eventType)
   const orderId = `dd-${randomUUID().replaceAll('-', '')}`
@@ -165,7 +165,7 @@ export async function confirmPayment(input: {
     await markFailed(order.id, '금액 불일치')
     throw new ApiError(400, '결제 금액이 달라서 승인하지 않았어요. 처음부터 다시 시도해 주세요.')
   }
-  if (planOf(inv) === 'premium') {
+  if (hasPaidPremium(inv)) {
     throw new ApiError(409, '이미 프리미엄이 적용된 초대장이에요. 결제는 승인하지 않았어요.')
   }
 
@@ -287,6 +287,35 @@ export async function requestRefund(invitationId: string, userId: string): Promi
       .where(eq(schema.invitations.id, invitationId))
   })
   return { ok: true }
+}
+
+/**
+ * 토스 웹훅 PAYMENT_STATUS_CHANGED: 토스 대시보드에서 취소한 결제를 우리 기록에 반영한다.
+ * 웹훅 본문은 믿지 않고, 결제 키로 토스 조회 API를 다시 불러 실제 상태를 확인한 뒤에만 바꾼다.
+ * 반환: 'applied'(취소 반영) · 'ignored'(우리 주문이 아니거나 바꿀 것 없음)
+ */
+export async function applyPaymentWebhook(paymentKey: string): Promise<'applied' | 'ignored'> {
+  const db = getDb()
+  const [order] = await db
+    .select()
+    .from(schema.orders)
+    .where(eq(schema.orders.paymentKey, paymentKey))
+  if (!order) return 'ignored'
+  const live = await toss<TossPayment>(`/v1/payments/${encodeURIComponent(paymentKey)}`, undefined, 'GET')
+  if (live.orderId !== order.orderId) return 'ignored'
+  // 전액 취소만 반영 (부분 취소는 프리미엄을 유지)
+  if (live.status !== 'CANCELED' || order.status !== 'paid') return 'ignored'
+  await db.transaction(async (tx) => {
+    await tx
+      .update(schema.orders)
+      .set({ status: 'canceled', canceledAt: new Date() })
+      .where(and(eq(schema.orders.id, order.id), eq(schema.orders.status, 'paid')))
+    await tx
+      .update(schema.invitations)
+      .set({ premiumOrderId: null })
+      .where(eq(schema.invitations.premiumOrderId, order.id))
+  })
+  return 'applied'
 }
 
 export type OrderRow = {

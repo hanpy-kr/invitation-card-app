@@ -13,13 +13,13 @@ import {
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
 import { findCover } from '@/shared/covers'
 import { getEntitlements, type Plan } from '@/shared/entitlements'
-import { priceFor } from '@/shared/pricing'
+import { priceFor, refundEligibility } from '@/shared/pricing'
 import { collectAudioRefs, collectMediaRefs } from '@/shared/media'
 import { buildFromLayout, buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
 import { canEditWhere, getAccess } from './access'
-import { derivedPremiumSql, paymentsOpen, planOf } from './plan'
+import { canCheckout, derivedPremiumSql, hasPaidPremium, planOf } from './plan'
 import { ApiError } from './api'
 import { getDb, schema } from './db/client'
 import { randomSlug } from './slug'
@@ -47,6 +47,8 @@ export type EditableInvitation = {
   canHideMadeWith: boolean
   /** 결제 버튼을 보여 줄지(PAYMENTS_LIVE가 켜지고 아직 프리미엄이 아닐 때) · 가격 */
   upsell: { price: number } | null
+  /** 결제한 초대장이면 환불 가능 여부 (지우기 확인창에서 안내) */
+  paid: { refundable: boolean } | null
 }
 
 function isUniqueViolation(err: unknown): boolean {
@@ -166,6 +168,22 @@ export async function getEditableInvitation(
     },
   })
   if (!row) return null
+  // 결제한 초대장이면 지우기 전에 환불 안내를 보여 주기 위해 환불 가능 여부를 같이 준다 (소유자만)
+  let paid: { refundable: boolean } | null = null
+  if (row.premiumOrderId && row.ownerId === userId) {
+    const [order] = await getDb()
+      .select({ status: schema.orders.status, approvedAt: schema.orders.approvedAt })
+      .from(schema.orders)
+      .where(eq(schema.orders.id, row.premiumOrderId))
+    if (order?.status === 'paid')
+      paid = {
+        refundable: refundEligibility({
+          status: order.status,
+          approvedAt: order.approvedAt,
+          invitationPublishedAt: row.publishedAt,
+        }).ok,
+      }
+  }
   const plan = planOf(row)
   const ent = getEntitlements({ plan, anonymous: Boolean(row.owner?.anonymous) })
   return {
@@ -193,7 +211,11 @@ export async function getEditableInvitation(
     plan,
     introEffects: ent.introEffects,
     canHideMadeWith: ent.canHideMadeWith,
-    upsell: paymentsOpen() && plan !== 'premium' ? { price: priceFor(row.eventType) } : null,
+    paid,
+    upsell:
+      !hasPaidPremium(row) && row.ownerId === userId && (await canCheckout(userId))
+        ? { price: priceFor(row.eventType) }
+        : null,
   }
 }
 
