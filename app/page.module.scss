@@ -1,8 +1,29 @@
 @use '../styles/utils' as *;
 
+// 작약 종이를 화면 전체에 (시안 E, 투명도 0.6을 이미지에 미리 입힘)
 .page {
-  background: var(--bg);
   min-height: 100vh;
+  background: #f5f0e8 url('/landing/page-peony.webp') center top / 100% auto repeat-y;
+
+  @media (min-width: 600px) {
+    background-size: 780px auto;
+    background-repeat: repeat;
+  }
+}
+
+// 눌러 찍은(디보싱) 글자 로고
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-family: 'Noto Serif KR', serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #e0cda8;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95),
+    0 -1px 0 rgba(115, 82, 40, 0.42);
 }
 
 .top {
@@ -48,77 +69,104 @@
   }
 }
 
-// 표지 3장 부채꼴: 가운데는 결혼, 양옆은 송년회 · 생일
-.fan {
+// 엽서 3장 묶음 + 꿀색 띠지 (시안 E)
+.stack {
   position: relative;
-  height: 270px;
-  margin: 36px auto 28px;
-  width: 100%;
-  max-width: 340px;
+  width: 300px;
+  height: 300px;
+  margin: 34px auto 20px;
 
   .card {
     position: absolute;
-    overflow: hidden;
-    border-radius: var(--radius);
-    border: 1px solid var(--line);
-    background: var(--photo);
-    box-shadow: 0 6px 18px rgba(74, 66, 57, 0.14);
-
-    img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    left: 62px;
+    width: 176px;
+    height: 220px;
+    object-fit: cover;
+    box-shadow:
+      0 2px 4px rgba(95, 70, 35, 0.14),
+      0 10px 22px rgba(95, 70, 35, 0.12);
   }
 
-  .left,
-  .right {
-    width: 150px;
-    height: 187px;
-    top: 38px;
+  .back1 {
+    top: 22px;
+    transform: rotate(-7deg);
   }
 
-  .left {
-    left: 0;
-    transform: rotate(-8deg);
+  .back2 {
+    top: 16px;
+    transform: rotate(5deg);
   }
 
-  .right {
-    right: 0;
-    transform: rotate(8deg);
+  .front {
+    top: 10px;
+    box-shadow:
+      0 2px 4px rgba(95, 70, 35, 0.16),
+      0 14px 28px rgba(95, 70, 35, 0.16);
   }
 
-  .center {
-    width: 190px;
-    height: 237px;
-    left: 50%;
-    top: 0;
-    margin-left: -95px;
-    z-index: 1;
-  }
-
-  // 엽서 위 글자: 카드 한가운데(상하좌우)
-  .over {
+  .band {
     position: absolute;
-    inset: 0;
+    left: 54px;
+    top: 132px;
+    width: 192px;
+    height: 74px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    color: var(--ink);
+    gap: 4px;
+    background: #e6c793 url('/landing/paper-cotton.webp') 0 0 / 512px;
+    background-blend-mode: multiply;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.55) inset,
+      0 -1px 0 rgba(120, 85, 40, 0.18) inset,
+      0 3px 8px rgba(95, 70, 35, 0.22);
 
-    small {
-      font-size: 10px;
-      letter-spacing: 0.2em;
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+    }
+
+    &::before {
+      left: 0;
+      background: linear-gradient(90deg, rgba(95, 70, 35, 0.22), rgba(95, 70, 35, 0));
+    }
+
+    &::after {
+      right: 0;
+      background: linear-gradient(270deg, rgba(95, 70, 35, 0.22), rgba(95, 70, 35, 0));
     }
 
     b {
-      @include display-font;
-      font-size: 17px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 28px;
       font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #d8b77e;
+      text-shadow:
+        0 1px 0 rgba(255, 246, 226, 0.75),
+        0 -1px 0 rgba(110, 75, 30, 0.5);
     }
+
+    small {
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: #a8875a;
+    }
+  }
+
+  .floor {
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    bottom: 0;
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(95, 70, 35, 0.16), rgba(95, 70, 35, 0));
   }
 }
 
@@ -147,8 +195,11 @@
   max-width: 320px;
   min-height: var(--btn-h);
   border-radius: var(--radius);
-  background: var(--btn);
-  color: var(--btn-text);
+  background: #5e432c;
+  color: #fdf6e8;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 6px 14px rgba(94, 67, 44, 0.22);
   font-size: 16px;
   font-weight: 500;
   text-decoration: none;

@@ -1,6 +1,5 @@
 import Link from 'next/link'
 
-import Logo from '@/components/site/Logo'
 import SiteFooter from '@/components/site/SiteFooter'
 import { getSession } from '@/lib/auth/session'
 import { getEntitlements } from '@/shared/entitlements'
@@ -50,7 +49,7 @@ export default async function Home({
   return (
     <div className={styles.page}>
       <header className={styles.top}>
-        <Logo href={null} />
+        <span className={styles.brand}>dearday</span>
         {loggedIn ? (
           <Link href="/dashboard" className={styles.login}>
             내 초대장
@@ -74,33 +73,38 @@ export default async function Home({
           5분이면 만들고, 누가 오는지 바로 알 수 있어요.
         </p>
 
-        <div className={styles.fan} aria-hidden="true">
-          <div className={`${styles.card} ${styles.left}`}>
-            <img src="/landing/yearend-snow.webp" alt="" width="150" height="187" loading="eager" />
-          </div>
-          <div className={`${styles.card} ${styles.right}`}>
-            <img
-              src="/landing/birthday-balloon.webp"
-              alt=""
-              width="150"
-              height="187"
-              loading="eager"
-            />
-          </div>
-          <div className={`${styles.card} ${styles.center}`}>
-            <img
-              src="/landing/wedding-poppy.webp"
-              alt=""
-              width="190"
-              height="237"
-              loading="eager"
-              fetchPriority="high"
-            />
-            <span className={styles.over}>
-              <small>2026. 11. 21</small>
-              <b>민준 그리고 서연</b>
-            </span>
-          </div>
+        {/* 엽서 3장 묶음 + 꿀색 띠지 (시안 E) */}
+        <div className={styles.stack} aria-hidden="true">
+          <img
+            className={`${styles.card} ${styles.back1}`}
+            src="/landing/yearend-snow.webp"
+            alt=""
+            width="176"
+            height="220"
+            loading="eager"
+          />
+          <img
+            className={`${styles.card} ${styles.back2}`}
+            src="/landing/birthday-balloon.webp"
+            alt=""
+            width="176"
+            height="220"
+            loading="eager"
+          />
+          <img
+            className={`${styles.card} ${styles.front}`}
+            src="/landing/wedding-peony.webp"
+            alt=""
+            width="176"
+            height="220"
+            loading="eager"
+            fetchPriority="high"
+          />
+          <span className={styles.band}>
+            <b>dearday</b>
+            <small>마음을 담은 초대장</small>
+          </span>
+          <span className={styles.floor} />
         </div>
 
         {error ? (
