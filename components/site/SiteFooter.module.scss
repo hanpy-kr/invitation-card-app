@@ -25,6 +25,11 @@
   a {
     text-underline-offset: 3px;
   }
+
+  // 상호 · 사업자 정보는 한 단계 흐리게(디자인 피드백)
+  > p {
+    opacity: 0.5;
+  }
 }
 
 .badge {
