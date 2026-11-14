@@ -63,7 +63,7 @@ export default async function Home({
 
       <section className={styles.hero}>
         <h1>
-          마음을 담은 초대장,
+          마음을 담은 초대장
           <br />
           카톡 링크 하나로
         </h1>
@@ -101,8 +101,7 @@ export default async function Home({
             fetchPriority="high"
           />
           <span className={styles.band}>
-            <b>dearday</b>
-            <small>마음을 담은 초대장</small>
+            <b>HAPPY DAY</b>
           </span>
           <span className={styles.floor} />
         </div>

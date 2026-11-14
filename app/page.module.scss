@@ -8,10 +8,10 @@ $deboss-title:
   0 1px 0 rgba(255, 255, 255, 0.95),
   0 -1px 0 rgba(60, 40, 20, 0.18);
 
-// 작약 종이를 화면 전체에 (시안 E, 투명도 0.6을 이미지에 미리 입힘)
+// 작약 종이를 화면 전체에 (시안 E9: 색을 뺀 흰 코튼지, 투명도 0.6을 이미지에 미리 입힘)
 .page {
   min-height: 100vh;
-  background: #f5f0e8 url('/landing/page-peony.webp') center top / 100% auto repeat-y;
+  background: #f3f1ec url('/landing/page-peony-white.webp') center top / 100% auto repeat-y;
 
   @media (min-width: 600px) {
     background-size: 780px auto;
@@ -28,10 +28,10 @@ $deboss-title:
   font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: #e0cda8;
+  color: #b0aaa0;
   text-shadow:
     0 1px 0 rgba(255, 255, 255, 0.95),
-    0 -1px 0 rgba(115, 82, 40, 0.42);
+    0 -1px 0 rgba(60, 54, 46, 0.42);
 }
 
 .top {
@@ -51,12 +51,12 @@ $deboss-title:
   padding: 0 4px;
   font-size: 14px;
   font-weight: 500;
-  color: #a8906f;
+  color: #b0aaa0;
   text-decoration: none;
   // 로고처럼 음각, 밑줄 없음
   text-shadow:
     0 1px 0 rgba(255, 255, 255, 0.95),
-    0 -1px 0 rgba(115, 82, 40, 0.42);
+    0 -1px 0 rgba(60, 54, 46, 0.42);
 }
 
 .hero {
@@ -129,7 +129,7 @@ $deboss-title:
     align-items: center;
     justify-content: center;
     gap: 4px;
-    background: #e6c793 url('/landing/paper-cotton.webp') 0 0 / 512px;
+    background: #ddd4c4 url('/landing/paper-cotton.webp') 0 0 / 512px;
     background-blend-mode: multiply;
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.55) inset,
@@ -157,19 +157,13 @@ $deboss-title:
 
     b {
       font-family: 'Noto Serif KR', serif;
-      font-size: 28px;
+      font-size: 23px;
       font-weight: 700;
-      letter-spacing: -0.01em;
-      color: #d8b77e;
+      letter-spacing: 0.08em;
+      color: #c3b69f;
       text-shadow:
-        0 1px 0 rgba(255, 246, 226, 0.75),
-        0 -1px 0 rgba(110, 75, 30, 0.5);
-    }
-
-    small {
-      font-size: 10px;
-      letter-spacing: 0.3em;
-      color: #a8875a;
+        0 1px 0 rgba(255, 252, 244, 0.85),
+        0 -1px 0 rgba(90, 72, 48, 0.45);
     }
   }
 
