@@ -41,9 +41,15 @@ export default function GuestFooter({
       <div className={styles.shareCard}>
         <div className={styles.shareButtons}>
           {kakaoJsKey ? (
-            <button type="button" className={styles.kakao} onClick={shareKakao}>
-              친구에게 공유
-            </button>
+            <>
+              <button type="button" className={styles.kakao} onClick={shareKakao}>
+                <span className={styles.lblOld}>친구에게 공유</span>
+                <span className={styles.lblNew}>카카오톡 공유</span>
+              </button>
+              <span className={styles.dot} aria-hidden>
+                ·
+              </span>
+            </>
           ) : null}
           <button
             type="button"
@@ -66,10 +72,10 @@ export default function GuestFooter({
           <Link href="/" className={styles.wordmark} aria-label="dearday 홈">
             DEARDAY
           </Link>
+          <p className={styles.copyright}>Copyright © 2026. dearday. All rights reserved.</p>
           <Link href={`/new?from=${slug}`} className={styles.makeOwn}>
             이 디자인으로 나도 만들기
           </Link>
-          <p className={styles.copyright}>Copyright © 2026. dearday. All rights reserved.</p>
         </div>
       ) : null}
     </footer>

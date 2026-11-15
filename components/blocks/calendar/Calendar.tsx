@@ -5,7 +5,13 @@ import { useEffect, useState } from 'react'
 
 import type { CalendarConfig } from '@/shared/blocks'
 import { daysUntil, googleCalendarUrl, monthGrid } from '@/shared/calendar'
-import { formatDotDateDay, formatTime } from '@/shared/date'
+import {
+  formatDotDate,
+  formatDotDateDay,
+  formatMonthEn,
+  formatTime,
+  formatWeekdayKo,
+} from '@/shared/date'
 
 import Section from '../common/Section'
 import type { BlockContext } from '../types'
@@ -13,6 +19,7 @@ import styles from './Calendar.module.scss'
 
 const cx = classNames.bind(styles)
 const WEEK = ['일', '월', '화', '수', '목', '금', '토']
+const EN = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 export default function Calendar({
   config,
@@ -48,16 +55,26 @@ export default function Calendar({
           {formatDotDateDay(ctx.eventAt)} {formatTime(ctx.eventAt)}
         </p>
         {venue ? <p className={cx('venue')}>{venue}</p> : null}
+        {/* 종이 편지: 날짜(Cinzel) + 요일 · 시간 · 장소 (위의 한 줄 날짜는 숨김) */}
+        <p className={cx('cl-date')}>{formatDotDate(ctx.eventAt)}</p>
+        <p className={cx('cl-when')}>
+          {formatWeekdayKo(ctx.eventAt)} {formatTime(ctx.eventAt)}
+          {venue ? ` · ${venue}` : ''}
+        </p>
         <div className={cx('month')}>
           <div className={cx('month-title')}>
             {year}년 {month}월
           </div>
+          <div className={cx('cl-month')}>{formatMonthEn(ctx.eventAt)}</div>
           <table className={cx('grid')}>
             <thead>
               <tr>
                 {WEEK.map((w, i) => (
                   <th key={w} className={cx({ sun: i === 0, sat: i === 6 })}>
-                    {w}
+                    <span className={cx('ko')}>{w}</span>
+                    <span className={cx('en')} aria-hidden>
+                      {EN[i]}
+                    </span>
                   </th>
                 ))}
               </tr>

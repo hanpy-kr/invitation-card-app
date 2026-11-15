@@ -8,7 +8,39 @@
     text-align: center;
   }
 
+  // 종이 편지: 날짜 · 요일 시간 장소 · 영문 달 · 요일 머리
+  .cl-date {
+    display: var(--cl-on, none);
+    font-family: var(--font-cap, inherit);
+    font-weight: 500;
+    font-size: 20px;
+    letter-spacing: 0.12em;
+    color: var(--foil);
+    text-shadow: var(--foil-shadow);
+  }
+
+  .cl-when {
+    display: var(--cl-on, none);
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--sub-1);
+  }
+
+  .cl-month {
+    display: var(--cl-on, none);
+    margin: 34px 0 14px;
+    font-family: var(--font-cap, inherit);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    padding-left: 0.3em;
+    color: var(--foil);
+    text-shadow: var(--foil-shadow);
+  }
+
   .when {
+    display: var(--cl-off, block);
     @include display-font;
     font-size: 17px;
     line-height: 1.6;
@@ -17,17 +49,19 @@
   }
 
   .venue {
+    display: var(--cl-off, block);
     font-size: 14px;
     color: var(--muted);
     margin-bottom: 16px;
   }
 
   .month {
-    border-top: 1px solid var(--line);
+    border-top: var(--month-border, 1px solid var(--line));
     padding: 14px 0 4px;
   }
 
   .month-title {
+    display: var(--cl-off, block);
     font-size: 13px;
     color: var(--muted);
     letter-spacing: 0.1em;
@@ -41,38 +75,57 @@
     text-align: center;
     font-size: 14px;
 
+    td {
+      font-family: var(--font-num, inherit);
+      font-size: var(--num-size, 14px);
+      padding: 2px 0;
+      height: var(--cal-row, 36px);
+    }
+
     th {
       font-size: 12px;
-      color: var(--muted);
+      color: var(--sub-2, var(--muted));
       padding: 6px 0;
       font-weight: normal;
     }
 
-    td {
-      padding: 2px 0;
-      height: 36px;
+    th .ko {
+      display: var(--cl-off, inline);
+    }
+
+    th .en {
+      display: var(--cl-on, none);
+      font-family: var(--font-cap, inherit);
+      font-size: 11px;
     }
 
     .sun {
-      color: var(--accent);
+      color: var(--sun, var(--accent));
     }
 
     .sat {
-      color: var(--muted);
+      color: var(--sat-color, var(--muted));
+    }
+
+    th.sat {
+      color: var(--sub-2, var(--muted));
     }
 
     td span {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: var(--cal-circle, 32px);
+      height: var(--cal-circle, 32px);
     }
 
     td.today span {
       border-radius: 50%;
-      background: var(--btn, var(--accent));
-      color: var(--btn-text, #fff);
+      background: var(--today-bg, var(--btn, var(--accent)));
+      color: var(--today-ink, var(--btn-text, #fff));
+      border: var(--today-border, 0);
+      font-size: var(--today-size, inherit);
+      box-shadow: var(--today-shadow, none);
     }
   }
 
@@ -94,7 +147,7 @@
   }
 
   .save {
-    margin-top: 6px;
+    margin-top: var(--save-mt, 6px);
   }
 
   .save-label {
@@ -107,7 +160,7 @@
   .save-buttons {
     display: flex;
     justify-content: center;
-    gap: 6px;
+    gap: var(--save-gap, 6px);
   }
 
   .btn {
@@ -116,7 +169,7 @@
     min-height: var(--tap);
     padding: 0 8px;
     font-size: 13px;
-    color: var(--accent);
+    color: var(--sub-3, var(--accent));
     text-decoration: underline;
     text-underline-offset: 3px;
   }

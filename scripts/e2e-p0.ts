@@ -204,7 +204,7 @@ async function main() {
       'tel:01012345678',
     '안내: 전화번호 자동 링크',
   )
-  await gp.getByRole('button', { name: '친구에게 공유' }).click()
+  await gp.getByRole('button', { name: /카카오톡 공유|친구에게 공유/ }).click()
   const friend = await readFeed(gp)
   check(
     friend.content.link.mobileWebUrl === url && friend.buttons.length === 2,

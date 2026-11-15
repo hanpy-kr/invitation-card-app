@@ -75,56 +75,75 @@ const line = {
   strokeLinejoin: 'round',
 } as const
 
-/** 지하철: 열차 앞모습 (가는 선) */
 export function IconSubway({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
-      <rect x="5.5" y="3" width="13" height="14" rx="3" />
-      <path d="M5.5 10h13M9 14h.01M15 14h.01M8 20.5l2-3.5M16 20.5l-2-3.5" />
+      <rect x="5" y="3" width="14" height="14" rx="3" />
+      <path d="M5 11h14M8.5 14h.01M15.5 14h.01M8 21l2-4M16 21l-2-4" />
     </svg>
   )
 }
 
-/** 버스: 옆이 아닌 앞모습 (가는 선) */
 export function IconBus({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
-      <rect x="4.5" y="3.5" width="15" height="14" rx="2.5" />
-      <path d="M4.5 11h15M8 14.5h.01M16 14.5h.01M7.5 17.5V20M16.5 17.5V20M9 6.5h6" />
+      <rect x="4" y="3" width="16" height="14" rx="2" />
+      <path d="M4 10h16M7 20v-3M17 20v-3M8 14h.01M16 14h.01" />
     </svg>
   )
 }
 
-/** 주차: 자동차 앞모습 (가는 선) */
 export function IconCar({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
-      <path d="M5 16.5V12l1.8-4.6A2 2 0 0 1 8.7 6h6.6a2 2 0 0 1 1.9 1.4L19 12v4.5" />
-      <path d="M4 12.5h16v4H4zM7 16.5V19M17 16.5V19M7.5 14.5h.01M16.5 14.5h.01" />
+      <path d="M5 16l1.5-5.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 16M4 16h16v3H4zM7 19v1.5M17 19v1.5" />
     </svg>
   )
 }
 
-/** 전화 (검정 채움) */
+/** 전화 (가는 선) */
 export function IconPhone({ className }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M6.6 3.2c.5-.3 1.1-.2 1.5.2l2.3 2.6c.4.5.4 1.2 0 1.7l-1.3 1.5c.9 1.9 2.4 3.5 4.3 4.5l1.6-1.2c.5-.4 1.2-.3 1.6.1l2.5 2.4c.4.4.5 1 .2 1.5l-1 1.7c-.5.8-1.4 1.2-2.3 1C9.6 18.6 5.2 14 4.2 7.7c-.1-.9.3-1.8 1.1-2.3l1.3-2.2Z"
-      />
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <path d="M6.5 3.5l3 3-2 2.5a12 12 0 0 0 7.5 7.5l2.5-2 3 3-2 3C11 20.5 3.5 13 3.5 5.5z" />
     </svg>
   )
 }
 
-/** 문자 (검정 채움 말풍선) */
+/** 문자 (가는 선 말풍선) */
 export function IconMessage({ className }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M12 3.5c-4.9 0-8.8 3.2-8.8 7.2 0 2.3 1.3 4.4 3.4 5.7l-.7 3.3c-.1.4.4.7.7.5l3.6-2.4c.6.1 1.2.1 1.8.1 4.9 0 8.8-3.2 8.8-7.2S16.9 3.5 12 3.5Z"
-      />
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <path d="M4 5h16v11H9l-5 4z" />
+    </svg>
+  )
+}
+
+/** ♥ 글리프 외곽선(Noto Sans Symbols 2) — 이름 줄 하트 (종이 편지) */
+export function IconHeartGlyph({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="51 0 638 719" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <g transform="translate(0 719) scale(1 -1)">
+        <path d="M346 0Q322 59 285.5 122.0Q249 185 199 252Q100 384 75 447Q51 507 51 559Q51 603 73.5 639.5Q96 676 133.5 697.5Q171 719 215 719Q262 719 302.5 695.0Q343 671 369 622Q396 671 437.0 695.0Q478 719 525 719Q568 719 605.5 697.5Q643 676 666.0 639.5Q689 603 689 559Q689 505 663 441Q637 378 539 249Q490 184 453.5 121.5Q417 59 393 0Z" />
+      </g>
+    </svg>
+  )
+}
+
+/** 펼침 화살표 V자 (종이 편지) */
+export function IconChevronLine({ className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 12 12"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 4.2l4 4 4-4" />
     </svg>
   )
 }

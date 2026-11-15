@@ -8,31 +8,15 @@
   max-width: var(--column);
   margin: 0 auto;
   // 종이 편지 테마: 흰 코튼지 결(곱하기로 아주 옅게), 글자 음각
-  background: var(--bg) var(--paper-img, none) 0 0 / 512px repeat;
+  background: var(--bg) var(--paper-img, none) 0 0 / 256px repeat;
   background-blend-mode: multiply;
   text-shadow: var(--deboss, none);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-// 섹션 사이 음각 선(종이 편지 테마만, --section-rule). 오시는 길 · 마음 전하실 곳 · 참석 의사 · 방명록 위
-.column
-  :is(
-    :global(section[data-block='location']),
-    :global(section[data-block='with heart']),
-    :global(section[data-block='r.s.v.p.']),
-    :global(section[data-block='guestbook'])
-  )::before {
-  content: '';
-  display: var(--section-rule, none);
-  height: 0;
-  margin: -16px 0 52px;
-  border-top: 1px solid rgba(110, 85, 55, 0.24);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
-}
-
 .footer {
-  padding: 32px 24px 48px;
+  padding: 32px 24px var(--foot-pb, 48px);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -40,7 +24,7 @@
 
 // 공유: 상자 없이 버튼만, 아래 여백은 예전(약 30px)의 3배
 .shareCard {
-  margin-bottom: 78px;
+  margin-bottom: var(--share-gap, 78px);
   text-align: center;
 }
 
@@ -48,23 +32,43 @@
   display: flex;
   gap: 8px;
 
+  // 종이 편지: 테두리 없이 밑줄 텍스트 (카카오톡 공유 · 링크 복사)
+  justify-content: var(--share-justify, normal);
+  align-items: center;
+
   button {
-    flex: 1;
+    flex: var(--share-flex, 1);
     min-height: var(--tap);
-    padding: 0 12px;
-    border: 1px solid var(--btn-line, var(--line));
+    padding: 0 var(--share-px, 12px);
+    border: var(--share-bd, 1px solid var(--btn-line, var(--line)));
     border-radius: var(--radius);
     background: transparent;
     font: inherit;
     font-size: 14px;
-    color: var(--text);
+    color: var(--ink-strong, var(--text));
+    text-decoration: var(--share-deco, none);
+    text-decoration-color: rgba(53, 41, 31, 0.5);
+    text-underline-offset: 5px;
     cursor: pointer;
   }
 
   .kakao {
-    border-color: #fee500;
-    background: #fee500;
-    color: #191919;
+    border-color: var(--kakao-bd, #fee500);
+    background: var(--kakao-bg, #fee500);
+    color: var(--kakao-ink, #191919);
+  }
+
+  .lblNew {
+    display: var(--cl-on, none);
+  }
+
+  .lblOld {
+    display: var(--cl-off, inline);
+  }
+
+  .dot {
+    display: var(--cl-on, none);
+    color: var(--sub-2, inherit);
   }
 }
 
@@ -78,34 +82,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--brand-gap, 4px);
   text-align: center;
 }
 
-// 자간 넓힌 대문자 워드마크
+// 자간 넓힌 대문자 워드마크 (종이 편지: Cinzel 600 금박)
 .wordmark {
   display: inline-flex;
   align-items: center;
-  min-height: var(--tap);
-  font-family: var(--font-display), serif;
+  min-height: var(--wm-h, var(--tap));
+  font-family: var(--font-cap, var(--font-display)), serif;
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.32em;
-  color: var(--text);
+  font-weight: var(--wm-weight, 700);
+  letter-spacing: var(--wm-ls, 0.32em);
+  padding-left: var(--wm-pl, 0);
+  color: var(--foil, var(--text));
+  text-shadow: var(--foil-shadow, inherit);
   text-decoration: none;
 }
 
 .makeOwn {
   display: inline-flex;
   align-items: center;
-  min-height: var(--tap);
-  font-size: 13px;
-  color: var(--text);
-  text-decoration: underline;
+  min-height: var(--make-h, var(--tap));
+  margin-top: var(--make-mt, 0);
+  font-size: var(--make-size, 13px);
+  color: var(--ink-strong, var(--text));
+  opacity: var(--make-opacity, 1);
+  text-decoration: var(--make-deco, underline);
   text-underline-offset: 3px;
 }
 
 .copyright {
-  font-size: 12px;
-  color: var(--muted);
+  margin-top: var(--copy-mt, 0);
+  font-size: var(--copy-size, 12px);
+  color: var(--copy-ink, var(--muted));
 }

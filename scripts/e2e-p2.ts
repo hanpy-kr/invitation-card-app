@@ -530,7 +530,7 @@ async function memberNoticeFlow(browser: Browser) {
   // 카톡 공유 카드(Kakao.Share 인자)에도 없음
   const g1 = await guest(browser)
   await g1.goto(url, { waitUntil: 'networkidle' })
-  await g1.getByRole('button', { name: '친구에게 공유' }).click()
+  await g1.getByRole('button', { name: /카카오톡 공유|친구에게 공유/ }).click()
   await g1.waitForFunction(
     () => (window as unknown as { __kakaoShare?: unknown }).__kakaoShare,
     null,

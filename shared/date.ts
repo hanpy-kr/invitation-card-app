@@ -56,6 +56,16 @@ export function formatLongDate(value: Date | string): string {
   return `${p.year}년 ${p.month} ${p.day}일 ${p.weekday}`
 }
 
+/** 일요일 */
+export function formatWeekdayKo(value: Date | string): string {
+  return parts(toDate(value), { weekday: 'long' }).weekday
+}
+
+/** DECEMBER */
+export function formatMonthEn(value: Date | string): string {
+  return parts(toDate(value), { month: 'long' }, 'en-US').month.toUpperCase()
+}
+
 /** 오후 12시 30분 / 오후 7시 */
 export function formatTime(value: Date | string): string {
   const p = parts(toDate(value), { hour: 'numeric', minute: '2-digit', hour12: true })

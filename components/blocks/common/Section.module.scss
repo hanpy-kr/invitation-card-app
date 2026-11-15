@@ -1,20 +1,80 @@
 @use '../../../styles/utils' as *;
 
+// 영문 대문자 소제목 · 숫자: 쓰일 때만 내려받는 서브셋 (대문자 · 숫자 · 기호만)
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/cinzel/v1/cinzel-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/cinzel/v1/cinzel-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Bodoni Moda';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/bodoni-moda/v1/bodoni-moda-digits-400.woff2') format('woff2');
+  unicode-range: U+0020, U+002E, U+0030-0039;
+}
+
+// 아래 var(--x, 기존 값)의 --x는 종이 편지 테마(shared/themes.ts CLASSIC_BODY_VARS)에서만 정해진다.
 .container {
-  padding: 48px 24px;
+  position: relative;
+  padding: var(--sec-pad, 48px 24px);
+
+  // 섹션 사이 음각 선 (--section-rule: 종이 편지만). 바로 앞이 섹션일 때만
+  & + &::before {
+    content: '';
+    display: var(--section-rule, none);
+    position: absolute;
+    top: 0;
+    left: 28px;
+    right: 28px;
+    height: 1px;
+    background: rgba(110, 85, 55, 0.22);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+  }
 
   .head {
     margin-bottom: 28px;
     text-align: center;
   }
 
+  .head[data-quiet] {
+    display: var(--quiet-head, block);
+  }
+
+  .eyebrow {
+    display: var(--eyebrow-display, none);
+    font-family: var(--font-cap, inherit);
+    font-weight: var(--cap-weight, normal);
+    font-size: var(--eyebrow-size, 11px);
+    letter-spacing: var(--eyebrow-ls, 0.4em);
+    // 마지막 글자 뒤 자간만큼 가운데가 밀리는 것을 보정
+    padding-left: var(--eyebrow-ls, 0.4em);
+    text-transform: uppercase;
+    color: var(--foil, var(--accent));
+    text-shadow: var(--foil-shadow, none);
+    margin-bottom: var(--eyebrow-gap, 8px);
+  }
+
   .txt-title {
     @include display-font;
-    font-size: 21px;
+    font-size: var(--title-size, 21px);
     font-weight: normal;
+    letter-spacing: var(--title-ls, normal);
     line-height: 1.4;
     text-align: center;
-    color: var(--text);
+    color: var(--ink-strong, var(--text));
   }
 
   .leaf {

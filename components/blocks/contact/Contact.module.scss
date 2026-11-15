@@ -6,8 +6,9 @@
     li {
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 2px;
+      gap: var(--contact-gap, 4px);
+      padding: var(--contact-pad, 4px 2px);
+      border-bottom: var(--contact-bb, 0);
     }
   }
 
@@ -16,13 +17,15 @@
     flex: 1;
     min-width: 0;
     font-size: 15px;
-    color: var(--text);
+    color: var(--ink-strong, var(--text));
 
     small {
-      margin-right: 10px;
-      font-size: 13px;
+      display: inline-block;
+      width: var(--rel-w, auto);
+      margin-right: var(--rel-mr, 10px);
+      font-size: var(--rel-size, 13px);
       font-weight: normal;
-      color: var(--muted);
+      color: var(--sub-2, var(--muted));
     }
   }
 
@@ -34,12 +37,12 @@
     justify-content: center;
     width: var(--tap);
     height: var(--tap);
-    color: var(--text);
+    color: var(--foil, var(--text));
     text-decoration: none;
   }
 
   .ico {
-    width: 20px;
-    height: 20px;
+    width: var(--call-ico, 20px);
+    height: var(--call-ico, 20px);
   }
 }

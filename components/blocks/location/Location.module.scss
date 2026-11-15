@@ -15,18 +15,19 @@
 
     .txt-name {
       @include display-font;
-      font-size: 19px;
+      font-size: var(--place-size, 19px);
+      color: var(--ink-strong, inherit);
     }
 
     .txt-detail {
-      font-size: 15px;
-      color: var(--muted);
+      font-size: var(--detail-size, 15px);
+      color: var(--sub-3, var(--muted));
       margin-top: 2px;
     }
 
     .txt-address {
-      font-size: 14px;
-      color: var(--muted);
+      font-size: var(--addr-size, 14px);
+      color: var(--sub-3, var(--muted));
       margin-top: 8px;
     }
 
@@ -37,7 +38,7 @@
       min-height: var(--tap);
       padding: 2px 4px;
       font-size: 12px;
-      color: var(--accent);
+      color: var(--foil-deep, var(--accent));
       text-decoration: underline;
       cursor: pointer;
     }
@@ -60,18 +61,24 @@
     margin-bottom: 28px;
 
     &.three {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(var(--link-cols, 3), 1fr);
+
+      // 종이 편지: 카카오맵 · 네이버지도 2열, 티맵은 아래 한 줄
+      a:nth-child(3) {
+        grid-column: var(--tmap-span, auto);
+      }
     }
 
     a {
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: var(--tap);
+      min-height: var(--ghost-h, var(--tap));
       padding: 0 8px;
-      border: 1px solid var(--btn-line, var(--line));
+      border: 1px solid var(--ghost-border, var(--btn-line, var(--line)));
       border-radius: var(--radius);
-      background: transparent;
+      background: var(--ghost-bg, transparent);
+      color: var(--ink-strong, inherit);
       font-size: 14px;
       text-decoration: none;
     }
@@ -80,34 +87,37 @@
   // 지하철 · 버스 · 주차 안내: 아이콘 + 굵은 이름, 아래 설명은 아이콘 너비만큼 들여씀
   .list-ways {
     li {
-      padding: 18px 0;
+      padding: var(--way-pad, 18px 0);
       font-size: 14px;
       line-height: 22px;
+      border-top: var(--way-bt, 0);
 
       & + li {
-        border-top: 1px solid var(--line);
+        border-top: 1px solid var(--way-line, var(--line));
       }
     }
 
     .txt-label {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text);
+      gap: var(--way-gap, 10px);
+      font-size: var(--way-size, 15px);
+      font-weight: var(--way-weight, 700);
+      color: var(--ink-strong, var(--text));
       margin-bottom: 6px;
     }
 
     .ico {
-      width: 20px;
-      height: 20px;
+      width: var(--way-ico, 20px);
+      height: var(--way-ico, 20px);
       flex-shrink: 0;
+      color: var(--foil, currentColor);
     }
 
     .txt-way {
-      padding-left: 30px;
-      color: var(--text);
+      padding-left: var(--way-indent, 30px);
+      font-size: var(--addr-size, 14px);
+      color: var(--sub-1, var(--text));
     }
   }
 }

@@ -148,7 +148,8 @@ export default function Guestbook({ config, ctx }: { config: GuestbookConfig; ct
           </button>
         </form>
       ) : (
-        <button type="button" className={formStyles.open} onClick={() => setOpen(true)}>
+        <button type="button" className={`${formStyles.open} ${formStyles.ghost}`}
+          onClick={() => setOpen(true)}>
           축하 글 남기기
         </button>
       )}

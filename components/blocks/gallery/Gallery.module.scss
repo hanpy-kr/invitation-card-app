@@ -1,6 +1,6 @@
 .wrap-images {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--gal-cols, 3), 1fr);
   gap: 6px;
 
   .wrap-image {
@@ -98,14 +98,14 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: var(--tap);
-  margin-top: 16px;
-  border: 1px solid var(--btn-line, var(--line));
+  min-height: var(--ghost-h, var(--tap));
+  margin-top: 14px;
+  border: 1px solid var(--ghost-border, var(--btn-line, var(--line)));
   border-radius: var(--radius);
-  background: transparent;
+  background: var(--ghost-bg, transparent);
   font: inherit;
   font-size: 14px;
-  color: var(--text);
+  color: var(--ink-strong, var(--text));
   text-shadow: inherit;
   cursor: pointer;
 }
