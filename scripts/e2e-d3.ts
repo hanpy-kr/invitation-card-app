@@ -182,7 +182,7 @@ async function main() {
     (await host
       .locator('li')
       .filter({ hasText: 'E2E 13기 송년회' })
-      .getByText('참석 5명 · 응답 3건')
+      .getByText(/5\s*참석\s*3\s*응답/)
       .count()) >= 1,
     '대시보드 목록: 참석 5명 · 응답 3건',
   )
