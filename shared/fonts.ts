@@ -56,3 +56,17 @@ export const DEFAULT_FONT: FontKey = 'noto-serif'
 export function isFontKey(v: unknown): v is FontKey {
   return typeof v === 'string' && v in FONTS
 }
+
+/**
+ * 글씨체 고르는 칸에 보여 줄 행사별 견본 문구. 글씨체 이름(label)은 화면에 보이지 않고
+ * 관리자 · 코드에서만 쓴다 — 하객과 만드는 사람에게는 "이 글씨로 이렇게 보인다"만 보여 준다.
+ */
+export const FONT_SAMPLES: Record<string, string> = {
+  wedding: '결혼합니다',
+  dol: '첫 생일',
+  meetup: '초대합니다',
+}
+
+export function fontSample(eventType: string): string {
+  return FONT_SAMPLES[eventType] ?? FONT_SAMPLES.meetup
+}
