@@ -72,8 +72,8 @@ async function main() {
   const editUrl = host.url()
   const invitationId = editUrl.split('/').pop()!
 
-  await host.getByLabel('날짜').fill('2026-12-19')
-  await host.getByLabel('시간').fill('19:00')
+  await host.getByLabel('날짜', { exact: true }).fill('2026-12-19')
+  await host.getByLabel('시간', { exact: true }).fill('19:00')
   await host.getByRole('button', { name: '참석 여부', exact: true }).click()
   await host.getByRole('switch', { name: '식사 여부도 묻기' }).check()
   await host.getByLabel('한 응답당 최대 인원').selectOption('5')
@@ -88,7 +88,7 @@ async function main() {
   await sheet.getByRole('button', { name: '닫기' }).click()
 
   await host.getByLabel('초대장 제목').fill('E2E 13기 송년회')
-  await host.getByRole('button', { name: '표지', exact: true }).click()
+  // 표지 폼은 꾸미기 묶음에 항상 펼쳐져 있음
   await host.getByLabel('큰 제목').fill('13기 송년회')
   await host.getByRole('button', { name: '인사말', exact: true }).click()
   await host.getByLabel('인사말').fill('올해도 수고 많았어요.\n회비는 3만 원입니다.')

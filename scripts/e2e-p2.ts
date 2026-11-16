@@ -210,7 +210,7 @@ async function mediaFlow(browser: Browser) {
 async function thanksFlow(browser: Browser) {
   const { page: host } = await createInvitation(browser, /결혼식/)
   await host.getByLabel('초대장 제목').fill('E2E 감사장 원본 결혼')
-  await host.getByRole('button', { name: '표지', exact: true }).click()
+  // 표지 폼은 꾸미기 묶음에 항상 펼쳐져 있음
   await host.getByRole('button', { name: '사진', exact: true }).click() // 결혼 템플릿은 디자인 표지로 시작
   await host.locator('input[type=file]').first().setInputFiles(`${PHOTOS}/photo_1.jpg`)
   await host.getByAltText('표지 사진 미리보기').waitFor({ timeout: 30000 })
@@ -233,7 +233,7 @@ async function thanksFlow(browser: Browser) {
     '감사장: 이름이 채워진 제목',
   )
   check((await host.getByLabel('행사 종류').inputValue()) === 'thanks', '감사장: 행사 종류 thanks')
-  await host.getByRole('button', { name: '표지', exact: true }).click()
+  // 표지 폼은 꾸미기 묶음에 항상 펼쳐져 있음
   check(
     (await host
       .getByRole('button', { name: '디자인', exact: true })
@@ -707,7 +707,7 @@ async function coverFlow(browser: Browser) {
 
   const { page: host } = await createInvitation(browser, /결혼식/)
   await host.getByLabel('초대장 제목').fill('E2E 디자인 표지')
-  await host.getByRole('button', { name: '표지', exact: true }).click()
+  // 표지 폼은 꾸미기 묶음에 항상 펼쳐져 있음
   check(
     (await host
       .getByRole('button', { name: '디자인', exact: true })

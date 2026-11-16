@@ -126,11 +126,11 @@ async function main() {
 
   // 2. 기본 정보
   await page.getByLabel('초대장 제목').fill('E2E 박도윤 ♥ 한지우 결혼합니다')
-  await page.getByLabel('날짜').fill('2026-12-05')
-  await page.getByLabel('시간').fill('13:00')
+  await page.getByLabel('날짜', { exact: true }).fill('2026-12-05')
+  await page.getByLabel('시간', { exact: true }).fill('13:00')
 
   // 3. 표지 사진 1장
-  await page.getByRole('button', { name: '표지', exact: true }).click()
+  // 표지 폼은 꾸미기 묶음에 항상 펼쳐져 있음
   await page.getByRole('button', { name: '사진', exact: true }).click() // 결혼 템플릿은 디자인 표지로 시작
   await page.locator('input[type=file]').first().setInputFiles(photos[0])
   await page.getByAltText('표지 사진 미리보기').waitFor({ timeout: 30000 })

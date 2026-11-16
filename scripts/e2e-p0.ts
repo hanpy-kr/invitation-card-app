@@ -96,21 +96,21 @@ async function main() {
   await host.getByRole('button', { name: /송년회/ }).click()
   await host.waitForURL(/\/edit\//)
   const invitationId = host.url().split('/').pop()!
-  await host.getByRole('button', { name: '표지', exact: true }).waitFor()
+  await host.getByRole('heading', { name: '꾸미기' }).waitFor()
   const blockNames = await host
     .locator('[aria-expanded]')
     .evaluateAll((els) => els.map((e) => e.textContent?.replace(/[▾▴]/g, '').trim()))
   check(
-    ['표지', '인사말', '오시는 길1차', '오시는 길2차', '참석 여부', '계좌 · 회비', '안내'].every(
+    ['인사말', '오시는 길1차', '오시는 길2차', '참석 여부', '계좌 · 회비', '안내'].every(
       (n) => blockNames.includes(n),
     ),
-    `송년회 템플릿: 표지 · 인사말 · 장소 2개(1차 · 2차) · 참석 · 계좌 · 안내 (${blockNames.join(', ')})`,
+    `송년회 템플릿: 인사말 · 장소 2개(1차 · 2차) · 참석 · 계좌 · 안내 (${blockNames.join(', ')})`,
   )
 
   await host.getByLabel('초대장 제목').fill('E2E 디어 13기 송년회')
-  await host.getByLabel('날짜').fill('2026-12-19')
-  await host.getByLabel('시간').fill('19:00')
-  await host.getByRole('button', { name: '표지', exact: true }).click()
+  await host.getByLabel('날짜', { exact: true }).fill('2026-12-19')
+  await host.getByLabel('시간', { exact: true }).fill('19:00')
+  // 표지 폼은 꾸미기 묶음에 항상 펼쳐져 있음
   await host.getByLabel('큰 제목').fill('디어 13기 송년회')
   await host.getByRole('button', { name: '인사말', exact: true }).click()
   await host.getByRole('textbox', { name: '보내는 사람 1' }).fill('총무 김하나')

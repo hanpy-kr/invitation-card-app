@@ -305,7 +305,7 @@ export default function Editor(props: EditorProps) {
                   <div>
                     {addable.map((t) => (
                       <button key={t} type="button" onClick={() => add(t)}>
-                        <i aria-hidden="true">+</i> {BLOCK_LABELS[t]}
+                        <i>+</i> {BLOCK_LABELS[t]}
                       </button>
                     ))}
                   </div>

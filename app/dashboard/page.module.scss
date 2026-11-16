@@ -133,7 +133,7 @@
     padding-top: 2px;
     border-top: 1px solid var(--paper-line);
 
-    > * + *::before {
+    > *:not(:last-child)::after {
       content: '·';
       margin: 0 8px;
       color: var(--ink-faint);
