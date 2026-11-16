@@ -362,6 +362,7 @@ export default function Editor(props: EditorProps) {
                 mediaBaseUrl={props.mediaBaseUrl}
                 kakaoJsKey={props.kakaoJsKey}
                 introEffects={props.introEffects}
+                published={status === 'published'}
               />
             </div>
           </aside>
