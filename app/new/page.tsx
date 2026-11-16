@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import BackLink from '@/components/site/BackLink'
+import Eyebrow from '@/components/site/Eyebrow'
 import Logo from '@/components/site/Logo'
 
 import { requireSession } from '@/lib/auth/session'
@@ -24,10 +25,11 @@ export default async function NewInvitationPage({
   const source = fromSlug ? await getLayoutSource(fromSlug) : null
   return (
     <main className={styles.page}>
-      <div style={{ marginBottom: 12 }}>
+      <div className={styles.top}>
         <Logo />
       </div>
       <BackLink href="/dashboard" label="내 초대장으로" />
+      <Eyebrow>NEW INVITATION</Eyebrow>
       {source ? (
         <>
           <h1 className={styles.title}>이 디자인으로 만들어 볼까요?</h1>

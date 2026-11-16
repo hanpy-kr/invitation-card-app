@@ -72,8 +72,9 @@ const ICONS: Record<EventType, React.ReactNode> = {
   ),
 }
 
-const GROUPS: { title: string; items: { type: EventType; sub: string }[] }[] = [
+const GROUPS: { en: string; title: string; items: { type: EventType; sub: string }[] }[] = [
   {
+    en: 'FAMILY',
     title: '가족 행사',
     items: [
       { type: 'wedding', sub: '모바일 청첩장' },
@@ -82,6 +83,7 @@ const GROUPS: { title: string; items: { type: EventType; sub: string }[] }[] = [
     ],
   },
   {
+    en: 'GATHERING',
     title: '모임',
     items: [
       { type: 'yearend', sub: '1차 · 2차 · 회비까지' },
@@ -115,7 +117,12 @@ export default function EventTypePicker() {
     <>
       {GROUPS.map((g) => (
         <section key={g.title} className={styles.group}>
-          <h2 className={styles.groupTitle}>{g.title}</h2>
+          <h2 className={styles.groupTitle}>
+            <span className={styles.groupEn} aria-hidden="true">
+              {g.en}
+            </span>
+            {g.title}
+          </h2>
           <ul className={styles.list}>
             {g.items.map((o) => (
               <li key={o.type}>
@@ -130,7 +137,7 @@ export default function EventTypePicker() {
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
-                      strokeWidth="1.2"
+                      strokeWidth="1.4"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
@@ -151,7 +158,7 @@ export default function EventTypePicker() {
                     strokeLinejoin="round"
                     aria-hidden
                   >
-                    <path d="M9 5l7 7-7 7" />
+                    <path d="M9.5 6l6 6-6 6" />
                   </svg>
                 </button>
               </li>

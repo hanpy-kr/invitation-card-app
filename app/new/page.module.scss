@@ -1,7 +1,13 @@
+@use '../../styles/utils' as *;
+
 .page {
   max-width: var(--column);
   margin: 0 auto;
   padding: 24px 20px 48px;
+}
+
+.top {
+  margin-bottom: 4px;
 }
 
 .back {
@@ -11,15 +17,17 @@
 }
 
 .title {
-  font-size: 23px;
-  font-weight: 700;
-  margin: 12px 0 6px;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0 0 8px;
 }
 
 .desc {
-  color: var(--muted);
-  font-size: 14px;
-  margin-bottom: 24px;
+  color: var(--ink-sub);
+  font-size: 13.5px;
+  line-height: 1.7;
+  margin-bottom: 28px;
 }
 
 .group {
@@ -31,15 +39,25 @@
 }
 
 .groupTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--muted);
-  margin-bottom: 8px;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ink-sub);
+  margin-bottom: 10px;
+}
+
+.groupEn {
+  @include eyebrow;
 }
 
 .list {
-  border-top: 1px solid var(--line);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  @include deboss-rule;
 }
 
 .row {
@@ -50,18 +68,19 @@
   min-height: 72px;
   padding: 12px 4px;
   border: 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 0;
+  box-shadow: 0 1px 0 rgba(110, 85, 55, 0.2), 0 2px 0 rgba(255, 255, 255, 0.85);
   background: none;
   text-align: left;
   cursor: pointer;
 
   &:hover .label,
   &:focus-visible .label {
-    color: var(--accent);
+    color: var(--ink);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 1px solid var(--gold);
     outline-offset: -2px;
   }
 
@@ -75,12 +94,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    border: 1px solid var(--line);
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(168, 145, 95, 0.55);
     border-radius: 50%;
-    background: var(--paper-surface);
-    color: var(--accent);
+    background: none;
+    color: var(--gold);
 
     svg {
       width: 24px;
@@ -97,27 +116,28 @@
   }
 
   .label {
+    font-family: var(--font-display), serif;
     font-weight: 500;
-    font-size: 16px;
-    color: var(--text);
+    font-size: 15.5px;
+    color: var(--ink);
   }
 
   .sub {
-    font-size: 13px;
-    color: var(--muted);
+    font-size: 12px;
+    color: var(--ink-faint);
   }
 
   .chev {
     flex: none;
     width: 18px;
     height: 18px;
-    color: var(--muted);
+    color: var(--gold);
   }
 }
 
 .error {
   margin-top: 16px;
-  color: #d64545;
+  color: var(--danger);
   font-size: 14px;
 }
 
@@ -128,8 +148,8 @@
 }
 
 .from {
-  border: 2px solid var(--accent);
-  border-radius: var(--radius);
+  border: 1px solid var(--paper-line);
+  border-radius: 2px;
   padding: 18px 16px;
   background: var(--paper-surface);
 }
@@ -147,17 +167,5 @@
 }
 
 .fromBtn {
-  width: 100%;
-  padding: 14px;
-  border: 0;
-  border-radius: var(--radius);
-  background: var(--btn);
-  color: var(--btn-text);
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.6;
-  }
+  @include btn-solid;
 }
