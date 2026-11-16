@@ -226,3 +226,17 @@
   padding: 8px 10px;
   margin-bottom: 14px;
 }
+
+/* 혼주 한 줄: [부모님 이름][아들/딸][이름] */
+.familyRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) 88px minmax(0, 1fr);
+  gap: 6px;
+}
+
+.helper {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-faint);
+  line-height: 1.5;
+}
