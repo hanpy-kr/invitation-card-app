@@ -62,7 +62,7 @@ export default function InviteePanel({
   }
 
   return (
-    <section className={styles.section} aria-label="초대 명단 체크">
+    <section className={styles.section} aria-label="초대 명단 체크" data-en="GUEST LIST">
       <div className={styles.sectionHead}>
         <h2>초대 명단 체크</h2>
         {names.length > 0 ? (

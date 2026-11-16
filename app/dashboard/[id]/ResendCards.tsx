@@ -50,7 +50,7 @@ export default function ResendCards({
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} data-en="RESEND">
       <h2>다시 보내기</h2>
       <p className={styles.hint}>
         단톡방에 다시 올릴 카카오톡 카드예요. 누가 응답 안 했는지는 따로 보내지 않아요.
@@ -68,6 +68,12 @@ export default function ResendCards({
               aria-label={c.label}
               onClick={() => void send(c.feed)}
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.700 6.600l-1 3.600c-.1.3.2.5.5.3l4.200-2.800c.5.1 1.100.1 1.600.1 5.500 0 10-3.500 10-7.800S17.500 3 12 3z"
+                />
+              </svg>
               {c.label}
             </button>
           </li>

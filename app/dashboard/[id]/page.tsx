@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import BackLink from '@/components/site/BackLink'
+import Eyebrow from '@/components/site/Eyebrow'
 import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -42,20 +43,27 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
 
   return (
     <main className={styles.page}>
-      <div style={{ marginBottom: 12 }}>
+      <div className={styles.top}>
         <Logo />
       </div>
-      <BackLink href="/dashboard" label="내 초대장으로" />
-      <h1 className={styles.title}>{data.title || EVENT_TYPE_LABELS[data.eventType]}</h1>
-      <p className={styles.sub}>
-        {data.eventAt ? formatLongDate(data.eventAt) : '날짜 미정'}
-        <Link href={`/edit/${data.id}`}>편집</Link>
-        {data.status === 'published' ? (
-          <Link href={`/i/${data.slug}`} target="_blank">
-            초대장 보기
-          </Link>
-        ) : null}
-      </p>
+      <div className={styles.top}>
+        <BackLink href="/dashboard" label="내 초대장으로" />
+      </div>
+      <div className={styles.headBlock}>
+        <Eyebrow>MANAGE</Eyebrow>
+        <h1 className={styles.title}>{data.title || EVENT_TYPE_LABELS[data.eventType]}</h1>
+        <p className={styles.sub}>
+          {EVENT_TYPE_LABELS[data.eventType]} · {data.eventAt ? formatLongDate(data.eventAt) : '날짜 미정'}
+        </p>
+        <div className={styles.headBtns}>
+          <Link href={`/edit/${data.id}`}>편집</Link>
+          {data.status === 'published' ? (
+            <Link href={`/i/${data.slug}`} target="_blank">
+              초대장 보기
+            </Link>
+          ) : null}
+        </div>
+      </div>
 
       <dl className={styles.stats}>
         <div className={styles.main}>
@@ -156,7 +164,7 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
         </div>
       ))}
 
-      <section className={styles.section}>
+      <section className={styles.section} data-en="RESPONSES">
         <div className={styles.sectionHead}>
           <h2>참석 응답 {data.rsvps.length}건</h2>
           {data.rsvps.length > 0 ? (
@@ -198,7 +206,7 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
 
       {editors ? <EditorsPanel invitationId={data.id} editors={editors} /> : null}
 
-      <section className={styles.section}>
+      <section className={styles.section} data-en="GUESTBOOK">
         <h2>방명록 {data.guestbook.length}개</h2>
         <GuestbookList invitationId={data.id} initial={data.guestbook} />
       </section>
