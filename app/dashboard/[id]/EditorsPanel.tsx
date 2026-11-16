@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import { api } from '@/components/ui/api'
 
+import Toast, { isToastMessage } from '@/components/ui/Toast'
 import styles from './page.module.scss'
 
 /** 소유자: 공동 편집자 초대 링크 · 목록 · 빼기 */
@@ -78,7 +79,8 @@ export default function EditorsPanel({
           onFocus={(e) => e.target.select()}
         />
       ) : null}
-      {msg ? <p className={styles.hint}>{msg}</p> : null}
+      {msg && !isToastMessage(msg) ? <p className={styles.hint}>{msg}</p> : null}
+      <Toast message={isToastMessage(msg) ? msg : ''} onDone={() => setMsg('')} />
     </section>
   )
 }

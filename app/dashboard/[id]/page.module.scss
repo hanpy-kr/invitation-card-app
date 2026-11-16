@@ -133,9 +133,30 @@
 }
 
 .empty {
-  font-size: 14px;
-  color: var(--muted);
-  padding: 16px 0;
+  font-size: 13.5px;
+  color: var(--ink-faint);
+  padding: 20px 0;
+  text-align: center;
+
+  &::before {
+    content: '✦';
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--gold);
+  }
+
+  a,
+  button {
+    @include link-under;
+    display: inline-block;
+    margin-top: 10px;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
 }
 
 .rows {
