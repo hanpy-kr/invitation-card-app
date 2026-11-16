@@ -26,7 +26,7 @@ dearday(디어데이) — 누구나 만들어 카톡 링크로 보내는 모바�
 | 지도·공유 | 카카오 JS SDK (지도, `Kakao.Share`)는 클라이언트 컴포넌트에서만 로드 |  |
 | 스타일 | SCSS Modules + CSS 변수(테마). Tailwind 쓰지 않음 | 기존 레거시 스타일을 그대로 이식 |
 | 패키지 | pnpm, Node 20 |  |
-| 결제 · 유료 | 아직 없음. 2차 기능을 전부 만든 뒤 사용자가 유료 범위를 정함 | 가격 레버(사진 한도, 하단 문구)는 `shared/entitlements.ts` 한 곳에서만 읽음. 기능마다 따로 잠그지 말 것 |
+| 결제 · 유료 | 한피 결제 허브(payments v2)로만 처리. 유료 범위 · 가격은 프로젝트 문서 `dearday/PRICING.md` | 기능 차이(사진 한도, 하단 문구, 봉투 · 효과)는 `shared/entitlements.ts` 한 곳에서만 읽음. 기능마다 따로 잠그지 말 것. 아래 '한피 결제 허브 연동' 규칙을 따름 |
 | 돈 | dearday는 돈을 받거나 보관하지 않음 | 계좌 표시 · 복사 · 송금 앱(토스 · 카카오페이) 연결 · 주최자의 입금 체크까지만. 대신 받아 나눠 주는 기능은 만들지 말 것 |
 
 ## 폴더 구조
@@ -108,6 +108,10 @@ R2_BUCKET=dearday-media
 R2_PUBLIC_BASE_URL=
 DEV_LOGIN=                    # 로컬 전용. 1이면 카카오 없이 개발용 로그인 허용. 운영에서 비워둘 것
 ADMIN_KAKAO_IDS=              # (2차) /admin/stats를 볼 수 있는 카카오 회원번호, 쉼표로 구분
+PAYMENTS_LIVE=                # 결제를 여는 시각(ISO 8601). 비우면 결제 꺼짐. 이 시각 전에 만든 초대장은 프리미엄 유지(소급 없음)
+HANPY_API_ORIGIN=             # https://api.han-py.com (서버 전용)
+HANPY_SERVICE_TOKEN=          # 허브 서비스 토큰 (서버 전용, 값은 Amplify에만)
+HANPY_NOTIFY_SECRET=          # 허브 결제 알림 서명 키 (서버 전용, 값은 Amplify에만)
 ```
 
 Amplify 주의: 콘솔에 넣은 환경변수는 기본적으로 빌드 시점에만 보임. SSR 런타임(Route Handler)에서 쓰려면
@@ -115,6 +119,24 @@ Amplify 주의: 콘솔에 넣은 환경변수는 기본적으로 빌드 시점�
 
 운영 환경 (2026-11-01 구성 완료): 사이트 `https://thedearday.com` (www → 루트 301), 사진 `https://media.thedearday.com` (R2, 프록시 켜짐),
 Amplify 서울 리전, Neon 싱가포르, 카카오 앱 등록 완료. 배포 상태 확인은 `/api/health`.
+
+## 한피 결제 허브 연동 (payments v2)
+
+- 결제는 한피 결제 허브(https://api.han-py.com)가 처리한다. 가이드: hanpy-kr/hanpy-api 의 docs/payments-integration.md (0장 공통 규칙)
+- 이 서비스의 키: `invitation`. 허브 호출은 서버 코드에서 `lib/hanpy-payments.ts`(허브 레포 clients/ 에서 그대로 복사, 수정 금지)로만 한다.
+- `HANPY_SERVICE_TOKEN`, `HANPY_NOTIFY_SECRET` 은 서버 전용 환경변수다. 브라우저 코드·NEXT_PUBLIC_ 에 넣지 않는다.
+- 결제 공급자(그로블·토스 등)를 직접 호출하거나 웹훅을 받지 않는다. 결제 기록 테이블을 새로 만들지 않는다.
+- 가격은 허브가 정한다. SKU 는 서버가 고르고, 화면 가격은 listProducts 에서 읽는다. 그로블 결제 링크를 화면에 넣지 않는다 (checkout 의 action.url 로만 이동).
+- 유료 기능은 서버에서 허브 이용권(hasEntitlement / hasSubjectEntitlement)으로 연다. 캐시는 알림을 받으면 허브에 다시 조회해 갱신한다. localStorage·쿠키·결제 직후 화면 상태로 판단하지 않는다.
+- 결제와 무관한 무료 정책·파생 권한은 코드에 명시 규칙으로 두고, 결제 기록처럼 저장하지 않는다.
+- 결제 알림은 verifyHanpyNotification 으로 서명을 확인하고, eventId 로 중복을 거르고, 2xx 로 답한다.
+- customerRef·subject.id 는 서비스의 ID 다. 이메일·전화번호·이름을 넣지 않는다.
+- 허브에 필요한 API·필드가 없으면 서비스에서 우회하지 말고 멈춘 뒤 "허브 요청"으로 정리해 사람에게 넘긴다.
+
+dearday 규칙 (2026-11-16, `dearday/PRICING.md`):
+- SKU: `invitation.premium.family.open`(9,900, 결혼 · 돌 · 감사장, 오픈 특가) · `invitation.premium.family`(14,900, 판매 중지로 시작) · `invitation.premium.meetup`(3,900, 그 밖의 모임). 이용권 키 `premium`, 대상 `{ type: 'invitation', id: 초대장 UUID }`, customerRef = `users.id`
+- 결제 없이 프리미엄(명시 규칙): ① `PAYMENTS_LIVE` 전에 만든 초대장 ② 2027-01-31 23:59:59(KST)까지 만든 모임 초대장(단, 하단 문구 숨기기는 불가) ③ 허브 이용권이 있는 결혼 · 돌 초대장에서 만든 청첩장 모임 · 감사장(`derived_from_id`)
+- 옛 자체 결제 코드(그로블 · 토스 · `orders`)는 전환 확인 뒤 지운다. `orders` 테이블은 법정 보관용으로 남긴다.
 
 ## 작업 방식
 
