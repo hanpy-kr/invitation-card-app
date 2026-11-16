@@ -4,27 +4,50 @@
 // 손글씨 폰트: 빈도 슬라이스 + unicode-range (scripts/subset-font.py로 생성)
 @use './display-font';
 
+/* 사이트 공통 서체(영문 소제목 · 숫자). 초대장 블록 쪽 선언과 같은 파일을 가리켜 브라우저가 한 번만 받는다 */
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/cinzel/v1/cinzel-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Bodoni Moda';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/bodoni-moda/v1/bodoni-moda-digits-400.woff2') format('woff2');
+  unicode-range: U+0020, U+002E, U+0030-0039;
+}
+
 :root {
   /* ───── dearday 디자인 토큰 (A · 종이 편지) — 색 · 모양은 여기 한 곳에서만 정한다 ─────
      초대장은 테마(shared/themes.ts)가 --bg · --surface · --line · --text · --muted · --accent 를 덮어쓰고,
      디자인 표지를 쓰면 표지의 종이 색이 --bg · --surface · --line 을 덮어쓴다. */
-  --paper: #f3ede2; /* 종이(배경) */
-  --paper-surface: #f7f2e9; /* 면(카드 · 입력) */
-  --paper-line: #d9ccb8; /* 선 */
-  --btn-line: #c9bcad; /* 보조 버튼 테두리 */
+  --paper: #f4f2ed; /* 종이(배경). 사이트는 body에 종이 결 타일(256px)을 multiply로 깐다 */
+  --paper-surface: rgba(255, 253, 248, 0.55); /* 면(카드). 입력칸은 0.7 */
+  --paper-line: rgba(110, 85, 55, 0.2); /* 선 */
+  --btn-line: rgba(53, 41, 31, 0.42); /* 테두리 버튼 */
   --photo: #e6dccc; /* 사진 자리 */
-  --ink: #2f2a26; /* 글자(먹색) */
-  --ink-sub: #6e655d; /* 보조 글자 */
-  --gold: #7d3540; /* 포인트(와인) — 이름은 옛 토큰 그대로 */
-  --deco: #c4a39f; /* 장식선 */
-  --logo-gold: #7d3540; /* 로고 색 */
-  --btn: #2f2a26; /* 주 버튼 배경(먹색) */
-  --btn-text: #f7f2e9; /* 주 버튼 글자 */
+  --ink: #35291f; /* 글자(먹색) */
+  --ink-sub: #5e5246; /* 보조 글자 */
+  --ink-faint: #8a7d6b; /* 더 흐린 보조 글자 */
+  --gold: #a8915f; /* 포인트(금박). 와인색은 사이트에서 쓰지 않는다 */
+  --gold-deep: #8c7546; /* 금색 글자가 필요한 곳(밝은 종이 위 대비용) */
+  --gold-shadow: 0 1px 0 rgba(255, 255, 255, 0.9), 0 -1px 0 rgba(90, 68, 30, 0.22); /* 금박 글자 */
+  --deco: rgba(168, 145, 95, 0.55); /* 장식선 */
+  --btn: #35291f; /* 주 버튼 배경(먹색) */
+  --btn-text: #f1e8d8; /* 주 버튼 글자 */
+  --danger: #9b4a3c; /* 오류 · 삭제 경고(금색을 따라가지 않는 벽돌색) */
   --radius: 2px; /* 모서리: 둥글지 않게 */
   --tap: 44px; /* 누르는 곳 최소 크기 */
   --btn-h: 54px; /* 주 버튼 높이 */
 
   --font-display: 'Noto Serif KR';
+  --site-cap: 'Cinzel', 'Times New Roman', serif; /* 영문 소제목 · 작은 대문자 */
+  --site-num: 'Bodoni Moda', 'Times New Roman', serif; /* 큰 숫자 */
   --tracking: -0.02em; /* 자간 -2% (명조 · 고딕 공통) */
   --font-body:
     'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic',
@@ -32,7 +55,7 @@
 
   /* 기본값 = 종이 팔레트 */
   --accent: var(--gold);
-  --red: var(--gold);
+  --red: var(--danger);
   --text: var(--ink);
   --black: var(--ink);
   --muted: var(--ink-sub);
@@ -56,7 +79,11 @@ body {
   font-family: var(--font-body);
   letter-spacing: var(--tracking);
   color: var(--text);
-  background: var(--bg);
+  background-color: var(--bg);
+  /* 사이트 배경 종이 결. 초대장(/i)은 자기 배경이 위를 덮는다 */
+  background-image: url('/landing/paper-cover.webp');
+  background-size: 256px 256px;
+  background-blend-mode: multiply;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }

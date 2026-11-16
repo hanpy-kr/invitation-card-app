@@ -6,3 +6,133 @@
 @mixin display-font {
   font-family: var(--font-display), var(--font-body);
 }
+
+/* ───── 사이트(만드는 사람 화면) 공통 모양: 2안 스타일 ───── */
+
+/* 영문 소제목: Cinzel 500, 10px, 자간 .32em, 금박 */
+@mixin eyebrow {
+  font-family: var(--site-cap);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: var(--gold-shadow);
+}
+
+/* 음각 구분선: 1px + 아래 흰 그림자 */
+@mixin deboss-rule {
+  height: 1px;
+  background: rgba(110, 85, 55, 0.2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* 꽉 찬 먹색 주 버튼 (화면당 1개) */
+@mixin btn-solid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 2px;
+  background: #35291f;
+  color: #f1e8d8;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 6px 14px rgba(47, 42, 38, 0.2);
+
+  &:active {
+    box-shadow: 0 1px 2px rgba(47, 42, 38, 0.3) inset;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+/* 테두리 버튼 */
+@mixin btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid rgba(53, 41, 31, 0.42);
+  border-radius: 2px;
+  background: rgba(255, 253, 248, 0.45);
+  color: #35291f;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 작은 버튼 (36~38px) */
+@mixin btn-small {
+  @include btn-ghost;
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+/* 작은 먹색 버튼 (와인색 보조 버튼 대신) */
+@mixin btn-small-solid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 2px;
+  background: #35291f;
+  color: #f1e8d8;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+/* 밑줄 글자 */
+@mixin link-under {
+  color: #35291f;
+  text-decoration: underline;
+  text-decoration-color: rgba(53, 41, 31, 0.5);
+  text-underline-offset: 4px;
+}
+
+/* 입력칸: 높이 48, 안쪽 약한 그림자, 포커스는 금색 테두리 */
+@mixin field {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid rgba(53, 41, 31, 0.24);
+  border-radius: 2px;
+  background: rgba(255, 253, 248, 0.7);
+  box-shadow: 0 1px 2px rgba(90, 68, 30, 0.08) inset;
+  font: inherit;
+  font-size: 15px;
+  color: #35291f;
+
+  &:focus {
+    outline: none;
+    border-color: #a8915f;
+    box-shadow:
+      0 1px 2px rgba(90, 68, 30, 0.08) inset,
+      0 0 0 1px #a8915f;
+  }
+}
+
+/* 라벨: 12.5px 600 */
+@mixin field-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #5e5246;
+}

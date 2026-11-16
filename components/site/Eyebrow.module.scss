@@ -1,0 +1,6 @@
+@use '../../styles/utils' as *;
+
+.eyebrow {
+  @include eyebrow;
+  margin: 0 0 8px;
+}
