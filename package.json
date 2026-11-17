@@ -28,6 +28,7 @@
     "e2e:p5": "tsx scripts/e2e-p5.ts",
     "e2e:p6": "tsx scripts/e2e-p6.ts",
     "e2e:p7": "tsx scripts/e2e-p7.ts",
+    "e2e:p8": "tsx scripts/e2e-p8.ts",
     "backfill:share": "tsx scripts/backfill-share-images.ts",
     "perf": "tsx scripts/perf.ts"
   },

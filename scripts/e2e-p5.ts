@@ -7,6 +7,12 @@
  *    (개발 로그인 dev-1 = 관리자 미리 보기, as=2 = 일반 회원)
  * 토스 서버는 이 스크립트가 4010 포트에 가짜로 띄우고, 결제위젯 SDK는 스텁으로 바꿔 끼운다.
  */
+// ⏸ 허브 전환(payments-hub)으로 이 시나리오의 결제 시작 · 승인 흐름은 쓰지 않는 코드(옛 토스/그로블 직접 연결)에 딸려 있어 기본은 건너뜀.
+// 옛 코드를 정리할 때 함께 지운다(PLAN.md). 옛 코드를 되살려 확인하려면 LEGACY_PAY_E2E=1. 새 시나리오는 e2e-p8.ts
+if (!process.env.LEGACY_PAY_E2E) {
+  console.log('건너뜀: 옛 자체 결제 시나리오(허브 전환으로 대체됨, e2e-p8 참고)')
+  process.exit(0)
+}
 import { execFileSync } from 'node:child_process'
 import { createServer } from 'node:http'
 

@@ -347,6 +347,22 @@ DB 마이그레이션 `0017`(추가만): 테이블 `bring_claims` · `invitee_li
 
 **사용자 할 일**: DEPLOY.md 9장 순서대로(상품 2개 · 웹훅 · 링크 · 시크릿 → `PAYMENT_PROVIDER=groble` → 재배포 → 관리자 3,900원 실결제 + 환불 확인)
 
+## 결제 허브 연동 (한피 payments v2, 11/17 · 브랜치 `payments-hub`)
+
+결제 · 주문 · 이용권은 허브가 갖고, dearday는 SKU를 고르고 이용권을 캐시해서 읽는다.
+- [x] 허브 클라이언트 `lib/hanpy-payments.ts`(원본 그대로) + `lib/hanpy.ts`, 환경변수 3개(`amplify.yml` · `.env.example` · `docs/DEPLOY.md`)
+- [x] SKU 매핑(`shared/pricing.ts`: 결혼 · 돌 · 감사장 → `FAMILY_SKU`, 나머지 → meetup). 숫자 가격표 제거, 화면 가격은 `listProducts`(5분 캐시), 실패 시 "가격을 불러오지 못했어요" + 결제 버튼 비활성
+- [x] 프리미엄 판정 `resolvePlan`: 결제 꺼짐 → 허브 캐시(`premium_hub`) → 파생 → 옛 주문 → `PAYMENTS_LIVE` 전 초대장 → 모임 이벤트(2027-01-31 23:59:59 KST까지, 하단 문구 숨기기 불가) → free. 마이그레이션 0019(추가만)
+- [x] `/i/[slug]`는 캐시 열만 읽음(허브 호출 없음). 주인 화면(편집기)은 10분 지난 캐시를 `getSubjectEntitlements`로 갱신
+- [x] 결제 시작 `POST /api/invitations/[id]/checkout`, 돌아오기 `/pay/return` + `GET /api/pay/orders/[orderId]` · `/api/pay/status`, 대시보드 결제 내역(허브 `listOrders`), 환불은 그로블 주문조회 안내만
+- [x] 결제 알림 `POST /api/hanpy/payments`(서명 확인 · eventId 중복 거름 · 허브 재조회로 캐시 갱신 · 실패 시 500)
+- [x] 약관 · 처리방침 개정안 문구(`/terms/payments`, `/privacy/payments`)만 수정. 시행 중인 `/terms` · `/privacy`는 그대로
+- [x] e2e `pnpm e2e:p8`(가짜 허브 서버) 전부 통과. 옛 p5(토스) · p7(그로블)은 허브 전환으로 대체돼 기본 건너뜀(`LEGACY_PAY_E2E=1`로만 실행)
+- [x] `pnpm lint && pnpm typecheck && pnpm build` 통과, `/i/[slug]` First Load JS 129 kB(예산 140), 서버 쿼리 1회 유지
+- [ ] 옛 코드 정리(전환 확인 뒤): 토스 위젯/승인/실패 화면, 토스 환불(`app/api/invitations/[id]/refund`, `RefundButton`, `app/api/webhooks/toss`), `lib/payments.ts` · `lib/plan-legacy.ts` · `shared/pricing-legacy.ts`, `grobleLinkFor`, `PAYMENT_PROVIDER` 분기, e2e p5 · p7. `/api/webhooks/groble`은 허브 `dd-` 전달이 끝날 때까지 유지
+- ⏸ 사용자: ① 그로블 상품 3개 만들기(돌아오기 주소 `https://thedearday.com/pay/return`) 후 링크를 허브에 전달 ② 허브 토큰 · 알림 키 발급(알림 주소 `https://thedearday.com/api/hanpy/payments`), Amplify에 `HANPY_API_ORIGIN` · `HANPY_SERVICE_TOKEN` · `HANPY_NOTIFY_SECRET` 넣고 재배포 ③ 운영 DB `select count(*) from orders where status = 'paid'` 확인 ④ 배포 뒤 실결제 9,900원 → 그로블 환불로 프리미엄 켜짐/꺼짐 확인 ⑤ 약관 · 처리방침 개정 공지(시행 7일 전) → `PAYMENTS_LIVE` → 옛 코드 정리 → 허브 `dd-` 전달 제거
+- 참고: 오픈 특가 종료 시 `FAMILY_SKU`를 `invitation.premium.family`로 한 줄 교체.
+
 ## 공통 규칙 (2차)
 
 - 공개 초대장 성능 유지: 서버 쿼리 1회 유지, 새 블록의 데이터(명단 · 투표 결과 · 방명록)는 화면 근처에서 API로. `/i/[slug]` First Load JS 140kB 이하
