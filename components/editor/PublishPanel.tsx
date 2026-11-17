@@ -43,7 +43,7 @@ type Props = {
   /** 프리미엄 하단 문구 숨기기 가능 */
   canHideMadeWith: boolean
   /** 결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음 */
-  upsell: { price: number | null; openSale: boolean } | null
+  upsell: { price: number | null; openSale: boolean; event: boolean } | null
 }
 
 /** 발행 · 링크 복사 · 공유 시트 */
@@ -288,9 +288,29 @@ function stringsIn(value: unknown): string[] {
 }
 
 /** 프리미엄 안내 · 결제 버튼. 결제가 열려 있고 아직 프리미엄이 아닐 때만 보임 */
-function PremiumBlock({ id, upsell }: { id: string; upsell: { price: number | null; openSale: boolean } | null }) {
+function PremiumBlock({ id, upsell }: { id: string; upsell: { price: number | null; openSale: boolean; event: boolean } | null }) {
   if (!upsell) return null
   const f = PLAN_FEATURES.premium
+  if (upsell.event)
+    // 모임 이벤트 무료분: 사진 · 봉투 · 효과는 이미 열려 있어, 결제하면 더 열리는 것만 보여 준다
+    return (
+      <section className={styles.premium} aria-label="프리미엄 안내">
+        <strong>
+          하단 문구 숨기기는 프리미엄에서만 돼요
+          {upsell.price === null ? '' : ` · ${formatWon(upsell.price)}`}
+        </strong>
+        <p>초대장 1개당 1회 결제 · 부가세 포함. {REFUND_NOTICE}</p>
+        {upsell.price === null ? (
+          <span className={styles.premiumBtn} aria-disabled="true" style={{ opacity: 0.45 }}>
+            프리미엄 결제하기
+          </span>
+        ) : (
+          <a className={styles.premiumBtn} href={`/pay/${id}`}>
+            프리미엄 결제하기
+          </a>
+        )}
+      </section>
+    )
   return (
     <section className={styles.premium} aria-label="프리미엄 안내">
       <strong>

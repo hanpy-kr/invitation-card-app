@@ -685,3 +685,13 @@ $wide: 960px;
     color: #c24a4a;
   }
 }
+
+.adminHub {
+  margin: 0;
+  padding: 4px 12px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted, #6b6b6b);
+  background: rgba(0, 0, 0, 0.04);
+  word-break: keep-all;
+}

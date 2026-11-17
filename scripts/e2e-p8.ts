@@ -11,7 +11,7 @@ import { createServer } from 'node:http'
 
 import { chromium, type BrowserContext, type Page } from 'playwright'
 
-import { getEntitlements, resolvePlan } from '../shared/entitlements'
+import { getEntitlements, planDecision, resolvePlan } from '../shared/entitlements'
 import { MEETUP_EVENT_UNTIL, skuFor } from '../shared/pricing'
 
 const BASE = process.env.E2E_BASE ?? 'http://localhost:3001'
@@ -184,7 +184,39 @@ const checkout = (page: Page, id: string, attemptId = randomUUID()) =>
 const userIdOf = (kakao: string) => sql(`select id from users where kakao_id='${kakao}'`)
 const premiumHub = (id: string) => sql(`select premium_hub from invitations where id='${id}'`) === 't'
 
+const ADMIN_LINE = '[data-testid=admin-hub]'
+
+/** E2E_SWITCH_OFF=1: 앱을 PAYMENTS_LIVE 없이 띄워 두고 실행. 스위치가 꺼져도 플랜 판단은 그대로인지 확인 */
+async function switchOffMode() {
+  await new Promise<void>((r) => server.listen(HUB_PORT, r))
+  const browser = await chromium.launch()
+  const ctx = await browser.newContext(mobile)
+  const page = await newPage(ctx)
+  await page.goto(`${BASE}/api/auth/kakao/login?dev=1&next=/new`)
+  const id = await create(page, /결혼식/, 'E2E 스위치 꺼짐')
+  await page.goto(`${BASE}/edit/${id}`)
+  const line = await page.locator(ADMIN_LINE).innerText()
+  check(line.includes('프리미엄 근거: 무료'), `스위치 꺼짐: PAYMENTS_LIVE_AT 이후 생성분은 여전히 무료 (${line})`)
+  const premium = await create(page, /결혼식/, 'E2E 스위치 꺼짐 오픈 전')
+  sql(`update invitations set created_at = '2026-10-01T00:00:00+09:00' where id='${premium}'`)
+  await page.goto(`${BASE}/edit/${premium}`)
+  check((await page.locator(ADMIN_LINE).innerText()).includes('프리미엄 근거: 오픈 전 생성'), '스위치 꺼짐: 오픈 전 생성분은 그대로 premium')
+  // 관리자는 미리 보기로 결제 화면을 쓸 수 있으니, 일반 사용자 화면에서 결제 안내가 숨는지 본다
+  const ctx2 = await browser.newContext(mobile)
+  const p2 = await newPage(ctx2)
+  await p2.goto(`${BASE}/api/auth/kakao/login?dev=1&as=2&next=/new`)
+  const nid = await create(p2, /결혼식/, 'E2E 스위치 꺼짐 일반')
+  await p2.goto(`${BASE}/edit/${nid}`)
+  await p2.getByRole('button', { name: /^(발행하기|공유하기)$/ }).click()
+  check((await p2.getByRole('dialog').getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0, '스위치 꺼짐: 일반 사용자에게 결제 안내만 숨김')
+  await browser.close()
+  server.close()
+  console.log(failures ? `\n실패 ${failures}건` : '\n모두 통과')
+  process.exit(failures ? 1 : 0)
+}
+
 async function main() {
+  if (process.env.E2E_SWITCH_OFF) return switchOffMode()
   await new Promise<void>((r) => server.listen(HUB_PORT, r))
   const browser = await chromium.launch()
   const ordersBefore = sql('select count(*) from orders')
@@ -194,17 +226,23 @@ async function main() {
     const base = { premiumHub: false, premiumOrderId: null, derivedPremium: false, isMeetup: false }
     const live = new Date('2026-11-20T00:00:00+09:00')
     const after = new Date('2026-12-01T00:00:00+09:00')
-    check(resolvePlan({ ...base, liveSince: null, createdAt: after }) === 'premium', '결제 꺼짐 → premium')
-    check(resolvePlan({ ...base, liveSince: live, createdAt: '2026-11-10T00:00:00+09:00', now: after }) === 'premium', 'PAYMENTS_LIVE 전에 만든 초대장 = premium (legacy 아님)')
-    check(resolvePlan({ ...base, liveSince: live, createdAt: after, now: after }) === 'free', '결제 시작 뒤 가족 행사(허브 이용권 없음) = free')
-    check(resolvePlan({ ...base, premiumHub: true, liveSince: live, createdAt: after, now: after }) === 'premium', '허브 이용권 캐시 true = premium')
-    check(resolvePlan({ ...base, derivedPremium: true, liveSince: live, createdAt: after, now: after }) === 'premium', '파생(부모 이용권) = premium')
+    check(resolvePlan({ ...base, liveAt: null, createdAt: after }) === 'premium', '결제 꺼짐 → premium')
+    check(resolvePlan({ ...base, liveAt: live, createdAt: '2026-11-10T00:00:00+09:00', now: after }) === 'premium', 'PAYMENTS_LIVE 전에 만든 초대장 = premium (legacy 아님)')
+    check(resolvePlan({ ...base, liveAt: live, createdAt: after, now: after }) === 'free', '결제 시작 뒤 가족 행사(허브 이용권 없음) = free')
+    check(resolvePlan({ ...base, premiumHub: true, liveAt: live, createdAt: after, now: after }) === 'premium', '허브 이용권 캐시 true = premium')
+    check(resolvePlan({ ...base, derivedPremium: true, liveAt: live, createdAt: after, now: after }) === 'premium', '파생(부모 이용권) = premium')
     const justIn = new Date(MEETUP_EVENT_UNTIL.getTime())
     const justOut = new Date(MEETUP_EVENT_UNTIL.getTime() + 1000)
     check(MEETUP_EVENT_UNTIL.toISOString() === '2027-01-31T14:59:59.000Z', '이벤트 마감 = 2027-01-31 23:59:59 KST')
-    check(resolvePlan({ ...base, isMeetup: true, liveSince: live, createdAt: justIn, now: justIn }) === 'event', '1/31 23:59:59 KST 만든 모임 = event')
-    check(resolvePlan({ ...base, isMeetup: true, liveSince: live, createdAt: justOut, now: justOut }) === 'free', '2/1 00:00:00 KST 만든 모임 = free')
-    check(resolvePlan({ ...base, isMeetup: false, liveSince: live, createdAt: after, now: after }) === 'free', '이벤트는 가족 행사에는 없음')
+    check(resolvePlan({ ...base, isMeetup: true, liveAt: live, createdAt: justIn, now: justIn }) === 'event', '1/31 23:59:59 KST 만든 모임 = event')
+    check(resolvePlan({ ...base, isMeetup: true, liveAt: live, createdAt: justOut, now: justOut }) === 'free', '2/1 00:00:00 KST 만든 모임 = free')
+    check(resolvePlan({ ...base, isMeetup: false, liveAt: live, createdAt: after, now: after }) === 'free', '이벤트는 가족 행사에는 없음')
+    // 플랜 판단은 고정 시각(liveAt)만 본다: 결제 스위치(PAYMENTS_LIVE)는 입력에 없다 → 스위치를 꺼도 같다
+    const d = planDecision({ ...base, liveAt: live, createdAt: after, now: after })
+    check(d.plan === 'free' && d.basis === 'free', '스위치와 무관: PAYMENTS_LIVE_AT 이후 생성분 = free (근거 free)')
+    check(planDecision({ ...base, liveAt: live, createdAt: after, now: after }).plan === resolvePlan({ ...base, liveAt: live, createdAt: after, now: after }), '같은 입력 → 같은 플랜(스위치 입력 없음)')
+    check(planDecision({ ...base, liveAt: live, createdAt: '2026-10-01T00:00:00+09:00', now: after }).basis === 'before-live', '근거: 오픈 전 생성')
+    check(planDecision({ ...base, liveAt: null, createdAt: after, now: after }).basis === 'payments-off', '근거: 결제 꺼짐(PAYMENTS_LIVE_AT=null)')
     const ev = getEntitlements({ plan: 'event' })
     check(ev.photoLimit === 60 && ev.introEffects && !ev.canHideMadeWith, 'event 등급: 사진 60 · 봉투 · 효과 O, 하단 문구 숨기기 X')
     check(skuFor('wedding') === 'invitation.premium.family.open' && skuFor('thanks') === 'invitation.premium.family.open' && skuFor('yearend') === 'invitation.premium.meetup', '행사 → SKU 매핑')
@@ -325,6 +363,82 @@ async function main() {
   sql(`update invitations set premium_hub = true where id='${parent}'`)
   await openPublish(child)
   check((await page.getByRole('dialog').getByRole('link', { name: '프리미엄 결제하기' }).count()) === 0, '파생: 부모(결혼) 이용권이 있으면 추가 결제 없음')
+
+  // ───────── 관리자 확인 줄 · 관리자 화면 · 부모 환불 → 파생 · 이벤트 안내 ─────────
+  const adminLine = async (id: string) => {
+    await page.goto(`${BASE}/edit/${id}`)
+    return page.locator(ADMIN_LINE).innerText()
+  }
+  const pa = await create(page, /결혼식/, 'E2E 허브 관리자줄')
+  let l = await adminLine(pa)
+  check(/허브 이용권: 없음 · 확인 시각 \d\d:\d\d · 프리미엄 근거: 무료/.test(l), `관리자 줄: 결제 전 → 없음 · 무료 (${l})`)
+  const pc = await checkout(page, pa)
+  check(pc.status === 200, '관리자 줄용 결제 시작')
+  const opa = [...orders.values()].find((o) => o.subject?.id === pa)!
+  markPaid(opa)
+  l = await adminLine(pa) // 알림이 오기 전이라도 화면을 여는 순간 허브에 바로 다시 물어 본다(캐시 아님)
+  check(l.includes('허브 이용권: 있음') && l.includes('프리미엄 근거: 허브 결제'), `관리자 줄: 결제 → 있음 · 허브 결제 (${l})`)
+  // 파생: 부모(결혼) 결제 → 파생 청첩장 모임 premium → 부모 환불 알림 → 파생도 premium 아님
+  await notify(opa, 'payment.paid')
+  const pk = await create(page, /결혼식/, 'E2E 허브 파생 자식')
+  sql(`update invitations set event_type='prewedding', derived_from_id='${pa}' where id='${pk}'`)
+  l = await adminLine(pk)
+  check(l.includes('프리미엄 근거: 부모 상속'), `부모 결제 → 파생 청첩장 모임 premium (${l})`)
+  markRefunded(opa)
+  check((await notify(opa, 'payment.refunded')) === 200, '부모 환불 알림 → 200')
+  l = await adminLine(pa)
+  check(l.includes('허브 이용권: 없음'), `관리자 줄: 환불 → 없음 (${l})`)
+  l = await adminLine(pk)
+  check(!l.includes('부모 상속') && !l.includes('허브 결제'), `부모 환불 → 파생은 더 이상 부모 상속 premium이 아님(지금은 모임 이벤트 등급) (${l})`)
+  await openPublish(pk)
+  check((await page.getByRole('dialog').getByRole('link', { name: '프리미엄 결제하기' }).count()) === 1, '부모 환불 뒤 파생 화면에 결제 안내가 다시 보임')
+  await page.keyboard.press('Escape')
+
+  // 오픈 전 생성 · 모임 이벤트 근거와 3,900원 안내 문구
+  const old = await create(page, /결혼식/, 'E2E 허브 오픈전')
+  sql(`update invitations set created_at = '2026-10-01T00:00:00+09:00' where id='${old}'`)
+  check((await adminLine(old)).includes('프리미엄 근거: 오픈 전 생성'), '관리자 줄: 오픈 전 생성')
+  const ye = await create(page, /송년회/, 'E2E 허브 이벤트')
+  check((await adminLine(ye)).includes('프리미엄 근거: 모임 이벤트'), '관리자 줄: 모임 이벤트')
+  await openPublish(ye)
+  const dlg = await page.getByRole('dialog').innerText()
+  check(dlg.includes('하단 문구 숨기기는 프리미엄에서만 돼요 · 3,900원'), '모임 이벤트: "하단 문구 숨기기는 프리미엄에서만 돼요 · 3,900원"')
+  check(!dlg.includes('사진을 초대장당'), '모임 이벤트: 이미 열린 기능(사진 한도 등)은 나열하지 않음')
+  await page.keyboard.press('Escape')
+  hub.down = true
+  l = await adminLine(pa)
+  check(/허브 이용권: 확인 못 함\(503 HUB_DOWN\)/.test(l) && !l.includes('tok_e2e'), `관리자 줄: 허브 불통이면 status · code만 (${l})`)
+  hub.down = false
+
+  // 대시보드 줄 · 관리자가 아니면 안 보임
+  await page.goto(`${BASE}/dashboard`)
+  check((await page.locator(ADMIN_LINE).count()) >= 3, '대시보드: 관리자에게 초대장별 줄')
+  const ctxN = await browser.newContext(mobile)
+  const pn = await newPage(ctxN)
+  await pn.goto(`${BASE}/api/auth/kakao/login?dev=1&as=2&next=/new`)
+  const nid = await create(pn, /결혼식/, 'E2E 일반 사용자')
+  await pn.goto(`${BASE}/edit/${nid}`)
+  check((await pn.locator(ADMIN_LINE).count()) === 0 && !(await pn.content()).includes('허브 이용권'), '일반 사용자 편집기: 관리자 줄 없음')
+  await pn.goto(`${BASE}/dashboard`)
+  check((await pn.locator(ADMIN_LINE).count()) === 0, '일반 사용자 대시보드: 관리자 줄 없음')
+  check((await pn.goto(`${BASE}/admin/stats`))!.status() === 404, '일반 사용자: /admin/stats 404')
+  await ctxN.close()
+
+  // /admin/stats '결제 허브' 칸
+  await page.goto(`${BASE}/admin/stats`)
+  const panel = await page.getByTestId('hub-panel').innerText()
+  check(['HANPY_API_ORIGIN', 'HANPY_SERVICE_TOKEN', 'HANPY_NOTIFY_SECRET'].every((k) => new RegExp(`${k}\\s+있음`).test(panel)), '/admin/stats: 설정 3개 있음')
+  const prod = await page.getByTestId('hub-products').innerText()
+  check(prod.includes('invitation.premium.family.open') && prod.includes('9,900원') && prod.includes('invitation.premium.family') && prod.includes('14,900원') && prod.includes('중지') && prod.includes('invitation.premium.meetup') && prod.includes('3,900원'), '/admin/stats: SKU · 가격 · 판매 여부 3줄')
+  let html = await page.content()
+  check(!html.includes('tok_e2e') && !html.includes('notify_e2e') && !html.includes('localhost:4020'), '/admin/stats: 토큰 · 키 · 허브 주소 값은 표시하지 않음')
+  await page.screenshot({ path: process.env.E2E_SHOT ?? '/tmp/admin-stats.png', fullPage: false })
+  hub.down = true
+  await page.goto(`${BASE}/admin/stats`)
+  const txt = await page.locator('main').innerText()
+  html = await page.content()
+  check(txt.includes('상품 조회 실패 · status 503 · code HUB_DOWN') && !html.includes('tok_e2e') && !html.includes('"title":"down"'), '/admin/stats: 허브 실패는 status · code만')
+  hub.down = false
 
   // ───────── 다른 사람 주문 404 · 사용자 기준 대체 확인 ─────────
   const ctx2 = await browser.newContext(mobile)

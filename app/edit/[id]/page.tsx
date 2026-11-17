@@ -36,6 +36,7 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
       introEffects={inv.introEffects}
       canHideMadeWith={inv.canHideMadeWith}
       upsell={inv.upsell}
+      adminHub={inv.adminHub}
       paid={inv.paid}
     />
   )

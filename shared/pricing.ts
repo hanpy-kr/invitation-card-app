@@ -31,6 +31,14 @@ export const FAMILY_OPEN_NOTE = '오픈 특가 (결혼 표지 템플릿 출시 �
  * 모임 연말 이벤트: 이 시각까지 만든 모임 초대장은 결제 없이 사진 60장 · 봉투 · 효과.
  * 하단 문구 숨기기는 제외. 결제 기록이 아니라 이 명시 규칙으로만 열린다(허브 규칙 0-7).
  */
+/**
+ * 결제를 여는 고정 시각(KST 명시 ISO). null이면 아직 결제 시작 전 → 모든 초대장이 premium.
+ * 이 시각 전에 만든 초대장은 premium(오픈 전 생성)으로 영구 유지된다.
+ * 결제를 여는 날 값을 정해 같은 배포로 넣는다. 환경변수 PAYMENTS_LIVE(결제 버튼 · 화면 스위치)와는 별개라
+ * 스위치를 잠깐 꺼도 플랜 판단은 바뀌지 않는다.
+ */
+export const PAYMENTS_LIVE_AT: string | null = null
+
 export const MEETUP_EVENT_UNTIL = new Date('2027-01-31T23:59:59+09:00')
 
 export const formatWon = (n: number): string => `${n.toLocaleString('ko-KR')}원`

@@ -4,16 +4,30 @@ import { sql } from 'drizzle-orm'
 
 import type { EventType } from '@/shared/blocks'
 import { resolvePlan, type Plan } from '@/shared/entitlements'
-import { isFamilyEvent, PREMIUM_DERIVED_EVENTS, PREMIUM_PARENT_EVENTS } from '@/shared/pricing'
+import { isFamilyEvent, PAYMENTS_LIVE_AT, PREMIUM_DERIVED_EVENTS, PREMIUM_PARENT_EVENTS } from '@/shared/pricing'
 
 import { schema } from './db/client'
 import { isAdmin } from './stats'
 
 /**
- * PAYMENTS_LIVE = 결제를 시작하는 시각(ISO 8601, 예: 2026-12-01T00:00:00+09:00). 비었거나 읽을 수 없으면 꺼짐.
- * 그 시각 이후에만 결제 버튼이 보이고, 그 전에 만든 초대장은 소급하지 않는다(legacy).
+ * 플랜 판단에 쓰는 '결제 시작 시각'. 고정 상수(shared/pricing.ts PAYMENTS_LIVE_AT)이며 환경변수가 아니다.
+ * (로컬 e2e 전용: DEV_LOGIN=1일 때만 PAYMENTS_LIVE_AT_DEV로 바꿀 수 있다. 운영에서는 DEV_LOGIN이 비어 있다.)
  */
-export function paymentsLiveSince(): Date | null {
+export function paymentsLiveAt(): Date | null {
+  const raw =
+    process.env.DEV_LOGIN === '1' && process.env.PAYMENTS_LIVE_AT_DEV
+      ? process.env.PAYMENTS_LIVE_AT_DEV
+      : PAYMENTS_LIVE_AT
+  if (!raw) return null
+  const d = new Date(raw)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
+/**
+ * PAYMENTS_LIVE = 결제 버튼 · 결제 화면을 여는 스위치(ISO 8601 시각). 비었거나 읽을 수 없으면 닫힘.
+ * 플랜 판단에는 쓰지 않는다(그건 paymentsLiveAt).
+ */
+function paymentsSwitchSince(): Date | null {
   const raw = process.env.PAYMENTS_LIVE?.trim()
   if (!raw) return null
   const d = new Date(raw)
@@ -29,9 +43,9 @@ export function hubConfigured(): boolean {
   )
 }
 
-/** 결제 버튼 · 결제 화면을 열어도 되는 상태 (시작 시각이 지났고 허브 설정이 다 있음) */
+/** 결제 버튼 · 결제 화면을 열어도 되는 상태 (스위치 시각이 지났고 허브 설정이 다 있음) */
 export function paymentsOpen(now = new Date()): boolean {
-  const since = paymentsLiveSince()
+  const since = paymentsSwitchSince()
   return Boolean(since && now.getTime() >= since.getTime() && hubConfigured())
 }
 
@@ -76,7 +90,7 @@ export function planOf(row: {
   derivedPremium: boolean | null | undefined
 }): Plan {
   return resolvePlan({
-    liveSince: paymentsLiveSince(),
+    liveAt: paymentsLiveAt(),
     createdAt: row.createdAt,
     premiumHub: Boolean(row.premiumHub),
     premiumOrderId: row.premiumOrderId,

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { requireKakaoSession } from '@/lib/auth/session'
+import { hubAdminPanel } from '@/lib/admin-hub'
 import { adminStats, isAdmin } from '@/lib/stats'
 import { EVENT_TYPE_LABELS, EVENT_TYPE_ORDER, type EventType } from '@/shared/blocks'
 
@@ -16,7 +17,7 @@ const pct = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` :
 export default async function AdminStatsPage() {
   const session = await requireKakaoSession('/admin/stats')
   if (!(await isAdmin(session.userId))) notFound()
-  const { published, funnel, sources } = await adminStats()
+  const [{ published, funnel, sources }, hub] = await Promise.all([adminStats(), hubAdminPanel()])
 
   const weeks = funnel.map((f) => f.week)
   const types = EVENT_TYPE_ORDER.filter((t) => published.some((p) => p.event_type === t))
@@ -27,6 +28,54 @@ export default async function AdminStatsPage() {
     <main className={styles.page}>
       <h1>운영 지표</h1>
       <p className={styles.note}>최근 8주 · 한국 시간 월요일 시작 · 열람은 기기당 하루 1회</p>
+
+      <h2>결제 허브</h2>
+      <div className={styles.scroll}>
+        <table data-testid="hub-panel">
+          <thead>
+            <tr>
+              <th>설정</th>
+              <th>상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(hub.env).map(([k, ok]) => (
+              <tr key={k}>
+                <td>{k}</td>
+                <td>{ok ? '있음' : '없음'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {hub.error ? (
+        <p className={styles.note}>
+          상품 조회 실패 · status {hub.error.status} · code {hub.error.code}
+        </p>
+      ) : hub.products ? (
+        <div className={styles.scroll}>
+          <table data-testid="hub-products">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>가격</th>
+                <th>판매</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hub.products.map((p) => (
+                <tr key={p.sku}>
+                  <td>{p.sku}</td>
+                  <td>{p.amount.toLocaleString('ko-KR')}원</td>
+                  <td>{p.onSale ? '판매 중' : '중지'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className={styles.note}>허브 설정이 다 들어오면 상품 3줄이 여기에 보여요.</p>
+      )}
 
       <h2>주간 발행 수 (행사 종류별)</h2>
       <div className={styles.scroll}>

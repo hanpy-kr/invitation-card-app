@@ -10,6 +10,7 @@ import { usableOptions } from '@/shared/vote'
 import { canEditWhere, editableInvitationIds } from './access'
 import { getDb, schema } from './db/client'
 import { isUuid } from './editor'
+import { derivedPremiumSql } from './plan'
 import { tallyVotes } from './vote'
 
 const { invitations: inv, rsvps, guestbookEntries: gb, invitationSeen: seen } = schema
@@ -37,6 +38,10 @@ export async function listMyInvitations(userId: string) {
       // 응답 화면을 마지막으로 본 뒤 들어온 응답 (본 적 없으면 전부)
       newResponses: sql<number>`count(${rsvps.id}) filter (where ${rsvps.createdAt} > coalesce(${seen.seenAt}, 'epoch'))::int`,
       isOwner: sql<boolean>`${inv.ownerId} = ${userId}`,
+      createdAt: inv.createdAt,
+      premiumHub: inv.premiumHub,
+      premiumOrderId: inv.premiumOrderId,
+      derivedPremium: derivedPremiumSql(),
     })
     .from(inv)
     .leftJoin(rsvps, eq(rsvps.invitationId, inv.id))

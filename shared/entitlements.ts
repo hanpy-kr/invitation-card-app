@@ -45,12 +45,21 @@ export function getEntitlements(opts?: { plan?: Plan; anonymous?: boolean }): En
 
 export const PLAN_FEATURES = { free: FREE, premium: PREMIUM } as const
 
+export type PlanBasis =
+  | 'payments-off'
+  | 'hub'
+  | 'parent'
+  | 'old-order'
+  | 'before-live'
+  | 'meetup-event'
+  | 'free'
+
 /**
- * 초대장의 플랜 결정 (순수 함수).
- * liveSince: PAYMENTS_LIVE가 켜진 시각(null이면 결제 시작 전).
+ * 초대장의 플랜과 그 근거 (순수 함수).
+ * liveAt: shared/pricing.ts의 PAYMENTS_LIVE_AT(고정 시각). null이거나 아직 안 됐으면 결제 시작 전.
  */
-export function resolvePlan(input: {
-  liveSince: Date | null
+export function planDecision(input: {
+  liveAt: Date | null
   now?: Date
   createdAt: Date | string
   /** 허브 이용권 캐시 (invitations.premium_hub) */
@@ -61,18 +70,26 @@ export function resolvePlan(input: {
   derivedPremium: boolean
   /** 모임(결혼 · 돌 · 감사장 아닌 행사)인가 — 연말 이벤트 판단 */
   isMeetup: boolean
-}): Plan {
+}): { plan: Plan; basis: PlanBasis } {
   const now = input.now ?? new Date()
-  // 1. 결제 꺼짐 → 모두 프리미엄
-  if (!input.liveSince || now.getTime() < input.liveSince.getTime()) return 'premium'
+  // 1. 결제 시작 전 → 모두 프리미엄
+  if (!input.liveAt || now.getTime() < input.liveAt.getTime())
+    return { plan: 'premium', basis: 'payments-off' }
   // 2~4. 허브 이용권 · 파생 · 옛 결제
-  if (input.premiumHub || input.derivedPremium || input.premiumOrderId) return 'premium'
+  if (input.premiumHub) return { plan: 'premium', basis: 'hub' }
+  if (input.derivedPremium) return { plan: 'premium', basis: 'parent' }
+  if (input.premiumOrderId) return { plan: 'premium', basis: 'old-order' }
   const created = new Date(input.createdAt).getTime()
   // 5. 결제 시작 전에 만든 초대장은 소급하지 않고 premium
-  if (created < input.liveSince.getTime()) return 'premium'
+  if (created < input.liveAt.getTime()) return { plan: 'premium', basis: 'before-live' }
   // 6. 모임 연말 이벤트 (하단 문구 숨기기 제외)
-  if (input.isMeetup && created <= MEETUP_EVENT_UNTIL.getTime()) return 'event'
-  return 'free'
+  if (input.isMeetup && created <= MEETUP_EVENT_UNTIL.getTime())
+    return { plan: 'event', basis: 'meetup-event' }
+  return { plan: 'free', basis: 'free' }
+}
+
+export function resolvePlan(input: Parameters<typeof planDecision>[0]): Plan {
+  return planDecision(input).plan
 }
 
 /**

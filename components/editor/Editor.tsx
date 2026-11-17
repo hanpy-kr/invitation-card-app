@@ -40,7 +40,9 @@ export type EditorProps = {
   introEffects: boolean
   canHideMadeWith: boolean
   /** 프리미엄 안내 · 결제 버튼 (결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음) */
-  upsell: { price: number | null; openSale: boolean } | null
+  upsell: { price: number | null; openSale: boolean; event: boolean } | null
+  /** 관리자 전용 확인 줄 */
+  adminHub?: string | null
   /** 결제한 초대장이면 환불 가능 여부 */
   paid: { refundable: boolean } | null
 }
@@ -165,6 +167,11 @@ export default function Editor(props: EditorProps) {
             {status === 'published' ? '공유하기' : '발행하기'}
           </button>
         </header>
+        {props.adminHub ? (
+          <p className={styles.adminHub} data-testid="admin-hub">
+            {props.adminHub}
+          </p>
+        ) : null}
         {save.state === 'error' && save.error ? (
           <p className={styles.saveError}>{save.error}</p>
         ) : null}

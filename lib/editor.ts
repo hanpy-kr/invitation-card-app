@@ -19,6 +19,7 @@ import { buildFromLayout, buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
 import { canEditWhere, getAccess } from './access'
+import { adminHubLines } from './admin-hub'
 import { canCheckout, derivedPremiumSql, hasPaidPremium, planOf } from './plan'
 import { hanpy } from './hanpy'
 import { refreshIfStale } from './premium'
@@ -49,7 +50,9 @@ export type EditableInvitation = {
   introEffects: boolean
   canHideMadeWith: boolean
   /** 결제 버튼을 보여 줄지(PAYMENTS_LIVE가 켜지고 아직 프리미엄이 아닐 때) · 가격 */
-  upsell: { price: number | null; openSale: boolean } | null
+  upsell: { price: number | null; openSale: boolean; event: boolean } | null
+  /** 관리자 전용 한 줄(허브에 바로 물어본 값 · 프리미엄 근거). 관리자가 아니면 null */
+  adminHub: string | null
   /** 결제한 초대장이면 환불 가능 여부 (지우기 확인창에서 안내) */
   paid: { refundable: boolean } | null
 }
@@ -200,6 +203,8 @@ export async function getEditableInvitation(
     }
   }
   const plan = planOf(row)
+  const adminHub =
+    row.ownerId === userId ? ((await adminHubLines(userId, [row]))?.[row.id] ?? null) : null
   const ent = getEntitlements({ plan, anonymous: Boolean(row.owner?.anonymous) })
   return {
     id: row.id,
@@ -227,9 +232,10 @@ export async function getEditableInvitation(
     introEffects: ent.introEffects,
     canHideMadeWith: ent.canHideMadeWith,
     paid,
+    adminHub,
     upsell:
       !hasPaidPremium(row) && row.ownerId === userId && (await canCheckout(userId))
-        ? { price: await priceOfEvent(row.eventType), openSale: isFamilyEvent(row.eventType) }
+        ? { price: await priceOfEvent(row.eventType), openSale: isFamilyEvent(row.eventType), event: plan === 'event' }
         : null,
   }
 }

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { requireSession } from '@/lib/auth/session'
 import { listMyInvitations } from '@/lib/dashboard'
 import { getNotifyState } from '@/lib/notify'
+import { adminHubLines } from '@/lib/admin-hub'
 import { GROBLE_ORDER_URL, listHubOrders } from '@/lib/hub-orders'
 import { REFUND_NOTICE } from '@/shared/pricing'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
@@ -27,6 +28,13 @@ export default async function DashboardPage() {
     session.anonymous ? null : getNotifyState(session.userId),
     session.anonymous ? [] : listHubOrders(session.userId),
   ])
+
+  const hubLines = session.anonymous
+    ? null
+    : await adminHubLines(
+        session.userId,
+        invitations.filter((i) => i.isOwner),
+      )
 
   return (
     <main className={styles.page}>
@@ -92,6 +100,11 @@ export default async function DashboardPage() {
                 </div>
               ) : null}
               {!inv.isOwner ? <div className={styles.meta}>함께 편집 중인 초대장</div> : null}
+              {hubLines?.[inv.id] ? (
+                <div className={styles.meta} data-testid="admin-hub">
+                  {hubLines[inv.id]}
+                </div>
+              ) : null}
               <div className={styles.actions}>
                 <Link href={`/edit/${inv.id}`}>편집</Link>
                 <Link href={`/dashboard/${inv.id}`}>응답 보기</Link>

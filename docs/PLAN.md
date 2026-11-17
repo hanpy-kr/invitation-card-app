@@ -363,6 +363,12 @@ DB 마이그레이션 `0017`(추가만): 테이블 `bring_claims` · `invitee_li
 - ⏸ 사용자: ① 그로블 상품 3개 만들기(돌아오기 주소 `https://thedearday.com/pay/return`) 후 링크를 허브에 전달 ② 허브 토큰 · 알림 키 발급(알림 주소 `https://thedearday.com/api/hanpy/payments`), Amplify에 `HANPY_API_ORIGIN` · `HANPY_SERVICE_TOKEN` · `HANPY_NOTIFY_SECRET` 넣고 재배포 ③ 운영 DB `select count(*) from orders where status = 'paid'` 확인 ④ 배포 뒤 실결제 9,900원 → 그로블 환불로 프리미엄 켜짐/꺼짐 확인 ⑤ 약관 · 처리방침 개정 공지(시행 7일 전) → `PAYMENTS_LIVE` → 옛 코드 정리 → 허브 `dd-` 전달 제거
 - 참고: 오픈 특가 종료 시 `FAMILY_SKU`를 `invitation.premium.family`로 한 줄 교체.
 
+### 허브 검토 반영 (11/17, 브랜치 `payments-hub-2`)
+- [x] `/admin/stats` '결제 허브' 칸(설정 있음/없음 · 상품 3줄 · 실패는 status/code만), 관리자 편집기 · 대시보드 한 줄(허브에 바로 재조회 · 프리미엄 근거)
+- [x] 플랜 기준을 고정 상수 `PAYMENTS_LIVE_AT`(지금 null)로 분리. `PAYMENTS_LIVE`는 결제 버튼 · 화면 스위치로만 쓰고 플랜 판단에는 안 씀. **결제를 여는 날 `shared/pricing.ts`의 `PAYMENTS_LIVE_AT`을 정해 같은 배포로 넣을 것(⏸ 사용자)**
+- [x] 부모 환불 → 파생 초대장 e2e, 모임 이벤트 안내 문구("하단 문구 숨기기는 프리미엄에서만 돼요 · 3,900원")
+- 로컬 e2e 전용: `DEV_LOGIN=1`일 때만 `PAYMENTS_LIVE_AT_DEV`로 시각을 바꿈(운영은 DEV_LOGIN이 비어 있어 상수만 씀)
+
 ## 공통 규칙 (2차)
 
 - 공개 초대장 성능 유지: 서버 쿼리 1회 유지, 새 블록의 데이터(명단 · 투표 결과 · 방명록)는 화면 근처에서 API로. `/i/[slug]` First Load JS 140kB 이하
