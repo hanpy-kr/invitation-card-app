@@ -108,7 +108,7 @@ R2_BUCKET=dearday-media
 R2_PUBLIC_BASE_URL=
 DEV_LOGIN=                    # 로컬 전용. 1이면 카카오 없이 개발용 로그인 허용. 운영에서 비워둘 것
 ADMIN_KAKAO_IDS=              # (2차) /admin/stats를 볼 수 있는 카카오 회원번호, 쉼표로 구분
-PAYMENTS_LIVE=                # 결제를 여는 시각(ISO 8601). 비우면 결제 꺼짐. 이 시각 전에 만든 초대장은 프리미엄 유지(소급 없음)
+PAYMENTS_LIVE=                # 결제 화면 스위치(비우면 닫힘). 플랜 판단 기준이 아님 — 기준 시각은 shared/pricing.ts의 PAYMENTS_LIVE_AT 상수
 HANPY_API_ORIGIN=             # https://api.han-py.com (서버 전용)
 HANPY_SERVICE_TOKEN=          # 허브 서비스 토큰 (서버 전용, 값은 Amplify에만)
 HANPY_NOTIFY_SECRET=          # 허브 결제 알림 서명 키 (서버 전용, 값은 Amplify에만)
@@ -135,8 +135,9 @@ Amplify 서울 리전, Neon 싱가포르, 카카오 앱 등록 완료. 배포 �
 
 dearday 규칙 (2026-11-16, `dearday/PRICING.md`):
 - SKU: `invitation.premium.family.open`(9,900, 결혼 · 돌 · 감사장, 오픈 특가) · `invitation.premium.family`(14,900, 판매 중지로 시작) · `invitation.premium.meetup`(3,900, 그 밖의 모임). 이용권 키 `premium`, 대상 `{ type: 'invitation', id: 초대장 UUID }`, customerRef = `users.id`
-- 결제 없이 프리미엄(명시 규칙): ① `PAYMENTS_LIVE` 전에 만든 초대장 ② 2027-01-31 23:59:59(KST)까지 만든 모임 초대장(단, 하단 문구 숨기기는 불가) ③ 허브 이용권이 있는 결혼 · 돌 초대장에서 만든 청첩장 모임 · 감사장(`derived_from_id`)
+- 결제 없이 프리미엄(명시 규칙): ① `PAYMENTS_LIVE_AT`(shared/pricing.ts 상수, KST 명시, 결제 여는 날 값을 정해 함께 배포. 그 전까지 null = 모두 프리미엄) 전에 만든 초대장. 스위치 `PAYMENTS_LIVE`를 잠깐 꺼도 이 판단은 바뀌지 않음 ② 2027-01-31 23:59:59(KST)까지 만든 모임 초대장(단, 하단 문구 숨기기는 불가) ③ 허브 이용권이 있는 결혼 · 돌 초대장에서 만든 청첩장 모임 · 감사장(`derived_from_id`)
 - 옛 자체 결제 코드(그로블 · 토스 · `orders`)는 전환 확인 뒤 지운다. `orders` 테이블은 법정 보관용으로 남긴다.
+- 실결제 확인: 관리자에게만 "허브 이용권 있음/없음(허브 즉시 조회)"과 "프리미엄 근거(허브 결제 / 오픈 전 생성 / 모임 이벤트 / 부모 상속 / 결제 꺼짐 / 무료)"를 따로 보여 준다(허브 검토 2026-11-17).
 
 ## 작업 방식
 
