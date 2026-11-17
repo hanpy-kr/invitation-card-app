@@ -13,6 +13,7 @@ import {
   type Expense,
 } from '@/shared/settlement'
 
+import Toast, { isToastMessage } from '@/components/ui/Toast'
 import styles from './page.module.scss'
 
 /**
@@ -184,11 +185,12 @@ export default function SettlementPanel({
         />
         정산 내역을 하객 화면에도 보이기
       </label>
-      {msg ? (
+      {msg && !isToastMessage(msg) ? (
         <p className={styles.hint} role="status">
           {msg}
         </p>
       ) : null}
+      <Toast message={isToastMessage(msg) ? msg : ''} onDone={() => setMsg('')} />
     </section>
   )
 }

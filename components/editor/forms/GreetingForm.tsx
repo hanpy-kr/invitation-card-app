@@ -9,6 +9,9 @@ import { Segmented, TextArea, TextField, Toggle } from '../fields'
 import { patcher, type FormProps } from './types'
 
 const MAX_HOSTS = 4
+const MAX_FAMILIES = 2
+type Family = { parents: string; relation: '아들' | '딸'; name: string }
+const EMPTY_FAMILY: Family = { parents: '', relation: '아들', name: '' }
 
 export default function GreetingForm({
   config,
@@ -27,6 +30,19 @@ export default function GreetingForm({
     setPicking(false)
   }
   const hosts = config.hosts.length > 0 ? config.hosts : ['']
+  const families = Array.from(
+    { length: MAX_FAMILIES },
+    (_, i) => config.families[i] ?? EMPTY_FAMILY,
+  )
+  const setFamily = (idx: number, patch: Partial<Family>) =>
+    update((c) => {
+      const next = Array.from({ length: MAX_FAMILIES }, (_, i) => c.families[i] ?? EMPTY_FAMILY)
+      next[idx] = { ...next[idx], ...patch }
+      // 끝쪽 빈 줄은 저장하지 않음 (비우면 그 줄은 안 보임)
+      while (next.length > 0 && !next[next.length - 1].parents && !next[next.length - 1].name)
+        next.pop()
+      return { ...c, families: next }
+    })
 
   const setHost = (idx: number, value: string) =>
     update((c) => {
@@ -38,12 +54,13 @@ export default function GreetingForm({
   return (
     <>
       <Segmented
-        label="아이콘"
+        label="윗장식"
         value={config.icon}
         options={[
+          { value: 'none', label: '없음' },
           { value: 'flower', label: '꽃' },
           { value: 'post', label: '편지' },
-          { value: 'none', label: '없음' },
+          { value: 'star', label: '별' },
         ]}
         onChange={(icon) => set({ icon })}
       />
@@ -67,8 +84,9 @@ export default function GreetingForm({
         style={{
           alignSelf: 'flex-start',
           border: '1px solid var(--btn-line)',
+          borderRadius: 2,
           background: 'none',
-          color: 'var(--accent)',
+          color: 'var(--ink)',
           minHeight: 'var(--tap)',
           padding: '0 14px',
         }}
@@ -90,8 +108,8 @@ export default function GreetingForm({
                   width: '100%',
                   textAlign: 'left',
                   whiteSpace: 'pre-line',
-                  border: '1px solid var(--line)',
-                  background: 'var(--surface, transparent)',
+                  border: '1px solid var(--paper-line)',
+                  background: 'var(--paper-surface)',
                   padding: '10px 12px',
                   fontSize: 13,
                   lineHeight: 1.7,
@@ -147,7 +165,9 @@ export default function GreetingForm({
               alignSelf: 'flex-start',
               border: 0,
               background: 'none',
-              color: 'var(--accent)',
+              color: 'var(--ink)',
+              textDecoration: 'underline',
+              textUnderlineOffset: 4,
               padding: '4px 0',
             }}
             onClick={() =>
@@ -170,8 +190,60 @@ export default function GreetingForm({
           onChange={(hostSeparator) => set({ hostSeparator })}
         />
       ) : null}
+      {eventType === 'wedding' ? (
+        <div className={fieldStyles.field}>
+          <span>
+            혼주 <em className={fieldStyles.hint}>최대 {MAX_FAMILIES}줄</em>
+          </span>
+          {families.map((f, idx) => (
+            <div key={idx} className={fieldStyles.familyRow}>
+              <input
+                className={fieldStyles.input}
+                value={f.parents}
+                maxLength={40}
+                placeholder="강춘근 · 심남숙"
+                aria-label={`혼주 ${idx + 1} 부모님 이름`}
+                onChange={(e) => setFamily(idx, { parents: e.target.value })}
+              />
+              <span className={fieldStyles.control}>
+                <select
+                  className={fieldStyles.select}
+                  value={f.relation}
+                  aria-label={`혼주 ${idx + 1} 관계`}
+                  onChange={(e) => setFamily(idx, { relation: e.target.value as '아들' | '딸' })}
+                >
+                  <option value="아들">아들</option>
+                  <option value="딸">딸</option>
+                </select>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 9.5l6 6 6-6" />
+                </svg>
+              </span>
+              <input
+                className={fieldStyles.input}
+                value={f.name}
+                maxLength={20}
+                placeholder="이름"
+                aria-label={`혼주 ${idx + 1} 자녀 이름`}
+                onChange={(e) => setFamily(idx, { name: e.target.value })}
+              />
+            </div>
+          ))}
+          <small className={fieldStyles.helper}>
+            부모님 이름은 가운데 점(·)으로 구분. 비우면 그 줄은 안 보여요
+          </small>
+        </div>
+      ) : null}
       <Toggle
-        label="행사 날짜 · 시간 보이기"
+        label={eventType === 'wedding' ? '이름 아래 예식 날짜 보이기' : '이름 아래 날짜 보이기'}
         checked={config.showEventDate}
         onChange={(showEventDate) => set({ showEventDate })}
       />

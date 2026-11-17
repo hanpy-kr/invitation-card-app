@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import { api } from '@/components/ui/api'
 
+import Toast, { isToastMessage } from '@/components/ui/Toast'
 import styles from './page.module.scss'
 
 /** 소유자: 공동 편집자 초대 링크 · 목록 · 빼기 */
@@ -38,7 +39,7 @@ export default function EditorsPanel({
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} data-en="CO-EDIT">
       <h2>함께 편집 {editors.length > 0 ? `${editors.length}명` : ''}</h2>
       <p className={styles.hint}>
         링크를 받은 사람이 카카오로 로그인하면 이 초대장을 같이 고치고 응답을 볼 수 있어요. 삭제와
@@ -78,7 +79,8 @@ export default function EditorsPanel({
           onFocus={(e) => e.target.select()}
         />
       ) : null}
-      {msg ? <p className={styles.hint}>{msg}</p> : null}
+      {msg && !isToastMessage(msg) ? <p className={styles.hint}>{msg}</p> : null}
+      <Toast message={isToastMessage(msg) ? msg : ''} onDone={() => setMsg('')} />
     </section>
   )
 }

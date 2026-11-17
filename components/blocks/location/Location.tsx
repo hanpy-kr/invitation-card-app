@@ -3,6 +3,7 @@ import classNames from 'classnames/bind'
 import type { LocationConfig } from '@/shared/blocks'
 import { kakaoMapUrl, naverMapUrl, tmapUrl } from '@/shared/maps'
 
+import { IconBus, IconCar, IconSubway } from '../common/icons'
 import Section from '../common/Section'
 import Text from '../common/Text'
 import CopyButton from '../common/CopyButton'
@@ -27,9 +28,9 @@ export default function Location({
   }
   const tmap = tmapUrl(place)
   const ways = [
-    { label: '지하철', text: config.subway },
-    { label: '버스', text: config.bus },
-    { label: '주차', text: config.parking },
+    { label: '지하철', text: config.subway, Icon: IconSubway },
+    { label: '버스', text: config.bus, Icon: IconBus },
+    { label: '주차 안내', text: config.parking, Icon: IconCar },
   ].filter((w) => w.text)
 
   return (
@@ -61,8 +62,11 @@ export default function Location({
         <ul className={cx('list-ways')}>
           {ways.map((w) => (
             <li key={w.label}>
-              <div className={cx('txt-label')}>{w.label}</div>
-              <Text>{w.text}</Text>
+              <div className={cx('txt-label')}>
+                <w.Icon className={cx('ico')} />
+                {w.label}
+              </div>
+              <Text className={cx('txt-way')}>{w.text}</Text>
             </li>
           ))}
         </ul>

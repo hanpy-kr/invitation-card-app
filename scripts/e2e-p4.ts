@@ -62,7 +62,7 @@ async function main() {
   await host.getByRole('button', { name: /송년회/ }).first().click()
   await host.waitForURL(/\/edit\//)
   await host.getByLabel('초대장 제목').fill('E2E 송년회')
-  await host.getByLabel('날짜').fill(kstToday())
+  await host.getByLabel('날짜', { exact: true }).fill(kstToday())
   await waitSaved(host)
 
   // ② 진행 순서: 숨김으로 들어 있고 예시 3줄

@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 
 import type { Block } from '@/shared/blocks'
-import { firstPlace } from '@/shared/calendar'
+import { firstPlace, firstVenue } from '@/shared/calendar'
 import { isDateVoting } from '@/shared/vote'
 import { mediaSrc, thumbKey } from '@/shared/media'
 
@@ -29,11 +29,14 @@ export function BlockView({
   block,
   ctx,
   place = '',
+  venue = '',
 }: {
   block: Block
   ctx: BlockContext
   /** 캘린더 블록용: 첫 장소 */
   place?: string
+  /** 캘린더 카드에 보일 장소명 + 층 · 홀 */
+  venue?: string
 }) {
   if (!block.visible) return null
   switch (block.type) {
@@ -46,6 +49,7 @@ export function BlockView({
         <Gallery
           title={block.config.title}
           layout={block.config.layout}
+          collapse={block.config.collapse}
           images={block.config.images.map((m) => ({
             src: mediaSrc(ctx.mediaBaseUrl, m.key),
             // 바둑판은 썸네일, 크게 보기는 원본. 썸네일 표시가 없는 예전 사진은 원본
@@ -66,7 +70,7 @@ export function BlockView({
     case 'notice':
       return <Notice config={block.config} ctx={ctx} />
     case 'calendar':
-      return <Calendar config={block.config} ctx={ctx} place={place} />
+      return <Calendar config={block.config} ctx={ctx} place={place} venue={venue} />
     case 'contact':
       return <Contact config={block.config} />
     case 'vote':
@@ -86,6 +90,7 @@ export function BlockView({
 
 export default function BlockRenderer({ blocks, ctx }: { blocks: Block[]; ctx: BlockContext }) {
   const place = firstPlace(blocks)
+  const venue = firstVenue(blocks)
   // 날짜 투표 중이면 아직 날짜가 없는 것처럼 (캘린더 · 인사말 날짜 숨김)
   const coverId = blocks.find((b) => b.type === 'cover' && b.visible)?.id
   const view = isDateVoting(blocks) ? { ...ctx, eventAt: null, dateVoting: true } : ctx
@@ -95,7 +100,7 @@ export default function BlockRenderer({ blocks, ctx }: { blocks: Block[]; ctx: B
         .sort((a, b) => a.position - b.position)
         .map((block) => (
           <Fragment key={block.id}>
-            <BlockView block={block} ctx={view} place={place} />
+            <BlockView block={block} ctx={view} place={place} venue={venue} />
             {block.id === coverId ? <EventDayBand blocks={blocks} ctx={view} /> : null}
           </Fragment>
         ))}

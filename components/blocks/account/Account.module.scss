@@ -29,13 +29,16 @@
     }
   }
 
+  // 상자 없이 종이 위에 바로 (펼침 줄만)
   .group {
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    overflow: hidden;
+    border-bottom: var(--grp-bb, 0);
+
+    &.first {
+      border-top: var(--grp-top, 0);
+    }
 
     & + .group {
-      margin-top: 10px;
+      margin-top: var(--grp-gap, 2px);
     }
   }
 
@@ -44,18 +47,30 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    min-height: 52px;
-    padding: 0 16px;
+    min-height: var(--grp-h, 52px);
+    padding: var(--grp-pad, 0 4px);
     border: 0;
-    background: var(--surface);
+    background: transparent;
     font: inherit;
-    font-size: 15px;
-    color: var(--text);
+    font-size: var(--grp-size, 15px);
+    color: var(--ink-strong, var(--text));
     cursor: pointer;
 
     .chevron {
+      display: inline-flex;
       color: var(--muted);
       transition: transform 0.2s;
+    }
+
+    .chev-old {
+      display: var(--cl-off, inline);
+    }
+
+    .chev-new {
+      display: var(--cl-on, none);
+      width: 12px;
+      height: 12px;
+      color: var(--foil);
     }
   }
 
@@ -64,8 +79,8 @@
   }
 
   .list {
-    border-top: 1px solid var(--line);
-    background: var(--bg);
+    border-top: 1px solid var(--list-line, var(--line));
+    background: var(--list-bg, var(--bg));
   }
 
   .row {

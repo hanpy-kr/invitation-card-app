@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import Logo from '@/components/site/Logo'
-import Link from 'next/link'
 
+import BackLink from '@/components/site/BackLink'
+import Logo from '@/components/site/Logo'
 import SiteFooter from '@/components/site/SiteFooter'
 import { BUSINESS } from '@/shared/business'
 import { getEntitlements } from '@/shared/entitlements'
@@ -18,7 +18,7 @@ export default function TermsPage() {
         <div style={{ marginBottom: 12 }}>
           <Logo />
         </div>
-        <Link href="/">← dearday</Link>
+        <BackLink href="/" label="처음 화면으로" />
         <h1>이용약관</h1>
         <p className={styles.date}>시행일 {BUSINESS.effectiveDate}</p>
 

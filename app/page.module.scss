@@ -1,8 +1,37 @@
 @use '../styles/utils' as *;
 
+// 먹 음각(E7): 아래 흰 결 + 위 옅은 그림자 → 종이에 눌러 찍은 글자
+$deboss-ink:
+  0 1px 0 rgba(255, 255, 255, 0.85),
+  0 -1px 0 rgba(60, 40, 20, 0.14);
+$deboss-title:
+  0 1px 0 rgba(255, 255, 255, 0.95),
+  0 -1px 0 rgba(60, 40, 20, 0.18);
+
+// 작약 종이를 화면 전체에 (시안 E9: 색을 뺀 흰 코튼지, 투명도 0.6을 이미지에 미리 입힘)
 .page {
-  background: var(--bg);
   min-height: 100vh;
+  background: #f3f1ec url('/landing/page-peony-white.webp') center top / 100% auto repeat-y;
+
+  @media (min-width: 600px) {
+    background-size: 780px auto;
+    background-repeat: repeat;
+  }
+}
+
+// 눌러 찍은(디보싱) 글자 로고
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-family: 'Noto Serif KR', serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #b0aaa0;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95),
+    0 -1px 0 rgba(60, 54, 46, 0.42);
 }
 
 .top {
@@ -21,17 +50,13 @@
   min-height: var(--tap);
   padding: 0 4px;
   font-size: 14px;
-  color: var(--muted);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.4em;
-  padding-left: 0.4em;
-  text-transform: uppercase;
-  color: var(--accent);
+  font-weight: 500;
+  color: #b0aaa0;
+  text-decoration: none;
+  // 로고처럼 음각, 밑줄 없음
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95),
+    0 -1px 0 rgba(60, 54, 46, 0.42);
 }
 
 .hero {
@@ -42,88 +67,114 @@
 
   h1 {
     @include display-font;
-    font-size: 31px;
-    font-weight: normal;
+    font-size: 30px;
+    font-weight: 700;
     line-height: 1.4;
-    margin: 16px 0 14px;
+    letter-spacing: -0.03em;
+    margin: 8px 0 14px;
+    text-shadow: $deboss-title;
   }
 
   .lead {
-    @include display-font;
     color: var(--muted);
     font-size: 15px;
     line-height: 1.8;
+    text-shadow: $deboss-ink;
   }
 }
 
-// 표지 3장 부채꼴: 가운데는 결혼, 양옆은 송년회 · 생일
-.fan {
+// 엽서 3장 묶음 + 꿀색 띠지 (시안 E)
+.stack {
   position: relative;
-  height: 270px;
-  margin: 36px auto 28px;
-  width: 100%;
-  max-width: 340px;
+  width: 300px;
+  height: 300px;
+  margin: 34px auto 20px;
 
   .card {
     position: absolute;
-    overflow: hidden;
-    border-radius: var(--radius);
-    border: 1px solid var(--line);
-    background: var(--photo);
-    box-shadow: 0 6px 18px rgba(74, 66, 57, 0.14);
-
-    img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    left: 62px;
+    width: 176px;
+    height: 220px;
+    object-fit: cover;
+    box-shadow:
+      0 2px 4px rgba(95, 70, 35, 0.14),
+      0 10px 22px rgba(95, 70, 35, 0.12);
   }
 
-  .left,
-  .right {
-    width: 150px;
-    height: 187px;
-    top: 38px;
+  .back1 {
+    top: 22px;
+    transform: rotate(-7deg);
   }
 
-  .left {
-    left: 0;
-    transform: rotate(-8deg);
+  .back2 {
+    top: 16px;
+    transform: rotate(5deg);
   }
 
-  .right {
-    right: 0;
-    transform: rotate(8deg);
+  .front {
+    top: 10px;
+    box-shadow:
+      0 2px 4px rgba(95, 70, 35, 0.16),
+      0 14px 28px rgba(95, 70, 35, 0.16);
   }
 
-  .center {
-    width: 190px;
-    height: 237px;
-    left: 50%;
-    top: 0;
-    margin-left: -95px;
-    z-index: 1;
-  }
-
-  .over {
+  .band {
     position: absolute;
-    inset: 22px 0 auto;
+    left: 54px;
+    top: 132px;
+    width: 192px;
+    height: 74px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 4px;
-    color: #4a4239;
+    background: #ddd4c4 url('/landing/paper-cotton.webp') 0 0 / 512px;
+    background-blend-mode: multiply;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.55) inset,
+      0 -1px 0 rgba(120, 85, 40, 0.18) inset,
+      0 3px 8px rgba(95, 70, 35, 0.22);
 
-    small {
-      font-size: 10px;
-      letter-spacing: 0.2em;
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+    }
+
+    &::before {
+      left: 0;
+      background: linear-gradient(90deg, rgba(95, 70, 35, 0.22), rgba(95, 70, 35, 0));
+    }
+
+    &::after {
+      right: 0;
+      background: linear-gradient(270deg, rgba(95, 70, 35, 0.22), rgba(95, 70, 35, 0));
     }
 
     b {
-      @include display-font;
-      font-size: 16px;
-      font-weight: normal;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 23px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #c3b69f;
+      text-shadow:
+        0 1px 0 rgba(255, 252, 244, 0.85),
+        0 -1px 0 rgba(90, 72, 48, 0.45);
     }
+  }
+
+  .floor {
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    bottom: 0;
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(95, 70, 35, 0.16), rgba(95, 70, 35, 0));
   }
 }
 
@@ -144,19 +195,26 @@
   align-items: center;
 }
 
-.kakao {
+.primary {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   max-width: 320px;
   min-height: var(--btn-h);
-  border-radius: 6px;
-  background: #fee500;
-  color: #191919;
+  border-radius: var(--radius);
+  background: var(--btn);
+  color: var(--btn-text);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 6px 14px rgba(47, 42, 38, 0.24);
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 500;
   text-decoration: none;
+  // 어두운 버튼 안으로 눌린 글자
+  text-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .sample {
@@ -166,11 +224,14 @@
   width: 100%;
   max-width: 320px;
   min-height: var(--btn-h);
-  border: 1px solid var(--btn-line);
+  // 배경 무늬 위에서도 선이 보이게: 먹색 45% 선 + 반투명 종이 바탕
+  border: 1px solid rgba(47, 42, 38, 0.45);
   border-radius: var(--radius);
+  background: rgba(255, 253, 248, 0.5);
   color: var(--text);
   font-size: 15px;
   text-decoration: none;
+  text-shadow: $deboss-ink;
 }
 
 .anon {
@@ -184,6 +245,7 @@
     color: var(--muted);
     text-decoration: underline;
     text-underline-offset: 3px;
+    text-shadow: $deboss-ink;
     cursor: pointer;
   }
 }
@@ -192,6 +254,7 @@
   margin-top: 8px;
   font-size: 12px;
   color: var(--muted);
+  text-shadow: $deboss-ink;
 }
 
 .why {
@@ -199,31 +262,38 @@
   margin: 0 auto;
   padding: 24px 24px 56px;
 
-  .eyebrow {
-    text-align: center;
-    margin-bottom: 20px;
+  // 음각 선: 어두운 1px + 바로 아래 흰 1px
+  ul {
+    border-top: 1px solid rgba(110, 85, 55, 0.24);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset;
   }
 
   li {
     padding: 20px 0;
-    border-top: 1px solid var(--line);
     text-align: center;
-
-    &:last-child {
-      border-bottom: 1px solid var(--line);
-    }
+    border-bottom: 1px solid rgba(110, 85, 55, 0.24);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
   }
 
   strong {
     @include display-font;
     display: block;
     font-size: 17px;
-    font-weight: normal;
+    font-weight: 700;
     margin-bottom: 4px;
+    text-shadow: $deboss-title;
   }
 
   small {
     font-size: 13px;
     color: var(--muted);
+    text-shadow: $deboss-ink;
   }
+}
+
+// 홈은 특징 목록 마지막 음각선이 경계 역할 → 푸터 윗선 생략
+.page .footer {
+  border-top: 0;
+  // 하단 링크 줄 위 여백 2배(약 97px → 194px): 기본 28px + 97px
+  padding-top: 125px;
 }

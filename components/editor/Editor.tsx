@@ -1,6 +1,5 @@
 'use client'
 
-import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
@@ -14,7 +13,17 @@ import { api } from '../ui/api'
 import { EditorEnvProvider, type EditorEnv } from './context'
 import styles from './Editor.module.scss'
 import BlockForm from './forms/BlockForm'
-import MetaForm from './MetaForm'
+import {
+  IconBack,
+  IconClose,
+  IconDown,
+  IconEye,
+  IconEyeOff,
+  IconGrip,
+  IconHelp,
+  IconUp,
+} from './BlockIcons'
+import { BasicsForm, StyleForm } from './MetaForm'
 import Preview from './Preview'
 import PublishPanel from './PublishPanel'
 import { useAutosave, type SaveState } from './useAutosave'
@@ -118,6 +127,7 @@ export default function Editor(props: EditorProps) {
     setOpenId(block.id)
   }
 
+  const coverBlock = blocks.find((b) => b.type === 'cover')
   const existing = new Set(blocks.map((b) => b.type))
   const addable = BLOCK_TYPES.filter((t) => !(SINGLE_BLOCK_TYPES.includes(t) && existing.has(t)))
 
@@ -126,7 +136,9 @@ export default function Editor(props: EditorProps) {
   function askRemove() {
     // 결제한 초대장은 환불 안내가 들어간 확인창, 아니면 기본 확인창
     if (props.paid) setConfirmDelete(true)
-    else if (window.confirm('초대장을 지울까요? 받은 응답과 사진도 함께 지워지고 되돌릴 수 없어요.'))
+    else if (
+      window.confirm('초대장을 지울까요? 받은 응답과 사진도 함께 지워지고 되돌릴 수 없어요.')
+    )
       void removeInvitation()
   }
 
@@ -144,22 +156,21 @@ export default function Editor(props: EditorProps) {
       <div className={styles.root}>
         <header className={styles.topbar}>
           <Link href="/dashboard" className={styles.back} aria-label="내 초대장으로">
-            ←
+            <IconBack />
           </Link>
-          <Logo href={null} label={false} />
           <div className={styles.topTitle}>
             <strong>{meta.title || '제목 없음'}</strong>
-            <span className={styles.saveState} data-state={save.state} role="status">
-              {SAVE_LABEL[save.state]}
-              {save.state === 'error' ? (
-                <button type="button" onClick={() => void save.flush()}>
-                  다시 시도
-                </button>
-              ) : null}
-            </span>
           </div>
+          <span className={styles.saveState} data-state={save.state} role="status">
+            {SAVE_LABEL[save.state]}
+            {save.state === 'error' ? (
+              <button type="button" onClick={() => void save.flush()}>
+                다시 시도
+              </button>
+            ) : null}
+          </span>
           <Link href="/help" className={styles.helpLink} target="_blank" aria-label="도움말">
-            ?
+            <IconHelp />
           </Link>
           <button type="button" className={styles.publishBtn} onClick={() => setShowPublish(true)}>
             {status === 'published' ? '공유하기' : '발행하기'}
@@ -193,89 +204,114 @@ export default function Editor(props: EditorProps) {
 
         <div className={styles.layout}>
           <div className={styles.editPane} data-active={tab === 'edit'}>
-            <MetaForm meta={meta} onChange={setMeta} />
+            <section className={styles.group} data-en="BASICS" aria-label="기본 정보">
+              <h2 className={styles.groupTitle}>기본 정보</h2>
+              <BasicsForm meta={meta} onChange={setMeta} />
+            </section>
 
-            <h2 className={styles.sectionTitle}>블록</h2>
-            <p className={styles.sectionHint}>순서대로 초대장에 보여요. 눌러서 내용을 고치세요.</p>
-            <ol className={styles.blockList}>
-              {blocks.map((block, idx) => {
-                const open = openId === block.id
-                return (
-                  <li key={block.id} className={styles.blockCard} data-hidden={!block.visible}>
-                    <div className={styles.blockHead}>
-                      <button
-                        type="button"
-                        className={styles.blockName}
-                        aria-expanded={open}
-                        onClick={() => setOpenId(open ? null : block.id)}
-                      >
-                        <span>{BLOCK_LABELS[block.type]}</span>
-                        {block.type === 'location' &&
-                        block.config.title &&
-                        block.config.title !== BLOCK_LABELS.location ? (
-                          // 1차 · 2차 구분용. 접근성 이름은 블록 종류로 유지
-                          <small aria-hidden className={styles.blockSub}>
-                            {block.config.title}
-                          </small>
-                        ) : null}
-                        {!block.visible ? <em>숨김</em> : null}
-                        <i aria-hidden>{open ? '▴' : '▾'}</i>
-                      </button>
-                      <div className={styles.blockTools}>
-                        <button
-                          type="button"
-                          aria-label="위로"
-                          disabled={idx === 0}
-                          onClick={() => move(idx, -1)}
-                        >
-                          ↑
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="아래로"
-                          disabled={idx === blocks.length - 1}
-                          onClick={() => move(idx, 1)}
-                        >
-                          ↓
-                        </button>
-                        <button type="button" onClick={() => toggleVisible(block.id)}>
-                          {block.visible ? '숨기기' : '보이기'}
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="블록 지우기"
-                          onClick={() => remove(block)}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                    {open ? (
-                      <div className={styles.blockBody}>
-                        <BlockForm
-                          block={block}
-                          update={updateBlock(block.id)}
-                          eventType={meta.eventType}
-                        />
-                      </div>
-                    ) : null}
-                  </li>
-                )
-              })}
-            </ol>
-
-            {addable.length > 0 ? (
-              <div className={styles.addBox}>
-                <span>블록 추가</span>
-                <div>
-                  {addable.map((t) => (
-                    <button key={t} type="button" onClick={() => add(t)}>
-                      + {BLOCK_LABELS[t]}
-                    </button>
-                  ))}
+            <section className={styles.group} data-en="STYLE" aria-label="꾸미기">
+              <h2 className={styles.groupTitle}>꾸미기</h2>
+              {coverBlock ? (
+                <div className={styles.coverBox}>
+                  <BlockForm
+                    block={coverBlock}
+                    update={updateBlock(coverBlock.id)}
+                    eventType={meta.eventType}
+                  />
                 </div>
-              </div>
-            ) : null}
+              ) : null}
+              <StyleForm meta={meta} onChange={setMeta} />
+            </section>
+
+            <section className={styles.group} data-en="BLOCKS" aria-label="블록">
+              <h2 className={styles.groupTitle}>블록</h2>
+              <p className={styles.sectionHint}>
+                순서대로 초대장에 보여요. 눌러서 내용을 고치세요.
+              </p>
+              <ol className={styles.blockList}>
+                {blocks.map((block, idx) => {
+                  if (block.type === 'cover') return null
+                  const open = openId === block.id
+                  return (
+                    <li key={block.id} className={styles.blockCard} data-hidden={!block.visible}>
+                      <div className={styles.blockHead}>
+                        <span className={styles.grip} aria-hidden="true">
+                          <IconGrip />
+                        </span>
+                        <button
+                          type="button"
+                          className={styles.blockName}
+                          aria-expanded={open}
+                          onClick={() => setOpenId(open ? null : block.id)}
+                        >
+                          <span>{BLOCK_LABELS[block.type]}</span>
+                          {block.type === 'location' &&
+                          block.config.title &&
+                          block.config.title !== BLOCK_LABELS.location ? (
+                            // 1차 · 2차 구분용. 접근성 이름은 블록 종류로 유지
+                            <small aria-hidden className={styles.blockSub}>
+                              {block.config.title}
+                            </small>
+                          ) : null}
+                          {!block.visible ? <em>숨김</em> : null}
+                        </button>
+                        <div className={styles.blockTools}>
+                          <button
+                            type="button"
+                            aria-label="위로"
+                            disabled={idx === 0 || blocks[idx - 1]?.type === 'cover'}
+                            onClick={() => move(idx, -1)}
+                          >
+                            <IconUp />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="아래로"
+                            disabled={idx === blocks.length - 1}
+                            onClick={() => move(idx, 1)}
+                          >
+                            <IconDown />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={block.visible ? '숨기기' : '보이기'}
+                            aria-pressed={!block.visible}
+                            onClick={() => toggleVisible(block.id)}
+                          >
+                            {block.visible ? <IconEye /> : <IconEyeOff />}
+                          </button>
+                          <button type="button" aria-label="지우기" onClick={() => remove(block)}>
+                            <IconClose />
+                          </button>
+                        </div>
+                      </div>
+                      {open ? (
+                        <div className={styles.blockBody}>
+                          <BlockForm
+                            block={block}
+                            update={updateBlock(block.id)}
+                            eventType={meta.eventType}
+                          />
+                        </div>
+                      ) : null}
+                    </li>
+                  )
+                })}
+              </ol>
+
+              {addable.length > 0 ? (
+                <div className={styles.addBox}>
+                  <span>블록 추가</span>
+                  <div>
+                    {addable.map((t) => (
+                      <button key={t} type="button" onClick={() => add(t)}>
+                        <i>+</i> {BLOCK_LABELS[t]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </section>
 
             {props.isOwner ? (
               <div className={styles.danger}>
@@ -296,8 +332,8 @@ export default function Editor(props: EditorProps) {
                     </p>
                   ) : (
                     <p className={styles.refundHint}>
-                      지금은 환불 조건(결제 후 7일 이내 · 발행 전)이 아니라서, 지우면 결제 금액은 돌려받지
-                      못해요.
+                      지금은 환불 조건(결제 후 7일 이내 · 발행 전)이 아니라서, 지우면 결제 금액은
+                      돌려받지 못해요.
                     </p>
                   )}
                   <div className={styles.dialogActions}>
@@ -326,6 +362,7 @@ export default function Editor(props: EditorProps) {
                 mediaBaseUrl={props.mediaBaseUrl}
                 kakaoJsKey={props.kakaoJsKey}
                 introEffects={props.introEffects}
+                published={status === 'published'}
               />
             </div>
           </aside>

@@ -1,3 +1,5 @@
+@use '../../styles/utils' as *;
+
 $wide: 960px;
 
 .root {
@@ -11,10 +13,11 @@ $wide: 960px;
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: var(--paper-surface);
-  border-bottom: 1px solid var(--line);
+  gap: 4px;
+  padding: 6px 12px 6px 4px;
+  background: rgba(244, 242, 237, 0.94);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--paper-line);
 
   .back {
     width: var(--tap);
@@ -22,8 +25,7 @@ $wide: 960px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    text-decoration: none;
+    color: var(--ink);
     flex-shrink: 0;
   }
 }
@@ -31,10 +33,11 @@ $wide: 960px;
 .topTitle {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
 
   strong {
+    display: block;
+    font-family: var(--font-display), serif;
+    font-weight: 500;
     font-size: 15px;
     white-space: nowrap;
     overflow: hidden;
@@ -43,11 +46,12 @@ $wide: 960px;
 }
 
 .saveState {
-  font-size: 12px;
-  color: var(--muted);
+  flex-shrink: 0;
+  font-size: 11.5px;
+  color: var(--ink-faint);
 
   &[data-state='error'] {
-    color: #d64545;
+    color: var(--danger);
   }
 
   button {
@@ -65,18 +69,22 @@ $wide: 960px;
 .saveError {
   padding: 8px 16px;
   font-size: 13px;
-  color: #d64545;
-  background: #fff1f1;
+  color: var(--danger);
+  background: rgba(155, 74, 60, 0.08);
 }
 
-.publishBtn,
+.publishBtn {
+  @include btn-small-solid;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
 .primary {
   flex-shrink: 0;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: 2px;
   background: var(--btn);
   color: var(--btn-text);
-  font-weight: bold;
   font-size: 14px;
   padding: 10px 14px;
   cursor: pointer;
@@ -89,26 +97,27 @@ $wide: 960px;
 
 .tabs {
   position: sticky;
-  top: 57px;
+  top: 53px;
   z-index: 19;
   display: flex;
-  background: var(--paper-surface);
-  border-bottom: 1px solid var(--line);
+  background: rgba(244, 242, 237, 0.94);
+  border-bottom: 1px solid var(--paper-line);
 
   button {
     flex: 1;
     border: 0;
     background: none;
-    padding: 12px;
-    font-size: 15px;
-    color: var(--muted);
-    border-bottom: 2px solid transparent;
+    min-height: 46px;
+    padding: 0 12px;
+    font-size: 14.5px;
+    color: var(--ink-faint);
+    border-bottom: 1.5px solid transparent;
     cursor: pointer;
 
     &[aria-selected='true'] {
-      color: var(--text);
-      font-weight: bold;
-      border-bottom-color: var(--accent);
+      color: var(--ink);
+      font-weight: 600;
+      border-bottom-color: var(--ink);
     }
   }
 
@@ -172,6 +181,7 @@ $wide: 960px;
 }
 
 .previewScreen {
+  position: relative;
   background: var(--bg);
   color: var(--text);
   min-height: 100%;
@@ -185,72 +195,135 @@ $wide: 960px;
 
 .card {
   background: var(--paper-surface);
-  border-radius: var(--radius);
+  border-radius: 2px;
   padding: 18px 16px 4px;
   margin-bottom: 24px;
 }
 
 .cardTitle {
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 500;
   margin-bottom: 14px;
+}
+
+/* 편집기 3묶음: 영문 소제목 + 한글 제목, 묶음 사이는 음각선 */
+.group {
+  position: relative;
+  padding: 34px 4px 8px;
+
+  & + & {
+    margin-top: 26px;
+  }
+
+  & + &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    @include deboss-rule;
+  }
+
+  &:first-child {
+    padding-top: 18px;
+  }
+
+  &::after {
+    content: attr(data-en);
+    position: absolute;
+    top: 22px;
+    left: 4px;
+    @include eyebrow;
+  }
+
+  &:first-child::after {
+    top: 6px;
+  }
+}
+
+.groupTitle {
+  font-size: 17px;
+  font-weight: 500;
+  margin: 0 0 14px;
+}
+
+.coverBox {
+  margin-bottom: 8px;
 }
 
 .swatches {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
 }
 
 .swatch {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 10px 4px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper-surface);
-  font-size: 12px;
+  padding: 10px 2px 8px;
+  border: 1px solid rgba(53, 41, 31, 0.2);
+  border-radius: 2px;
+  background: rgba(255, 253, 248, 0.6);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.25;
+  text-align: center;
   cursor: pointer;
 
   i {
     width: 22px;
     height: 22px;
     border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(53, 41, 31, 0.12);
   }
 
   &[aria-checked='true'] {
-    border: 2px solid var(--text);
-    font-weight: bold;
+    border-color: var(--ink);
+    box-shadow: 0 0 0 0.5px var(--ink);
   }
+}
+
+.tick {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 12px;
+  height: 12px;
+  color: var(--gold);
 }
 
 .sectionTitle {
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 500;
   margin: 0 4px 4px;
 }
 
 .sectionHint {
-  font-size: 13px;
-  color: var(--muted);
-  margin: 0 4px 12px;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  margin: 0 0 12px;
 }
 
 .blockList {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .blockCard {
   background: var(--paper-surface);
-  border-radius: var(--radius);
+  border: 1px solid var(--paper-line);
+  border-radius: 2px;
   overflow: hidden;
 
   &[data-hidden='true'] .blockName span {
-    color: var(--muted);
+    color: var(--ink-faint);
     text-decoration: line-through;
   }
 }
@@ -260,74 +333,85 @@ $wide: 960px;
   align-items: center;
 }
 
+.grip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  padding-left: 6px;
+  color: rgba(53, 41, 31, 0.35);
+  cursor: grab;
+  touch-action: none;
+}
+
 .blockName {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 52px;
   border: 0;
   background: none;
-  padding: 16px;
+  padding: 0 4px 0 6px;
+  font-family: var(--font-display), serif;
   font-size: 15px;
-  font-weight: bold;
+  font-weight: 500;
+  color: var(--ink);
   text-align: left;
   cursor: pointer;
 
   em {
+    font-family: var(--font-body);
     font-style: normal;
-    font-weight: normal;
-    font-size: 12px;
-    color: var(--muted);
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 2px 8px;
-  }
-
-  i {
-    margin-left: auto;
-    font-style: normal;
-    color: var(--muted);
+    font-weight: 400;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    border: 1px solid var(--paper-line);
+    border-radius: 2px;
+    padding: 1px 6px;
   }
 }
 
 .blockTools {
   display: flex;
-  padding-right: 8px;
 
   button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-width: var(--tap);
     height: var(--tap);
     border: 0;
     background: none;
-    font-size: 13px;
-    color: var(--muted);
+    color: var(--ink-sub);
     cursor: pointer;
-    padding: 0 6px;
+    padding: 0;
 
     &:disabled {
-      opacity: 0.3;
+      opacity: 0.28;
       cursor: default;
     }
   }
 }
 
 .blockBody {
-  padding: 4px 16px 4px;
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
+  padding: 16px 16px 4px;
+  border-top: 1px solid var(--paper-line);
 }
 
 .addBox {
-  margin-top: 16px;
+  margin-top: 14px;
   padding: 16px;
-  border: 1px dashed var(--line);
-  border-radius: var(--radius);
+  border: 1px dashed var(--gold);
+  border-radius: 2px;
 
   > span {
     display: block;
-    font-size: 13px;
-    font-weight: bold;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-sub);
     margin-bottom: 10px;
   }
 
@@ -338,12 +422,16 @@ $wide: 960px;
   }
 
   button {
-    border: 1px solid var(--line);
-    background: var(--paper-surface);
-    border-radius: var(--radius);
-    padding: 8px 14px;
-    font-size: 14px;
-    cursor: pointer;
+    @include btn-ghost;
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 13.5px;
+    gap: 4px;
+
+    i {
+      font-style: normal;
+      color: var(--gold);
+    }
   }
 }
 
@@ -352,11 +440,13 @@ $wide: 960px;
   text-align: center;
 
   button {
+    min-height: var(--tap);
     border: 0;
     background: none;
-    color: #c24a4a;
+    color: var(--danger);
     font-size: 13px;
     text-decoration: underline;
+    text-underline-offset: 4px;
     cursor: pointer;
   }
 }
@@ -517,15 +607,10 @@ $wide: 960px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--muted);
+  width: var(--tap);
+  height: var(--tap);
+  color: var(--ink-sub);
   text-decoration: none;
-  margin-right: 6px;
 }
 
 .fonts {
@@ -535,30 +620,33 @@ $wide: 960px;
 }
 
 .fontOption {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper-surface);
+  gap: 4px;
+  padding: 14px 12px 10px;
+  border: 1px solid rgba(53, 41, 31, 0.2);
+  border-radius: 2px;
+  background: rgba(255, 253, 248, 0.6);
+  color: var(--ink);
   cursor: pointer;
   text-align: left;
 
   b {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 400;
+    line-height: 1.3;
   }
 
   small {
     font-size: 11px;
-    color: #89757a;
+    color: var(--ink-faint);
   }
 
   &[aria-checked='true'] {
-    border-color: var(--accent, var(--gold));
-    box-shadow: 0 0 0 1px var(--accent, var(--gold));
+    border-color: var(--ink);
+    box-shadow: 0 0 0 0.5px var(--ink);
   }
 }
 
@@ -681,7 +769,17 @@ $wide: 960px;
   }
 
   button[data-danger] {
-    border-color: #c24a4a;
-    color: #c24a4a;
+    border-color: var(--danger);
+    color: var(--danger);
   }
+}
+
+/* 발행 전 미리보기 전용 SAMPLE 표시. 모양은 app/i/[slug]/page.module.scss 의 .sampleMark와 같음 */
+.sampleMark {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='220'%3E%3Ctext x='150' y='118' text-anchor='middle' transform='rotate(-30 150 110)' font-family='Georgia,serif' font-size='17' letter-spacing='5' fill='%2335291f' fill-opacity='0.09'%3ESAMPLE %C2%B7 dearday%3C/text%3E%3C/svg%3E");
+  background-repeat: repeat;
 }

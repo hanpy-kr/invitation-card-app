@@ -1,9 +1,22 @@
 /**
  * 초대장 제목 · 인사말에 쓰는 글씨체. 모두 상업적 사용이 가능한 SIL OFL 1.1.
  * 출처와 라이선스는 docs/PLAN.md '글씨체' 표, 파일은 public/fonts/<id>/LICENSE.txt.
- * `css`가 있는 글씨체는 그걸 고른 초대장만 그 CSS를 불러온다 (기본 글씨체는 전역 CSS에 들어 있음).
+ * `css`가 있는 글씨체는 그걸 고른 초대장만 그 CSS를 불러온다 (`css: null`은 전역 CSS에 들어 있음 — 금은보화 · 노토 명조 · 노토 고딕).
  */
 export const FONTS = {
+  // Noto Serif KR · Noto Sans KR은 사이트 기본 글씨체라 전역 CSS(app/layout.tsx)에 이미 있음
+  'noto-serif': {
+    label: '노토 명조',
+    note: '반듯한 명조',
+    family: 'Noto Serif KR',
+    css: null,
+  },
+  'noto-sans': {
+    label: '노토 고딕',
+    note: '깔끔한 고딕',
+    family: 'Noto Sans KR',
+    css: null,
+  },
   geumeunbohwa: {
     label: '금은보화',
     note: '손글씨',
@@ -38,8 +51,22 @@ export const FONTS = {
 
 export type FontKey = keyof typeof FONTS
 export const FONT_KEYS = Object.keys(FONTS) as FontKey[]
-export const DEFAULT_FONT: FontKey = 'geumeunbohwa'
+export const DEFAULT_FONT: FontKey = 'noto-serif'
 
 export function isFontKey(v: unknown): v is FontKey {
   return typeof v === 'string' && v in FONTS
+}
+
+/**
+ * 글씨체 고르는 칸에 보여 줄 행사별 견본 문구. 글씨체 이름(label)은 화면에 보이지 않고
+ * 관리자 · 코드에서만 쓴다 — 하객과 만드는 사람에게는 "이 글씨로 이렇게 보인다"만 보여 준다.
+ */
+export const FONT_SAMPLES: Record<string, string> = {
+  wedding: '결혼합니다',
+  dol: '첫 생일',
+  meetup: '초대합니다',
+}
+
+export function fontSample(eventType: string): string {
+  return FONT_SAMPLES[eventType] ?? FONT_SAMPLES.meetup
 }

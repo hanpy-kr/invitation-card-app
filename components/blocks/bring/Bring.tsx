@@ -148,7 +148,9 @@ export default function Bring({ config, ctx }: { config: BringConfig; ctx: Block
                     </button>
                   )}
                 </div>
-                {r && r.names.length > 0 ? <p className={cx('names')}>{r.names.join(', ')}</p> : null}
+                {r && r.names.length > 0 ? (
+                  <p className={cx('names')}>{r.names.join(', ')}</p>
+                ) : null}
                 {myClaims.map((m) => (
                   <p key={m.editToken} className={cx('mine')}>
                     {m.name}님이 맡았어요{' '}

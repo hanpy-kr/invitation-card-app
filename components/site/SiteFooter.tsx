@@ -5,9 +5,9 @@ import { BUSINESS, pending } from '@/shared/business'
 import PrivacyNoticeBadge from './PrivacyNoticeBadge'
 import styles from './SiteFooter.module.scss'
 
-export default function SiteFooter() {
+export default function SiteFooter({ className }: { className?: string } = {}) {
   return (
-    <footer className={styles.footer}>
+    <footer className={className ? `${styles.footer} ${className}` : styles.footer}>
       <nav>
         <Link href="/help">도움말</Link>
         <Link href="/pricing">가격 · 환불</Link>

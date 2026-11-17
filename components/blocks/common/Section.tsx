@@ -10,20 +10,34 @@ export default function Section({
   title,
   eyebrow,
   id,
+  lead,
+  quiet,
+  headClassName,
 }: {
   children: React.ReactNode
   className?: string
   title?: string | null
-  /** 영문 대문자 머리글 (INVITATION · GALLERY …). 제목 위에 금갈색으로 */
+  /** 옛 영문 머리글(INVITATION · GALLERY …). 디자인 피드백으로 화면에 그리지 않음 — 블록 구분용 표시로만 남김 */
   eyebrow?: string
   id?: string
+  /** 머리글 맨 위 장식 (인사말의 별) */
+  lead?: React.ReactNode
+  /** 사진첩처럼 종이 편지에서는 머리글 없이 본문만 보이는 섹션 (다른 테마는 그대로) */
+  quiet?: boolean
+  headClassName?: string
 }) {
   return (
-    <section id={id} className={cx('container', className)}>
-      {eyebrow || title ? (
-        <header className={cx('head')}>
+    <section id={id} className={cx('container', className)} data-block={eyebrow?.toLowerCase()}>
+      {title || lead ? (
+        <header
+          className={cx('head', headClassName)}
+          data-block={eyebrow?.toLowerCase()}
+          data-quiet={quiet ? '' : undefined}
+        >
+          {lead}
+          {/* 영문 소제목은 종이 편지(--eyebrow-display)에서만 보임 */}
           {eyebrow ? <p className={cx('eyebrow')}>{eyebrow}</p> : null}
-          {/* 제목이 비어 있으면 제목 영역 자체를 그리지 않음 */}
+          {/* 제목이 비어 있으면(별만 있는 머리글 제외) 제목 영역 자체를 그리지 않음 */}
           {title ? <h2 className={cx('txt-title')}>{title}</h2> : null}
         </header>
       ) : null}

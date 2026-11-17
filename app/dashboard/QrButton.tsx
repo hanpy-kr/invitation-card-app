@@ -69,7 +69,7 @@ function drawSeal(ctx: CanvasRenderingContext2D, cx: number, cy: number, d: numb
   ctx.save()
   ctx.translate(cx - d / 2, cy - d / 2)
   ctx.scale(k, k)
-  ctx.fillStyle = SEAL.gold
+  ctx.fillStyle = '#a8915f'
   ctx.beginPath()
   ctx.arc(15, 15, 15, 0, Math.PI * 2)
   ctx.fill()
@@ -140,7 +140,7 @@ export default function QrButton({
       ctx.strokeRect(48, 48, W - 96, H - 96)
       ctx.textAlign = 'center'
       ctx.textBaseline = 'alphabetic'
-      ctx.fillStyle = '#8a6a43'
+      ctx.fillStyle = '#8c7546'
       ctx.font = `28px ${serif}`
       ctx.letterSpacing = '12px'
       ctx.fillText('INVITATION', W / 2 + 6, 210)
@@ -169,7 +169,7 @@ export default function QrButton({
       // 맨 아래 도장 + dearday
       drawSeal(ctx, W / 2 - 74, H - 96, 44)
       ctx.textAlign = 'left'
-      ctx.fillStyle = '#8a6a43'
+      ctx.fillStyle = '#8c7546'
       ctx.font = `34px ${serif}`
       ctx.fillText('dearday', W / 2 - 38, H - 84)
       download(c, `${safe}-인쇄용.png`)

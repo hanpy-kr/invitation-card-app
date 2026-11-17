@@ -8,6 +8,8 @@ import geumeunbohwa from './display-font-slices.json'
 import gaegu from './slices/gaegu.json'
 import gowunBatang from './slices/gowun-batang.json'
 import gowunDodum from './slices/gowun-dodum.json'
+import notoSans from './slices/noto-sans-kr.json'
+import notoSerif from './slices/noto-serif-kr.json'
 import songMyung from './slices/song-myung.json'
 
 /**
@@ -18,6 +20,8 @@ import songMyung from './slices/song-myung.json'
 type Slice = { url: string; ranges: [number, number][] }
 
 const SLICES: Record<FontKey, Slice[]> = {
+  'noto-serif': notoSerif as Slice[],
+  'noto-sans': notoSans as Slice[],
   geumeunbohwa: geumeunbohwa as Slice[],
   'gowun-batang': gowunBatang as Slice[],
   'gowun-dodum': gowunDodum as Slice[],

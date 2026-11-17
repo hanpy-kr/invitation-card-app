@@ -24,9 +24,25 @@ export function formatShortDate(value: Date | string): string {
   return `${p.year}.${p.month}.${p.day}`
 }
 
+/** 2027.12.26 */
+export function formatDotDate(value: Date | string): string {
+  return toKstDateString(value).replaceAll('-', '.')
+}
+
+/** 2027.12.26(일) */
+export function formatDotDateDay(value: Date | string): string {
+  const wd = parts(toDate(value), { weekday: 'short' }).weekday
+  return `${formatDotDate(value)}(${wd})`
+}
+
 /** SATURDAY — 날짜에서 요일을 계산 */
 export function formatWeekdayEn(value: Date | string): string {
   return parts(toDate(value), { weekday: 'long' }, 'en-US').weekday.toUpperCase()
+}
+
+/** 토요일 */
+export function formatWeekday(value: Date | string): string {
+  return parts(toDate(value), { weekday: 'long' }).weekday
 }
 
 /** 2026년 11월 21일 토요일 */
@@ -38,6 +54,16 @@ export function formatLongDate(value: Date | string): string {
     weekday: 'long',
   })
   return `${p.year}년 ${p.month} ${p.day}일 ${p.weekday}`
+}
+
+/** 일요일 */
+export function formatWeekdayKo(value: Date | string): string {
+  return parts(toDate(value), { weekday: 'long' }).weekday
+}
+
+/** DECEMBER */
+export function formatMonthEn(value: Date | string): string {
+  return parts(toDate(value), { month: 'long' }, 'en-US').month.toUpperCase()
 }
 
 /** 오후 12시 30분 / 오후 7시 */

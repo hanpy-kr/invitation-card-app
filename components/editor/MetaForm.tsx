@@ -3,28 +3,34 @@
 import { EVENT_TYPE_LABELS, EVENT_TYPE_ORDER } from '@/shared/blocks'
 import { kstInputToIso, toKstDateString, toKstTimeString } from '@/shared/date'
 import type { InvitationMeta } from '@/shared/invitation'
-import { FONT_KEYS, FONTS } from '@/shared/fonts'
+import { FONT_KEYS, FONTS, fontSample } from '@/shared/fonts'
 import { resolveFont, themesForEvent, THEMES } from '@/shared/themes'
 
 import styles from './Editor.module.scss'
 import fieldStyles from './fields.module.scss'
 import { FieldRow, Select, TextField } from './fields'
 
-export default function MetaForm({
-  meta,
-  onChange,
-}: {
+type Props = {
   meta: InvitationMeta
   onChange: (fn: (m: InvitationMeta) => InvitationMeta) => void
-}) {
+}
+
+/** 선택된 칸 오른쪽 위의 금색 체크 */
+function Check() {
+  return (
+    <svg className={styles.tick} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/** BASICS · 기본 정보 */
+export function BasicsForm({ meta, onChange }: Props) {
   const date = meta.eventAt ? toKstDateString(meta.eventAt) : ''
   const time = meta.eventAt ? toKstTimeString(meta.eventAt) : ''
-  const current = resolveFont(meta.theme, meta.font)
   const set = (patch: Partial<InvitationMeta>) => onChange((m) => ({ ...m, ...patch }))
-
   return (
-    <section className={styles.card}>
-      <h2 className={styles.cardTitle}>기본 정보</h2>
+    <>
       <TextField
         label="초대장 제목"
         hint="카톡으로 보낼 때 보이는 제목"
@@ -52,6 +58,18 @@ export default function MetaForm({
         options={EVENT_TYPE_ORDER.map((t) => ({ value: t, label: EVENT_TYPE_LABELS[t] }))}
         onChange={(eventType) => set({ eventType })}
       />
+    </>
+  )
+}
+
+/** STYLE · 꾸미기: 테마 색 · 글씨체 (표지 사진은 Editor가 CoverForm을 위에 붙임) */
+export function StyleForm({ meta, onChange }: Props) {
+  const current = resolveFont(meta.theme, meta.font)
+  const set = (patch: Partial<InvitationMeta>) => onChange((m) => ({ ...m, ...patch }))
+  const sample = fontSample(meta.eventType)
+
+  return (
+    <>
       <div className={fieldStyles.field} role="radiogroup" aria-label="테마 색">
         <span>테마 색</span>
         <div className={styles.swatches}>
@@ -66,6 +84,7 @@ export default function MetaForm({
             >
               <i style={{ background: THEMES[key].vars.accent }} />
               {THEMES[key].label}
+              {meta.theme === key ? <Check /> : null}
             </button>
           ))}
         </div>
@@ -88,12 +107,14 @@ export default function MetaForm({
               className={styles.fontOption}
               onClick={() => set({ font: key })}
             >
-              <b style={{ fontFamily: `'${FONTS[key].family}'` }}>{FONTS[key].label}</b>
+              {/* 글씨체 이름은 보여 주지 않고 견본 문구만 그 글씨로 */}
+              <b style={{ fontFamily: `'${FONTS[key].family}'` }}>{sample}</b>
               <small>{FONTS[key].note}</small>
+              {current === key ? <Check /> : null}
             </button>
           ))}
         </div>
       </div>
-    </section>
+    </>
   )
 }

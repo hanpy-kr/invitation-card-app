@@ -2,9 +2,10 @@ import classNames from 'classnames/bind'
 
 import type { CoverConfig } from '@/shared/blocks'
 import { COVER_RATIO, coverSrc, coverSrcSet, findCover } from '@/shared/covers'
-import { formatShortDate, formatWeekdayEn } from '@/shared/date'
+import { formatDotDate, formatShortDate, formatWeekday, toKstTimeString } from '@/shared/date'
 import { mediaSrc } from '@/shared/media'
 
+import CallaEmboss from './common/CallaEmboss'
 import Section from './common/Section'
 import CoverEffect from './CoverEffect'
 import CoverShell from './CoverShell'
@@ -25,8 +26,8 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
       {showDate ? (
         <>
           <div className={cx('txt-date')}>{formatShortDate(ctx.eventAt!)}</div>
-          {/* 요일은 날짜에서 계산 (레거시 하드코딩 SATURDAY 제거) */}
-          <div className={cx('txt-day')}>{formatWeekdayEn(ctx.eventAt!)}</div>
+          {/* 요일은 날짜에서 계산, 한국어로 (영문 머리글 없앰) */}
+          <div className={cx('txt-day')}>{formatWeekday(ctx.eventAt!)}</div>
         </>
       ) : null}
     </>
@@ -141,9 +142,20 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
     )
   }
 
+  // 사진 · 글자 표지: 2027.12.26 / 일요일 17:30 (종이 편지 테마는 맨 위에 꽃 한 송이 음각)
   return (
     <Section className={cx('container', { text: !photo })}>
-      {dateBlock}
+      <CallaEmboss className={cx('flower')} />
+      {config.showDate && ctx.dateVoting ? <div className={cx('txt-day')}>날짜 투표 중</div> : null}
+      {showDate ? (
+        <>
+          <div className={cx('txt-date', 'num')}>{formatDotDate(ctx.eventAt!)}</div>
+          <div className={cx('txt-day')}>
+            <span className={cx('wd')}>{formatWeekday(ctx.eventAt!)}</span>{' '}
+            <span className={cx('num')}>{toKstTimeString(ctx.eventAt!)}</span>
+          </div>
+        </>
+      ) : null}
       {photo ? (
         <div className={cx('wrap-photo')}>
           <img

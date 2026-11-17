@@ -1,38 +1,73 @@
+@use '../../styles/utils' as *;
+
 .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-bottom: 16px;
 
-  > span {
-    font-size: 13px;
-    font-weight: bold;
-    color: var(--text);
+  > span:not(.control) {
+    @include field-label;
   }
 
   .hint {
     font-size: 12px;
-    font-weight: normal;
-    color: var(--muted);
+    font-style: normal;
+    font-weight: 400;
+    color: var(--ink-faint);
+    margin-left: 4px;
   }
 }
 
 .input,
 .textarea,
 .select {
-  width: 100%;
-  font: inherit;
+  @include field;
+  padding-top: 0;
+  padding-bottom: 0;
   font-size: 16px; /* iOS 확대 방지 */
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper-surface);
-  color: var(--text);
+}
 
-  &:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: -1px;
-    border-color: transparent;
+.textarea {
+  padding: 12px 14px;
+}
+
+/* 날짜 · 시간 · 선택: 진짜 input / select를 그대로 두고 오른쪽에 금색 아이콘만 얹음 */
+.control {
+  position: relative;
+  display: block;
+
+  svg {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%);
+    color: var(--gold);
+    pointer-events: none;
+  }
+
+  .input,
+  .select {
+    padding-right: 42px;
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    text-align: left;
+  }
+
+  .input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    height: auto;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .input::-webkit-date-and-time-value {
+    text-align: left;
   }
 }
 
@@ -62,18 +97,19 @@
   button {
     flex: 1;
     min-width: 72px;
-    padding: 9px 10px;
-    border-radius: var(--radius);
-    border: 1px solid var(--line);
-    background: var(--paper-surface);
+    min-height: 44px;
+    padding: 0 10px;
+    border-radius: 2px;
+    border: 1px solid rgba(53, 41, 31, 0.24);
+    background: rgba(255, 253, 248, 0.7);
+    color: var(--ink);
     font-size: 14px;
     cursor: pointer;
 
     &[aria-pressed='true'] {
-      border-color: var(--accent);
-      background: var(--btn);
-      color: var(--btn-text);
-      font-weight: bold;
+      border-color: var(--ink);
+      box-shadow: 0 0 0 0.5px var(--ink);
+      font-weight: 600;
     }
   }
 }
@@ -83,17 +119,19 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  min-height: 44px;
+  margin-bottom: 8px;
   font-size: 14px;
+  color: var(--ink);
   cursor: pointer;
 
   input {
     appearance: none;
     flex-shrink: 0;
-    width: 44px;
-    height: 26px;
-    border-radius: var(--radius);
-    background: var(--photo);
+    width: 42px;
+    height: 24px;
+    border-radius: 12px;
+    background: rgba(53, 41, 31, 0.16);
     position: relative;
     cursor: pointer;
     transition: background 0.15s;
@@ -103,27 +141,33 @@
       position: absolute;
       top: 3px;
       left: 3px;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
-      background: var(--paper-surface);
+      background: #f4f2ed;
+      box-shadow: 0 1px 2px rgba(53, 41, 31, 0.3);
       transition: transform 0.15s;
     }
 
     &:checked {
-      background: var(--accent);
+      background: var(--ink);
 
       &::after {
         transform: translateX(18px);
       }
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--gold);
+      outline-offset: 2px;
     }
   }
 }
 
 /* 반복 항목(계좌 · 안내 · 연락처 · 질문) 카드 */
 .item {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px solid var(--paper-line);
+  border-radius: 2px;
   padding: 12px 12px 0;
   margin-bottom: 12px;
   background: var(--paper-surface);
@@ -137,16 +181,19 @@
 
   strong {
     flex: 1;
-    font-size: 13px;
+    font-family: var(--font-display), serif;
+    font-weight: 500;
+    font-size: 13.5px;
   }
 
   button {
     border: 0;
     background: none;
-    min-width: 32px;
+    min-width: 36px;
+    min-height: 36px;
     padding: 4px 6px;
     font-size: 15px;
-    color: var(--muted);
+    color: var(--ink-sub);
     cursor: pointer;
 
     &:disabled {
@@ -158,23 +205,38 @@
 
 .add {
   align-self: flex-start;
-  border: 1px dashed var(--line);
-  border-radius: var(--radius);
-  background: var(--paper-surface);
+  border: 1px dashed var(--deco);
+  border-radius: 2px;
+  background: none;
   width: 100%;
+  min-height: 44px;
   padding: 10px;
   margin-bottom: 16px;
   font-size: 14px;
-  color: var(--accent);
+  color: var(--ink);
   cursor: pointer;
 }
 
 .notice {
   font-size: 12px;
   line-height: 1.5;
-  color: #8a5a00;
-  background: #fff6e0;
-  border-radius: var(--radius);
+  color: var(--ink-sub);
+  background: rgba(168, 145, 95, 0.12);
+  border-radius: 2px;
   padding: 8px 10px;
   margin-bottom: 14px;
+}
+
+/* 혼주 한 줄: [부모님 이름][아들/딸][이름] */
+.familyRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) 88px minmax(0, 1fr);
+  gap: 6px;
+}
+
+.helper {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-faint);
+  line-height: 1.5;
 }
