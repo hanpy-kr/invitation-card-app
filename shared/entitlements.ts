@@ -1,3 +1,5 @@
+import { MEETUP_EVENT_UNTIL } from './pricing'
+
 /**
  * 가격 레버 — 기능 차이는 여기만 바꾼다(가격은 shared/pricing.ts). 기능마다 따로 잠그지 말 것.
  * 웹 · API · 편집기 공용이라 서버 전용 import를 두지 않는다.
@@ -17,10 +19,14 @@ export interface Entitlements {
   introEffects: boolean
 }
 
-export type Plan = 'free' | 'legacy' | 'premium'
+/**
+ *  - event  : 모임 연말 이벤트(결제 없이 사진 60 · 봉투 · 효과, 하단 문구 숨기기는 불가). shared/pricing.ts MEETUP_EVENT_UNTIL까지.
+ *  - legacy : 옛 값. 결제 시작 전에 만든 초대장은 이제 premium과 같게 열려 resolvePlan이 더는 주지 않는다.
+ */
+export type Plan = 'free' | 'legacy' | 'premium' | 'event'
 
 const FREE: Entitlements = { photoLimit: 10, canHideMadeWith: false, introEffects: false }
-const LEGACY: Entitlements = { photoLimit: 10, canHideMadeWith: false, introEffects: true }
+const EVENT: Entitlements = { photoLimit: 60, canHideMadeWith: false, introEffects: true }
 const PREMIUM: Entitlements = { photoLimit: 60, canHideMadeWith: true, introEffects: true }
 
 /** 로그인 없이 만들기 시작한 임시 사용자 (카카오로 로그인하면 원래 플랜) */
@@ -28,7 +34,12 @@ const ANONYMOUS_PHOTO_LIMIT = 3
 
 /** 플랜 없이 부르면 무료 기준(랜딩 · 약관의 '사진 N장' 같은 고정 문구용) */
 export function getEntitlements(opts?: { plan?: Plan; anonymous?: boolean }): Entitlements {
-  const base = opts?.plan === 'premium' ? PREMIUM : opts?.plan === 'legacy' ? LEGACY : FREE
+  const base =
+    opts?.plan === 'premium' || opts?.plan === 'legacy'
+      ? PREMIUM
+      : opts?.plan === 'event'
+        ? EVENT
+        : FREE
   return opts?.anonymous ? { ...base, photoLimit: ANONYMOUS_PHOTO_LIMIT } : base
 }
 
@@ -42,14 +53,25 @@ export function resolvePlan(input: {
   liveSince: Date | null
   now?: Date
   createdAt: Date | string
+  /** 허브 이용권 캐시 (invitations.premium_hub) */
+  premiumHub: boolean
+  /** 옛 자체 결제로 받은 프리미엄 (전환기 안전장치. 운영 paid 0건이면 정리 때 지움) */
   premiumOrderId: string | null
-  /** 결제된 결혼 · 돌에서 파생된 청첩장 모임 · 감사장 */
+  /** 허브 이용권이 있는 결혼 · 돌에서 파생된 청첩장 모임 · 감사장 */
   derivedPremium: boolean
+  /** 모임(결혼 · 돌 · 감사장 아닌 행사)인가 — 연말 이벤트 판단 */
+  isMeetup: boolean
 }): Plan {
   const now = input.now ?? new Date()
+  // 1. 결제 꺼짐 → 모두 프리미엄
   if (!input.liveSince || now.getTime() < input.liveSince.getTime()) return 'premium'
-  if (input.premiumOrderId || input.derivedPremium) return 'premium'
-  if (new Date(input.createdAt).getTime() < input.liveSince.getTime()) return 'legacy'
+  // 2~4. 허브 이용권 · 파생 · 옛 결제
+  if (input.premiumHub || input.derivedPremium || input.premiumOrderId) return 'premium'
+  const created = new Date(input.createdAt).getTime()
+  // 5. 결제 시작 전에 만든 초대장은 소급하지 않고 premium
+  if (created < input.liveSince.getTime()) return 'premium'
+  // 6. 모임 연말 이벤트 (하단 문구 숨기기 제외)
+  if (input.isMeetup && created <= MEETUP_EVENT_UNTIL.getTime()) return 'event'
   return 'free'
 }
 

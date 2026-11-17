@@ -5,19 +5,15 @@ import { randomUUID } from 'node:crypto'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
-import { orderNameFor, priceFor, refundEligibility, REFUND_DAYS } from '@/shared/pricing'
+import { orderNameFor, priceFor } from '@/shared/pricing-legacy'
+import { refundEligibility, REFUND_DAYS } from '@/shared/pricing'
 
 import { getAccess } from './access'
 import { ApiError } from './api'
 import { getDb, schema } from './db/client'
 import { isUuid } from './editor'
-import {
-  canCheckout,
-  derivedPremiumSql,
-  grobleLinkFor,
-  hasPaidPremium,
-  paymentProvider,
-} from './plan'
+import { canCheckout, derivedPremiumSql, hasPaidPremium } from './plan'
+import { grobleLinkFor, paymentProvider } from './plan-legacy'
 
 /**
  * 토스페이먼츠 결제 승인 · 취소 (서버 전용). 시크릿 키(TOSS_SECRET_KEY)는 여기서만 쓴다.
@@ -71,7 +67,7 @@ const GROBLE_ORDER_URL = process.env.GROBLE_ORDER_URL?.trim() || 'https://www.gr
 const tossCodeOf = (e: unknown) => (e as { tossCode?: string }).tossCode
 
 /** 소유자(로그인한 회원)만 결제 · 환불할 수 있다 */
-async function requireOwner(invitationId: string, userId: string) {
+export async function requireOwner(invitationId: string, userId: string) {
   if (!isUuid(invitationId)) throw new ApiError(404, '초대장을 찾을 수 없어요.')
   const access = await getAccess(invitationId, userId)
   if (!access) throw new ApiError(404, '초대장을 찾을 수 없어요.')
@@ -80,7 +76,7 @@ async function requireOwner(invitationId: string, userId: string) {
   return access
 }
 
-async function loadInvitation(id: string) {
+export async function loadInvitation(id: string) {
   const row = await getDb().query.invitations.findFirst({
     where: eq(schema.invitations.id, id),
     columns: {

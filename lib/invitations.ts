@@ -51,6 +51,7 @@ export const getPublishedInvitation = cache(
         share: true,
         createdAt: true,
         premiumOrderId: true,
+        premiumHub: true,
       },
       extras: { derivedPremium: derivedPremiumSql().as('derived_premium') },
       with: {

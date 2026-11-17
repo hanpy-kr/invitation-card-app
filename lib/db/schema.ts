@@ -64,6 +64,9 @@ export const invitations = pgTable(
     createdFrom: varchar('created_from', { length: 8 }),
     /** (결제) 프리미엄이 적용된 결제 주문. null이면 무료(또는 결제 시작 전에 만든 초대장) */
     premiumOrderId: uuid('premium_order_id'),
+    /** (결제 허브) 허브 이용권 'premium'이 있는지의 캐시. 알림 · 주인 화면 재조회로만 갱신 */
+    premiumHub: boolean('premium_hub').notNull().default(false),
+    premiumCheckedAt: timestamp('premium_checked_at', { withTimezone: true }),
     /** (결제) 복제 · 청첩장 모임 · 감사장을 만들 때 원본 초대장. 결제된 결혼 · 돌에서 파생된 청첩장 모임 · 감사장은 프리미엄 */
     derivedFromId: uuid('derived_from_id').references((): AnyPgColumn => invitations.id, {
       onDelete: 'set null',

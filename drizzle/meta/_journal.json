@@ -134,6 +134,13 @@
       "when": 1794626508932,
       "tag": "0018_mighty_sunfire",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794888020626,
+      "tag": "0019_talented_celestials",
+      "breakpoints": true
     }
   ]
 }

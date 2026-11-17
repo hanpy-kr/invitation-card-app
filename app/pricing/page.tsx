@@ -3,10 +3,17 @@ import Link from 'next/link'
 
 import Logo from '@/components/site/Logo'
 import SiteFooter from '@/components/site/SiteFooter'
-import { paymentProvider, paymentsOpen } from '@/lib/plan'
-import { EVENT_TYPE_LABELS, EVENT_TYPES, type EventType } from '@/shared/blocks'
+import { paymentsOpen } from '@/lib/plan'
+import { priceTable } from '@/lib/prices'
+import { EVENT_TYPE_LABELS, type EventType } from '@/shared/blocks'
 import { PLAN_FEATURES } from '@/shared/entitlements'
-import { formatWon, PRICE_KRW, REFUND_DAYS } from '@/shared/pricing'
+import {
+  FAMILY_EVENTS,
+  FAMILY_OPEN_NOTE,
+  formatWon,
+  isFamilyEvent,
+  REFUND_DAYS,
+} from '@/shared/pricing'
 
 import styles from '../terms/legal.module.scss'
 
@@ -17,14 +24,16 @@ export const metadata: Metadata = {
   description: 'dearday 무료 기능과 프리미엄 가격, 환불 규정',
 }
 
-/** 가격 안내 (결제대행사 심사용 · 이용자 안내용). 숫자는 shared/pricing.ts · entitlements.ts에서 읽음 */
-export default function PricingPage() {
+/** 가격 안내. 금액은 한피 결제 허브 상품 목록에서 읽고(코드에 숫자 없음), 기능 표는 entitlements.ts에서 읽음 */
+export default async function PricingPage() {
   const open = paymentsOpen()
   const f = PLAN_FEATURES
-  // 같은 가격끼리 묶어 보여 줌 (가격 · 순서는 pricing.ts가 정함)
-  const groups = new Map<number, EventType[]>()
-  for (const t of EVENT_TYPES) groups.set(PRICE_KRW[t], [...(groups.get(PRICE_KRW[t]) ?? []), t])
-  const ordered = [...groups.entries()].sort((a, b) => b[0] - a[0])
+  const prices = await priceTable()
+  const meetupTypes = (Object.keys(EVENT_TYPE_LABELS) as EventType[]).filter((t) => !isFamilyEvent(t))
+  const rows: { key: string; types: EventType[]; price: number | null; note: string | null }[] = [
+    { key: 'family', types: [...FAMILY_EVENTS], price: prices.family, note: FAMILY_OPEN_NOTE },
+    { key: 'meetup', types: meetupTypes, price: prices.meetup, note: null },
+  ]
 
   return (
     <>
@@ -88,10 +97,13 @@ export default function PricingPage() {
             </tr>
           </thead>
           <tbody>
-            {ordered.map(([price, types]) => (
-              <tr key={price}>
-                <td>{types.map((t) => EVENT_TYPE_LABELS[t]).join(' · ')}</td>
-                <td>{formatWon(price)}</td>
+            {rows.map((r) => (
+              <tr key={r.key}>
+                <td>{r.types.map((t) => EVENT_TYPE_LABELS[t]).join(' · ')}</td>
+                <td>
+                  {r.price === null ? '가격을 불러오지 못했어요' : formatWon(r.price)}
+                  {r.note && r.price !== null ? <div>{r.note}</div> : null}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -102,8 +114,7 @@ export default function PricingPage() {
             함께 적용돼요.
           </li>
           <li>
-            유료 결제가 시작되기 전에 만든 초대장은 그때 쓰던 기능(봉투 열기 · 효과, 사진{' '}
-            {f.free.photoLimit}장)을 그대로 쓸 수 있어요.
+            유료 결제가 시작되기 전에 만든 초대장은 프리미엄 기능을 그대로 쓸 수 있어요.
           </li>
           <li>
             dearday는 이용료만 받아요. 축의금 · 회비는 받거나 보관하지 않고, 하객과 주최자가 직접
@@ -112,33 +123,22 @@ export default function PricingPage() {
         </ul>
 
         <h2>결제 방법</h2>
-        {paymentProvider() === 'groble' ? (
-          <p>
-            통신판매중개 플랫폼 그로블의 결제창에서 결제해요. 카드 정보와 구매자 정보는 그로블 ·
-            결제대행사가 직접 받고 dearday는 받거나 저장하지 않아요. 그로블 결제에는 그로블 표준
-            환불 규정이 함께 적용돼요.
-          </p>
-        ) : (
-          <p>
-            토스페이먼츠 결제창에서 신용 · 체크카드, 간편결제 등으로 결제해요. 카드 정보는
-            결제대행사가 직접 받고 dearday는 받거나 저장하지 않아요.
-          </p>
-        )}
+        <p>
+          한피 결제 허브를 통해 통신판매중개 플랫폼 그로블의 결제창에서 결제해요. 카드 정보와
+          구매자 정보는 그로블 · 결제대행사가 직접 받고 dearday는 받거나 저장하지 않아요. 그로블
+          결제에는 그로블 표준 환불 규정이 함께 적용돼요.
+        </p>
 
         <h2>환불 규정</h2>
         <ul>
           <li>
-            결제 후 {REFUND_DAYS}일 이내이고 아직 초대장을 발행하지 않았다면 <b>전액 환불</b>돼요.
+            결제 후 {REFUND_DAYS}일 이내이고 발행 전이면 <b>전액 환불</b>돼요. 그 밖에는 그로블 환불
+            규정을 따라요.
           </li>
           <li>
-            초대장을 <b>발행한 뒤에는 환불되지 않아요</b>. 서비스 제공이 시작된 것으로 보기
-            때문이에요(서비스 제공 후에는 실제 제공분을 공제해요). 결제 전에 이 내용을 알려 드리고
-            동의를 받아요.
-          </li>
-          <li>
-            {paymentProvider() === 'groble'
-              ? '환불은 \u2018내 초대장\u2019 화면의 결제 내역에서 안내하는 그로블 주문조회에서 신청해요. 환불이 확인되면 프리미엄이 해제되고, 카드사에 따라 취소가 반영되는 데 며칠 걸릴 수 있어요.'
-              : '환불은 \u2018내 초대장\u2019 화면의 결제 내역에서 직접 요청해요. 환불하면 프리미엄이 해제되고, 카드사에 따라 취소가 반영되는 데 며칠 걸릴 수 있어요.'}
+            환불은 &lsquo;내 초대장&rsquo; 화면의 결제 내역에서 안내하는 그로블 주문조회에서
+            신청해요. 환불이 확인되면 프리미엄이 해제되고, 카드사에 따라 취소가 반영되는 데 며칠
+            걸릴 수 있어요.
           </li>
           <li>
             dearday의 사정으로 프리미엄 기능을 쓰지 못한 경우에는 발행 여부와 관계없이 환불해요.

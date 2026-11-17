@@ -35,6 +35,8 @@ export async function getAccess(invitationId: string, userId: string) {
       ownerId: inv.ownerId,
       ownerAnonymous: schema.users.anonymous,
       createdAt: inv.createdAt,
+      eventType: inv.eventType,
+      premiumHub: inv.premiumHub,
       premiumOrderId: inv.premiumOrderId,
       derivedPremium: derivedPremiumSql(),
     })

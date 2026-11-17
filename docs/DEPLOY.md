@@ -186,3 +186,21 @@ curl -sI https://thedearday.com/fonts/nanum-geumeunbohwa/v1/119.woff2 | grep -iE
 7. 토스로 돌아가기: `PAYMENT_PROVIDER`를 비우거나 `toss`로 하고 재배포. 이미 그로블로 결제된 주문은 그대로 남고, 환불은 그로블 주문조회에서 합니다.
 
 환불 규정은 그로블 표준 규정(서비스 제공 전 7일 내 전액 / 제공 후 실제 제공분 공제)과 어긋나지 않게 맞춰 두었습니다. dearday에서는 그로블 주문을 직접 취소할 수 없어서, 그로블 환불은 그로블 쪽에서 신청하고 웹훅(`payment.refunded`)이 도착하면 dearday에 반영됩니다.
+
+
+## 한피 결제 허브 연동 (payments v2)
+
+결제는 항상 한피 결제 허브(`https://api.han-py.com`)로 갑니다. 이 서비스는 결제 공급자를 직접 호출하지 않고 결제 기록 테이블도 새로 만들지 않습니다(가이드: hanpy-api `docs/payments-integration.md`).
+
+| 환경변수 | 값 |
+| --- | --- |
+| `HANPY_API_ORIGIN` | `https://api.han-py.com` (서버 전용) |
+| `HANPY_SERVICE_TOKEN` | 허브가 발급한 서비스 토큰 (서버 전용, 값은 Amplify에만) |
+| `HANPY_NOTIFY_SECRET` | 허브 결제 알림 서명 키 (서버 전용, 값은 Amplify에만) |
+
+세 값은 `amplify.yml`이 `.env.production`에 써 넣습니다. 바꾸면 **재배포**해야 합니다. 셋 중 하나라도 비어 있으면 결제 버튼 · 가격 안내가 열리지 않습니다.
+
+- 알림 주소: `https://thedearday.com/api/hanpy/payments` (허브 쪽 `HANPY_SERVICE_CONFIG`의 `notifyUrl`)
+- 결제 후 이동 페이지(그로블 상품 3개): `https://thedearday.com/pay/return`
+- 켜는 순서: 허브에서 토큰 · 알림 키 발급 → Amplify 환경변수 3개 → 재배포 → 관리자 계정으로 9,900원 실결제 → 프리미엄 켜짐 → 그로블 환불 → 꺼짐 확인 → 약관 · 방침 공지 → `PAYMENTS_LIVE` (과거 시각 금지) → 옛 결제 코드 정리 → 허브의 `dd-` 넘기기 제거
+- 프리미엄 캐시: `invitations.premium_hub`. 알림을 받으면, 그리고 주인이 편집기를 열 때 10분보다 오래됐으면 허브에 다시 조회해 갱신합니다. 허브가 응답하지 않으면 캐시를 그대로 쓰고, 캐시가 없으면 유료 기능을 열지 않습니다.

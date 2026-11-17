@@ -13,13 +13,16 @@ import {
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
 import { findCover } from '@/shared/covers'
 import { getEntitlements, type Plan } from '@/shared/entitlements'
-import { priceFor, refundEligibility } from '@/shared/pricing'
+import { isFamilyEvent, refundEligibility } from '@/shared/pricing'
 import { collectAudioRefs, collectMediaRefs } from '@/shared/media'
 import { buildFromLayout, buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
 import { canEditWhere, getAccess } from './access'
 import { canCheckout, derivedPremiumSql, hasPaidPremium, planOf } from './plan'
+import { hanpy } from './hanpy'
+import { refreshIfStale } from './premium'
+import { priceOfEvent } from './prices'
 import { ApiError } from './api'
 import { getDb, schema } from './db/client'
 import { randomSlug } from './slug'
@@ -46,7 +49,7 @@ export type EditableInvitation = {
   introEffects: boolean
   canHideMadeWith: boolean
   /** 결제 버튼을 보여 줄지(PAYMENTS_LIVE가 켜지고 아직 프리미엄이 아닐 때) · 가격 */
-  upsell: { price: number } | null
+  upsell: { price: number | null; openSale: boolean } | null
   /** 결제한 초대장이면 환불 가능 여부 (지우기 확인창에서 안내) */
   paid: { refundable: boolean } | null
 }
@@ -151,6 +154,8 @@ export async function createInvitation(
 export async function getEditableInvitation(
   id: string,
   userId: string,
+  /** 허브 캐시를 한 번만 새로 고치고 다시 읽기 위한 내부 값 */
+  retry = true,
 ): Promise<EditableInvitation | null> {
   if (!isUuid(id)) return null
   const row = await getDb().query.invitations.findFirst({
@@ -168,21 +173,31 @@ export async function getEditableInvitation(
     },
   })
   if (!row) return null
+  // 주인 화면: 허브 이용권 캐시가 10분보다 오래됐으면 허브에 다시 묻고 한 번 더 읽는다
+  if (retry && (await refreshIfStale([{ id: row.id, premiumCheckedAt: row.premiumCheckedAt }])))
+    return getEditableInvitation(id, userId, false)
   // 결제한 초대장이면 지우기 전에 환불 안내를 보여 주기 위해 환불 가능 여부를 같이 준다 (소유자만)
   let paid: { refundable: boolean } | null = null
-  if (row.premiumOrderId && row.ownerId === userId) {
-    const [order] = await getDb()
-      .select({ status: schema.orders.status, approvedAt: schema.orders.approvedAt })
-      .from(schema.orders)
-      .where(eq(schema.orders.id, row.premiumOrderId))
-    if (order?.status === 'paid')
+  if (row.premiumHub && row.ownerId === userId) {
+    try {
+      const orders = await hanpy.listOrders({
+        subject: { type: 'invitation', id: row.id },
+        status: 'paid',
+        limit: 1,
+      })
+      const order = orders[0]
       paid = {
-        refundable: refundEligibility({
-          status: order.status,
-          approvedAt: order.approvedAt,
-          invitationPublishedAt: row.publishedAt,
-        }).ok,
+        refundable: order
+          ? refundEligibility({
+              status: order.status,
+              approvedAt: order.paidAt,
+              invitationPublishedAt: row.publishedAt,
+            }).ok
+          : false,
       }
+    } catch {
+      paid = { refundable: false }
+    }
   }
   const plan = planOf(row)
   const ent = getEntitlements({ plan, anonymous: Boolean(row.owner?.anonymous) })
@@ -214,7 +229,7 @@ export async function getEditableInvitation(
     paid,
     upsell:
       !hasPaidPremium(row) && row.ownerId === userId && (await canCheckout(userId))
-        ? { price: priceFor(row.eventType) }
+        ? { price: await priceOfEvent(row.eventType), openSale: isFamilyEvent(row.eventType) }
         : null,
   }
 }

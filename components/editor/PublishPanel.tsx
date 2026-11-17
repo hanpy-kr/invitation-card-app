@@ -43,7 +43,7 @@ type Props = {
   /** 프리미엄 하단 문구 숨기기 가능 */
   canHideMadeWith: boolean
   /** 결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음 */
-  upsell: { price: number } | null
+  upsell: { price: number | null; openSale: boolean } | null
 }
 
 /** 발행 · 링크 복사 · 공유 시트 */
@@ -288,21 +288,33 @@ function stringsIn(value: unknown): string[] {
 }
 
 /** 프리미엄 안내 · 결제 버튼. 결제가 열려 있고 아직 프리미엄이 아닐 때만 보임 */
-function PremiumBlock({ id, upsell }: { id: string; upsell: { price: number } | null }) {
+function PremiumBlock({ id, upsell }: { id: string; upsell: { price: number | null; openSale: boolean } | null }) {
   if (!upsell) return null
   const f = PLAN_FEATURES.premium
   return (
     <section className={styles.premium} aria-label="프리미엄 안내">
-      <strong>프리미엄 {formatWon(upsell.price)}</strong>
+      <strong>
+        프리미엄{' '}
+        {upsell.price === null ? '가격을 불러오지 못했어요' : formatWon(upsell.price)}
+      </strong>
+      {upsell.openSale && upsell.price !== null ? (
+        <p>오픈 특가 (결혼 표지 템플릿 출시 전까지)</p>
+      ) : null}
       <ul>
         <li>봉투 열기 3종 · 떨어지는 효과 6종이 하객에게 보여요</li>
         <li>사진을 초대장당 {f.photoLimit}장까지 올릴 수 있어요 (무료 {PLAN_FEATURES.free.photoLimit}장)</li>
         <li>하단 &lsquo;dearday로 만들었어요&rsquo; 문구를 숨길 수 있어요</li>
       </ul>
       <p>초대장 1개당 1회 결제 · 부가세 포함. {REFUND_NOTICE}</p>
-      <a className={styles.premiumBtn} href={`/pay/${id}`}>
-        프리미엄 결제하기
-      </a>
+      {upsell.price === null ? (
+        <span className={styles.premiumBtn} aria-disabled="true" style={{ opacity: 0.45 }}>
+          프리미엄 결제하기
+        </span>
+      ) : (
+        <a className={styles.premiumBtn} href={`/pay/${id}`}>
+          프리미엄 결제하기
+        </a>
+      )}
     </section>
   )
 }

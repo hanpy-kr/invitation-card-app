@@ -4,7 +4,7 @@ import Link from 'next/link'
 import SiteFooter from '@/components/site/SiteFooter'
 import { getSession } from '@/lib/auth/session'
 import { recordPaymentFailure } from '@/lib/payments'
-import { ORDER_ID_RE } from '@/shared/pricing'
+import { ORDER_ID_RE } from '@/shared/pricing-legacy'
 
 import styles from '../../pay.module.scss'
 

@@ -4,7 +4,7 @@ import { ApiError } from '@/lib/api'
 import { getSession } from '@/lib/auth/session'
 import { confirmPayment } from '@/lib/payments'
 import { siteUrl } from '@/lib/site'
-import { ORDER_ID_RE } from '@/shared/pricing'
+import { ORDER_ID_RE } from '@/shared/pricing-legacy'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'

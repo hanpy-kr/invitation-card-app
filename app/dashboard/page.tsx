@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { requireSession } from '@/lib/auth/session'
 import { listMyInvitations } from '@/lib/dashboard'
 import { getNotifyState } from '@/lib/notify'
-import { listOrders } from '@/lib/payments'
+import { GROBLE_ORDER_URL, listHubOrders } from '@/lib/hub-orders'
+import { REFUND_NOTICE } from '@/shared/pricing'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
 import { formatWon } from '@/shared/pricing'
@@ -13,7 +14,6 @@ import { formatWon } from '@/shared/pricing'
 import DuplicateButtons from './DuplicateButtons'
 import NotifyToggle from './NotifyToggle'
 import QrButton from './QrButton'
-import RefundButton from './RefundButton'
 import styles from './page.module.scss'
 import WithdrawButton from './WithdrawButton'
 
@@ -25,7 +25,7 @@ export default async function DashboardPage() {
   const [invitations, notify, orders] = await Promise.all([
     listMyInvitations(session.userId),
     session.anonymous ? null : getNotifyState(session.userId),
-    session.anonymous ? [] : listOrders(session.userId),
+    session.anonymous ? [] : listHubOrders(session.userId),
   ])
 
   return (
@@ -118,11 +118,11 @@ export default async function DashboardPage() {
           <h2>결제 내역</h2>
           <ul>
             {orders.map((o) => (
-              <li key={o.id}>
+              <li key={o.orderId}>
                 <div className={styles.row}>
                   <div className={styles.title}>{o.orderName}</div>
                   <span className={styles.badge}>
-                    {o.status === 'canceled'
+                    {o.status === 'refunded'
                       ? '환불됨'
                       : o.status === 'cancel_requested'
                         ? '환불 요청됨'
@@ -131,40 +131,26 @@ export default async function DashboardPage() {
                 </div>
                 <div className={styles.meta}>
                   {o.invitationTitle} · {formatWon(o.amount)}
-                  {o.method ? ` · ${o.method}` : ''}
                 </div>
                 <div className={styles.meta}>
-                  {o.status === 'canceled' && o.canceledAt
-                    ? `환불 ${formatLongDate(o.canceledAt)}`
-                    : o.approvedAt
-                      ? `결제 ${formatLongDate(o.approvedAt)}`
+                  {o.status === 'refunded' && o.refundedAt
+                    ? `환불 ${formatLongDate(o.refundedAt)}`
+                    : o.paidAt
+                      ? `결제 ${formatLongDate(o.paidAt)}`
                       : ''}
                 </div>
-                <div className={styles.actions}>
-                  {o.receiptUrl ? (
-                    <a href={o.receiptUrl} target="_blank" rel="noopener noreferrer">
-                      영수증
-                    </a>
-                  ) : null}
-                  {o.refundable && o.invitationId && o.provider !== 'groble' ? (
-                    <RefundButton invitationId={o.invitationId} />
-                  ) : null}
-                  {o.provider === 'groble' && o.refundable && o.refundUrl ? (
-                    <a href={o.refundUrl} target="_blank" rel="noopener noreferrer">
-                      그로블에서 환불 신청
-                    </a>
-                  ) : null}
-                </div>
-                {o.refundNote ? (
-                  <div className={styles.meta}>
-                    {o.refundNote}
-                    {o.provider === 'groble' && o.refundable
-                      ? ' 그로블 주문조회에서 환불을 신청해 주세요. 환불이 확인되면 이 내역이 바뀌어요.'
-                      : ''}
-                  </div>
-                ) : null}
-                {o.status === 'cancel_requested' ? (
-                  <div className={styles.meta}>그로블에 환불이 요청됐어요. 처리되면 환불됨으로 바뀌어요.</div>
+                {o.status === 'paid' ? (
+                  <>
+                    <div className={styles.actions}>
+                      <a href={GROBLE_ORDER_URL} target="_blank" rel="noopener noreferrer">
+                        그로블에서 환불 신청
+                      </a>
+                    </div>
+                    <div className={styles.meta}>
+                      {REFUND_NOTICE} 그로블 주문조회에서 환불을 신청해 주세요. 환불이 확인되면 이
+                      내역이 바뀌어요.
+                    </div>
+                  </>
                 ) : null}
               </li>
             ))}

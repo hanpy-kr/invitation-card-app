@@ -4,7 +4,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 
 import { and, eq } from 'drizzle-orm'
 
-import { priceFor } from '@/shared/pricing'
+import { priceFor } from '@/shared/pricing-legacy'
 
 import { getDb, schema } from './db/client'
 import { derivedPremiumSql, hasPaidPremium } from './plan'

@@ -40,7 +40,7 @@ export type EditorProps = {
   introEffects: boolean
   canHideMadeWith: boolean
   /** 프리미엄 안내 · 결제 버튼 (결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음) */
-  upsell: { price: number } | null
+  upsell: { price: number | null; openSale: boolean } | null
   /** 결제한 초대장이면 환불 가능 여부 */
   paid: { refundable: boolean } | null
 }
