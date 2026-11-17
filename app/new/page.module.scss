@@ -57,7 +57,9 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  @include deboss-rule;
+  // 음각선은 목록 위에만 (deboss-rule을 목록에 바로 걸면 높이가 1px이 되어 다음 묶음과 겹침)
+  border-top: 1px solid rgba(110, 85, 55, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .row {
