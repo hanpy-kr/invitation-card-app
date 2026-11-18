@@ -1,7 +1,13 @@
+@use '../../styles/utils' as *;
+
 .page {
   max-width: var(--column);
   margin: 0 auto;
   padding: 24px 20px 48px;
+}
+
+.top {
+  margin-bottom: 4px;
 }
 
 .back {
@@ -12,58 +18,128 @@
 
 .title {
   font-size: 22px;
-  font-weight: bold;
-  margin: 20px 0 6px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0 0 8px;
 }
 
 .desc {
-  color: var(--muted);
-  font-size: 14px;
-  margin-bottom: 24px;
+  color: var(--ink-sub);
+  font-size: 13.5px;
+  line-height: 1.7;
+  margin-bottom: 28px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+.group {
+  margin-top: 8px;
+
+  & + & {
+    margin-top: 28px;
+  }
 }
 
-.card {
+.groupTitle {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 18px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper-surface);
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ink-sub);
+  margin-bottom: 10px;
+}
+
+.groupEn {
+  @include eyebrow;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  // 음각선은 목록 위에만 (deboss-rule을 목록에 바로 걸면 높이가 1px이 되어 다음 묶음과 겹침)
+  border-top: 1px solid rgba(110, 85, 55, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 72px;
+  padding: 12px 4px;
+  border: 0;
+  border-bottom: 0;
+  box-shadow: 0 1px 0 rgba(110, 85, 55, 0.2), 0 2px 0 rgba(255, 255, 255, 0.85);
+  background: none;
   text-align: left;
   cursor: pointer;
-  min-height: 112px;
+
+  &:hover .label,
+  &:focus-visible .label {
+    color: var(--ink);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--gold);
+    outline-offset: -2px;
+  }
 
   &:disabled {
     opacity: 0.5;
     cursor: wait;
   }
 
-  .emoji {
-    font-size: 26px;
+  .icon {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(168, 145, 95, 0.55);
+    border-radius: 50%;
+    background: none;
+    color: var(--gold);
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .label {
-    font-weight: bold;
-    font-size: 16px;
+    font-family: var(--font-display), serif;
+    font-weight: 500;
+    font-size: 15.5px;
+    color: var(--ink);
   }
 
   .sub {
-    font-size: 13px;
-    color: var(--muted);
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  .chev {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--gold);
   }
 }
 
 .error {
   margin-top: 16px;
-  color: #d64545;
+  color: var(--danger);
   font-size: 14px;
 }
 
@@ -74,8 +150,8 @@
 }
 
 .from {
-  border: 2px solid var(--accent);
-  border-radius: var(--radius);
+  border: 1px solid var(--paper-line);
+  border-radius: 2px;
   padding: 18px 16px;
   background: var(--paper-surface);
 }
@@ -93,17 +169,5 @@
 }
 
 .fromBtn {
-  width: 100%;
-  padding: 14px;
-  border: 0;
-  border-radius: var(--radius);
-  background: var(--btn);
-  color: var(--btn-text);
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.6;
-  }
+  @include btn-solid;
 }

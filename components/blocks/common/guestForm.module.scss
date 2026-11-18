@@ -3,20 +3,21 @@
 .intro {
   @include txt-content;
   font-size: 15px;
-  color: var(--muted);
+  color: var(--sub-1, var(--muted));
   margin-bottom: 20px;
 }
 
 .open {
   display: block;
   width: 100%;
-  min-height: var(--btn-h);
+  min-height: var(--solid-h, var(--btn-h));
   padding: 0 15px;
   border: 0;
   border-radius: var(--radius);
-  background: var(--btn);
-  color: var(--btn-text);
-  font-size: 16px;
+  background: var(--solid-bg, var(--btn));
+  color: var(--solid-text, var(--btn-text));
+  box-shadow: var(--solid-shadow, none);
+  font-size: var(--open-size, 16px);
   letter-spacing: 0.08em;
   cursor: pointer;
 
@@ -24,6 +25,14 @@
     opacity: 0.6;
     cursor: default;
   }
+}
+
+// 방명록 [축하 글 남기기]: 종이 편지에서는 꽉 찬 먹색 대신 테두리 버튼 (꽉 찬 버튼은 참석 의사 하나만)
+.ghost {
+  border: var(--ghost-bd-w, 0) solid var(--ghost-border, transparent);
+  background: var(--ghost-bg, var(--btn));
+  color: var(--ink-strong, var(--btn-text));
+  box-shadow: none;
 }
 
 .form {
@@ -169,8 +178,8 @@
 }
 
 .note {
-  font-size: 13px;
-  color: var(--muted);
+  font-size: var(--note-size, 13px);
+  color: var(--sub-2, var(--muted));
   text-align: center;
 }
 

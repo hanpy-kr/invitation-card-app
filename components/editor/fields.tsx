@@ -22,20 +22,56 @@ export function TextField({
   type?: 'text' | 'date' | 'time'
 }) {
   const id = useId()
+  const input = (
+    <input
+      id={id}
+      className={styles.input}
+      type={type}
+      value={value}
+      maxLength={maxLength}
+      placeholder={placeholder}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  )
   return (
     <label className={styles.field} htmlFor={id}>
       <span>
         {label} {hint ? <em className={styles.hint}>{hint}</em> : null}
       </span>
-      <input
-        id={id}
-        className={styles.input}
-        type={type}
-        value={value}
-        maxLength={maxLength}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-      />
+      {type === 'text' ? (
+        input
+      ) : (
+        <span className={styles.control}>
+          {input}
+          {type === 'date' ? (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="4" y="5.5" width="16" height="14" rx="1" />
+              <path d="M4 9.5h16M8 3.5v3M16 3.5v3" />
+            </svg>
+          ) : (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="8" />
+              <path d="M12 7.5V12l3 2" />
+            </svg>
+          )}
+        </span>
+      )}
     </label>
   )
 }
@@ -87,21 +123,34 @@ export function Select<T extends string | number>({
   return (
     <label className={styles.field} htmlFor={id}>
       <span>{label}</span>
-      <select
-        id={id}
-        className={styles.select}
-        value={String(value)}
-        onChange={(e) => {
-          const found = options.find((o) => String(o.value) === e.target.value)
-          if (found) onChange(found.value)
-        }}
-      >
-        {options.map((o) => (
-          <option key={String(o.value)} value={String(o.value)}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+      <span className={styles.control}>
+        <select
+          id={id}
+          className={styles.select}
+          value={String(value)}
+          onChange={(e) => {
+            const found = options.find((o) => String(o.value) === e.target.value)
+            if (found) onChange(found.value)
+          }}
+        >
+          {options.map((o) => (
+            <option key={String(o.value)} value={String(o.value)}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 9.5l6 6 6-6" />
+        </svg>
+      </span>
     </label>
   )
 }

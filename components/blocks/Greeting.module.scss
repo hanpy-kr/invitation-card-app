@@ -2,47 +2,68 @@
 
 .container {
   @include txt-content;
+  // 표지 바로 아래라 위 구분선 없음 (구분선은 인사말 다음 섹션부터)
+  --section-rule: none;
+
+  // 머리글: 별 → INVITATION → 제목. 종이 편지에서는 제목과 본문 사이를 좁힘
+  .head {
+    margin-bottom: var(--greet-head-gap, 18px);
+  }
 
   .ico-flower {
-    width: 28px;
-    height: 28px;
-    margin: 0 auto 10px;
+    width: 30px;
+    height: 30px;
+    margin: 0 auto 12px;
+    color: var(--accent);
+  }
+
+  // 여덟 갈래 별: 금박 느낌의 샴페인 골드
+  .ico-star {
+    width: var(--star-size, 26px);
+    height: var(--star-size, 26px);
+    margin: 0 auto var(--star-gap, 14px);
+    color: var(--foil, #b39b6b);
+    // 금박을 종이에 눌러 찍은 음각: 아래 흰 결 + 위 옅은 그림자
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.95))
+      drop-shadow(0 -1px 0 rgba(90, 70, 40, 0.35));
   }
 
   .ico-post {
-    width: 22px;
-    height: 22px;
+    width: 30px;
+    height: 30px;
     margin: 0 auto 12px;
-    fill: var(--accent);
-  }
-
-  .txt-heading {
-    @include display-font;
-    font-size: 21px;
-    font-weight: normal;
-    line-height: 1.5;
-    margin-bottom: 18px;
+    color: var(--accent);
   }
 
   .txt-message {
     @include display-font;
-    font-size: calc(15px * var(--read, 1));
-    line-height: 2;
+    font-size: calc(var(--msg-size, 15px) * var(--read, 1));
+    line-height: var(--msg-lh, 2);
     color: var(--text);
   }
 
   .wrap-hosts {
     @include display-font;
-    font-size: 18px;
+    font-size: var(--host-size, 18px);
+    color: var(--ink-strong, inherit);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    letter-spacing: 0.12em;
+    letter-spacing: var(--host-ls, 0.12em);
     margin: 32px 0 8px;
 
+    .ico-heart-gold {
+      display: var(--cl-on, none);
+      fill: var(--foil, #a8915f);
+      width: 13px;
+      height: auto;
+      margin: 0 10px;
+    }
+
     .ico-heart {
-      fill: var(--accent);
+      display: var(--cl-off, block);
+      fill: var(--text);
       width: 14px;
       height: 14px;
       margin: 0 8px;
@@ -51,6 +72,51 @@
     .sep-dot {
       margin: 0 10px;
       color: var(--muted);
+    }
+  }
+
+  // 혼주 줄: 위에 음각 선 하나
+  .families {
+    margin: var(--fam-mt, 36px) auto 0;
+    padding-top: var(--fam-pt, 28px);
+    max-width: 300px;
+    border-top: var(--fam-border, 1px solid rgba(110, 85, 55, 0.24));
+    box-shadow: var(--fam-shadow, 0 1px 0 rgba(255, 255, 255, 0.85) inset);
+
+    // 종이 편지: 가운데 짧은 금색 선 (가로 40px)
+    &::before {
+      content: '';
+      display: var(--cl-on, none);
+      width: 40px;
+      height: 1px;
+      margin: 0 auto 12px;
+      background: rgba(168, 145, 95, 0.6);
+    }
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    li {
+      @include display-font;
+      font-size: var(--fam-size, 15px);
+      line-height: var(--fam-lh, normal);
+      color: var(--sub-1, var(--text));
+    }
+
+    .parents {
+      letter-spacing: 0.04em;
+    }
+
+    .rel {
+      margin: 0 10px 0 4px;
+      font-size: var(--fam-rel, 13px);
+      color: var(--sub-2, var(--muted));
+    }
+
+    b {
+      color: var(--ink-strong, inherit);
+      font-weight: var(--fam-b, 700);
+      letter-spacing: 0.06em;
     }
   }
 

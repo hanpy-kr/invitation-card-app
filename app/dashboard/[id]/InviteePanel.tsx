@@ -6,6 +6,7 @@ import { copyText } from '@/components/blocks/common/CopyButton'
 import { api } from '@/components/ui/api'
 import { matchInvitees, parseInvitees, reminderText } from '@/shared/invitees'
 
+import Toast, { isToastMessage } from '@/components/ui/Toast'
 import styles from './page.module.scss'
 
 /**
@@ -62,7 +63,7 @@ export default function InviteePanel({
   }
 
   return (
-    <section className={styles.section} aria-label="초대 명단 체크">
+    <section className={styles.section} aria-label="초대 명단 체크" data-en="GUEST LIST">
       <div className={styles.sectionHead}>
         <h2>초대 명단 체크</h2>
         {names.length > 0 ? (
@@ -125,11 +126,12 @@ export default function InviteePanel({
           {!url ? <small className={styles.hint}>발행한 뒤에 쓸 수 있어요.</small> : null}
         </>
       ) : null}
-      {msg ? (
+      {msg && !isToastMessage(msg) ? (
         <p className={styles.hint} role="status">
           {msg}
         </p>
       ) : null}
+      <Toast message={isToastMessage(msg) ? msg : ''} onDone={() => setMsg('')} />
     </section>
   )
 }

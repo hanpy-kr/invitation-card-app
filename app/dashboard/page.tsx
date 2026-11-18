@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Eyebrow from '@/components/site/Eyebrow'
 import Logo from '@/components/site/Logo'
 import Link from 'next/link'
 
@@ -38,17 +39,18 @@ export default async function DashboardPage() {
 
   return (
     <main className={styles.page}>
-      <div style={{ marginBottom: 12 }}>
+      <div className={styles.top}>
         <Logo />
-      </div>
-      <header className={styles.header}>
-        <h1>{session.nickname ? `${session.nickname}님의 초대장` : '내 초대장'}</h1>
         <div className={styles.headerTools}>
           <Link href="/help">도움말</Link>
           <form action="/api/auth/kakao/logout" method="post">
             <button type="submit">로그아웃</button>
           </form>
         </div>
+      </div>
+      <header className={styles.header}>
+        <Eyebrow>MY INVITATIONS</Eyebrow>
+        <h1>{session.nickname ? `${session.nickname}님의 초대장` : '내 초대장'}</h1>
       </header>
 
       {session.anonymous ? (
@@ -68,7 +70,10 @@ export default async function DashboardPage() {
       </Link>
 
       {invitations.length === 0 ? (
-        <p className={styles.empty}>아직 만든 초대장이 없어요.</p>
+        <div className={styles.empty}>
+          <p>아직 만든 초대장이 없어요.</p>
+          <Link href="/new">첫 초대장 만들기</Link>
+        </div>
       ) : (
         <ul className={styles.list}>
           {invitations.map((inv) => (
@@ -79,9 +84,11 @@ export default async function DashboardPage() {
                     {inv.title || EVENT_TYPE_LABELS[inv.eventType]}
                   </div>
                   <span
-                    className={`${styles.badge} ${inv.status === 'published' ? styles.published : ''}`}
+                    className={styles.badge}
+                    role="img"
+                    aria-label={inv.status === 'published' ? '발행됨' : '작성 중'}
                   >
-                    {inv.status === 'published' ? '발행됨' : '작성 중'}
+                    {inv.status === 'published' ? 'PUBLISHED' : 'DRAFT'}
                   </span>
                 </div>
                 <div className={styles.meta}>
@@ -90,8 +97,13 @@ export default async function DashboardPage() {
                 </div>
               </Link>
               {inv.status === 'published' || inv.responses > 0 ? (
-                <div className={styles.meta}>
-                  참석 {inv.attendees}명 · 응답 {inv.responses}건
+                <div className={styles.stats}>
+                  <span>
+                    <b>{inv.attendees}</b>참석
+                  </span>
+                  <span>
+                    <b>{inv.responses}</b>응답
+                  </span>
                   {inv.newResponses > 0 ? (
                     <Link href={`/dashboard/${inv.id}`} className={styles.newCount}>
                       새 응답 {inv.newResponses}

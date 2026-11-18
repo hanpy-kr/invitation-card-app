@@ -1,6 +1,6 @@
 .wrap-images {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--gal-cols, 3), 1fr);
   gap: 6px;
 
   .wrap-image {
@@ -86,4 +86,26 @@
   text-align: center;
   font-size: 13px;
   color: var(--muted);
+}
+
+// 4장 접기: 2열 바둑판 + 더보기
+.wrap-images.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--ghost-h, var(--tap));
+  margin-top: 14px;
+  border: 1px solid var(--ghost-border, var(--btn-line, var(--line)));
+  border-radius: var(--radius);
+  background: var(--ghost-bg, transparent);
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink-strong, var(--text));
+  text-shadow: inherit;
+  cursor: pointer;
 }

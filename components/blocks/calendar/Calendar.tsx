@@ -5,7 +5,13 @@ import { useEffect, useState } from 'react'
 
 import type { CalendarConfig } from '@/shared/blocks'
 import { daysUntil, googleCalendarUrl, monthGrid } from '@/shared/calendar'
-import { formatEventDateTime } from '@/shared/date'
+import {
+  formatDotDate,
+  formatDotDateDay,
+  formatMonthEn,
+  formatTime,
+  formatWeekdayKo,
+} from '@/shared/date'
 
 import Section from '../common/Section'
 import type { BlockContext } from '../types'
@@ -13,16 +19,20 @@ import styles from './Calendar.module.scss'
 
 const cx = classNames.bind(styles)
 const WEEK = ['일', '월', '화', '수', '목', '금', '토']
+const EN = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 export default function Calendar({
   config,
   ctx,
   place,
+  venue = '',
 }: {
   config: CalendarConfig
   ctx: BlockContext
   /** 구글 캘린더에 넣을 장소 */
   place: string
+  /** 카드 맨 위 날짜 아래 장소 줄 */
+  venue?: string
 }) {
   // D-day는 보는 사람의 '오늘' 기준이라 브라우저에서 계산 (서버 렌더링과 어긋나지 않게)
   const [left, setLeft] = useState<number | null>(null)
@@ -40,17 +50,31 @@ export default function Calendar({
   return (
     <Section eyebrow="THE DAY" title={config.title} className={cx('container')}>
       <div className={cx('card')}>
-        <p className={cx('when')}>{formatEventDateTime(ctx.eventAt)}</p>
+        {/* 2027.12.26(일) 오후 5시 30분 / 더채플앳청담 3F 커티지홀 */}
+        <p className={cx('when')}>
+          {formatDotDateDay(ctx.eventAt)} {formatTime(ctx.eventAt)}
+        </p>
+        {venue ? <p className={cx('venue')}>{venue}</p> : null}
+        {/* 종이 편지: 날짜(Cinzel) + 요일 · 시간 · 장소 (위의 한 줄 날짜는 숨김) */}
+        <p className={cx('cl-date')}>{formatDotDate(ctx.eventAt)}</p>
+        <p className={cx('cl-when')}>
+          {formatWeekdayKo(ctx.eventAt)} {formatTime(ctx.eventAt)}
+          {venue ? ` · ${venue}` : ''}
+        </p>
         <div className={cx('month')}>
           <div className={cx('month-title')}>
             {year}년 {month}월
           </div>
+          <div className={cx('cl-month')}>{formatMonthEn(ctx.eventAt)}</div>
           <table className={cx('grid')}>
             <thead>
               <tr>
                 {WEEK.map((w, i) => (
                   <th key={w} className={cx({ sun: i === 0, sat: i === 6 })}>
-                    {w}
+                    <span className={cx('ko')}>{w}</span>
+                    <span className={cx('en')} aria-hidden>
+                      {EN[i]}
+                    </span>
                   </th>
                 ))}
               </tr>
@@ -83,7 +107,6 @@ export default function Calendar({
         ) : null}
         {!past ? (
           <div className={cx('save')}>
-            <span className={cx('save-label')}>내 캘린더에 저장</span>
             <div className={cx('save-buttons')}>
               <a href={`/i/${ctx.slug}/event.ics`} className={cx('btn')}>
                 기본 캘린더 (아이폰 등)

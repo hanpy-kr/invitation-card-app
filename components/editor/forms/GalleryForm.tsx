@@ -1,6 +1,6 @@
 'use client'
 
-import { Segmented, TextField } from '../fields'
+import { Segmented, TextField, Toggle } from '../fields'
 import { GalleryField } from '../ImageFields'
 import { patcher, type FormProps } from './types'
 
@@ -10,6 +10,7 @@ export default function GalleryForm({ config, update }: FormProps<'gallery'>) {
     <>
       <TextField
         label="제목"
+        placeholder="비우면 제목 없이 사진만"
         value={config.title}
         maxLength={30}
         onChange={(title) => set({ title })}
@@ -23,6 +24,11 @@ export default function GalleryForm({ config, update }: FormProps<'gallery'>) {
           { value: 'slide', label: '넘겨 보기' },
         ]}
         onChange={(layout) => set({ layout })}
+      />
+      <Toggle
+        label="처음엔 4장만 · 더보기"
+        checked={config.collapse}
+        onChange={(collapse) => set({ collapse })}
       />
       <GalleryField
         images={config.images}

@@ -8,62 +8,142 @@ export function IconHeart({ className }: IconProps) {
   )
 }
 
+/** 인사말 장식: 가는 선 봉투 */
 export function IconPost({ className }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-      <path d="M116.73,31.83a3,3,0,0,0-4.2-.61L64.14,67.34a1,1,0,0,1-1.2,0L15.5,31.06a3,3,0,1,0-3.64,4.77L49.16,64.36,12.27,92.16A3,3,0,1,0,15.88,97L54.11,68.14l5.18,4a7,7,0,0,0,8.43.06l5.44-4.06L111.84,97a3,3,0,1,0,3.59-4.81L78.17,64.35,116.12,36A3,3,0,0,0,116.73,31.83Z" />
-      <path d="M113,19H15A15,15,0,0,0,0,34V94a15,15,0,0,0,15,15h98a15,15,0,0,0,15-15V34A15,15,0,0,0,113,19Zm9,75a9,9,0,0,1-9,9H15a9,9,0,0,1-9-9V34a9,9,0,0,1,9-9h98a9,9,0,0,1,9,9Z" />
+    <svg
+      className={className}
+      viewBox="0 0 40 40"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <rect x="6" y="11" width="28" height="19" rx="1" />
+      <path d="M6.5 11.5 20 22l13.5-10.5" />
+      <circle cx="20" cy="22" r="2.2" />
     </svg>
   )
 }
 
-const stroke = {
-  fill: 'none',
-  stroke: '#2C3E50',
-  strokeLinecap: 'round',
-  strokeLinejoin: 'round',
-  strokeMiterlimit: 10,
-  strokeWidth: 2,
-} as const
-
+/** 인사말 장식: 가는 선 잔가지 (포인트 색, 종이 느낌에 맞춘 선 그림) */
 export function IconFlower({ className }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-      <path
-        d="M29.1,8c-0.8-0.3-1.7-0.6-2.8-0.6c-4.3,0-6.7,3.4-6.7,7.4c0,7.4,12.5,13.7,12.5,13.7s12.5-6.4,12.5-13.7c0-3.9-2.4-7.4-6.7-7.4l0,0c-4.3,0-5.8,3.4-5.8,3.4C30.6,9,29.1,8,29.1,8z"
-        fill="#E64C3C"
-      />
-      <path
-        d="M29.1,8c-0.8-0.3-1.7-0.6-2.8-0.6c-4.3,0-6.7,3.4-6.7,7.4c0,7.4,12.5,13.7,12.5,13.7s12.5-6.4,12.5-13.7c0-3.9-2.4-7.4-6.7-7.4l0,0c-4.3,0-5.8,3.4-5.8,3.4"
-        {...stroke}
-      />
-      <path
-        d="M43.4,40H21.2c-1,0-2.2,1.1-2.2,2.1v4.4c0,1,1.2,1.5,2.2,1.5h1.2l1.8,9.9c0.2,1,1.1,2.1,2.1,2.1h12c1,0,1.9-1.1,2.1-2.1l1.8-9.9h1.2c1,0,1.6-0.5,1.6-1.5v-4.4C45,41.1,44.3,40,43.4,40L43.4,40z"
-        fill="#8C623B"
-      />
-      <path
-        d="M43.4,40H21.2c-1,0-2.2,1.1-2.2,2.1v4.4c0,1,1.2,1.5,2.2,1.5h1.2l1.8,9.9c0.2,1,1.1,2.1,2.1,2.1h12c1,0,1.9-1.1,2.1-2.1l1.8-9.9h1.2c1,0,1.6-0.5,1.6-1.5v-4.4C45,41.1,44.3,40,43.4,40L43.4,40z"
-        {...stroke}
-      />
-      <line x1="39" x2="25" y1="47" y2="47" {...stroke} />
-      <line x1="32.3" x2="32.3" y1="32.2" y2="39.3" {...stroke} />
-      <path d="M27.9,31.5c0,0,2.2,0.8,4.4,0.8s4.4-0.6,4.4-0.6" {...stroke} />
-      <path
-        d="M52.8,26.3c-2.3,1.7-7.7,1.2-10.7,3.7c-1.4,1.1-2.1,2.6-2.2,5.5c0,0.5-0.1,0.7,0.4,0.7c4,0.1,6.4-0.2,8.2-1.3C51.2,33.2,52.3,29,52.8,26.3z"
-        fill="#7ABE90"
-      />
-      <path
-        d="M11.2,26.3c2.3,1.7,7.7,1.2,10.7,3.7c1.4,1.1,2.1,2.6,2.2,5.5c0,0.5,0.1,0.7-0.4,0.7c-4,0.1-6.4-0.2-8.2-1.3C12.8,33.2,11.7,29,11.2,26.3z"
-        fill="#7ABE90"
-      />
-      <path
-        d="M52.8,26.3c-2.3,1.7-7.7,1.2-10.7,3.7c-1.4,1.1-2.1,2.6-2.2,5.5c0,0.5-0.1,0.7,0.4,0.7c4,0.1,6.4-0.2,8.2-1.3C51.2,33.2,52.3,29,52.8,26.3z"
-        {...stroke}
-      />
-      <path
-        d="M11.2,26.3c2.3,1.7,7.7,1.2,10.7,3.7c1.4,1.1,2.1,2.6,2.2,5.5c0,0.5,0.1,0.7-0.4,0.7c-4,0.1-6.4-0.2-8.2-1.3C12.8,33.2,11.7,29,11.2,26.3z"
-        {...stroke}
-      />
+    <svg
+      className={className}
+      viewBox="0 0 40 40"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M20 36V6" />
+      <path d="M20 29c-4.5-.6-7.6-3.6-8.4-8.2 4.4.5 7.6 3.4 8.4 8.2z" />
+      <path d="M20 23.5c4.5-.6 7.6-3.6 8.4-8.2-4.4.5-7.6 3.4-8.4 8.2z" />
+      <path d="M20 16.5c-3.3-.5-5.6-2.7-6.2-6 3.2.4 5.6 2.5 6.2 6z" />
+      <path d="M20 11c2.2-.6 3.6-2.2 4-4.4-2.2.3-3.7 1.9-4 4.4z" />
+    </svg>
+  )
+}
+
+/** 여덟 갈래 별 (금박 느낌, 색은 currentColor 기준 그라데이션 대신 단색) */
+export function IconStar({ className }: IconProps) {
+  const pts: string[] = []
+  for (let i = 0; i < 16; i++) {
+    const r = i % 2 === 0 ? 15 : 3.2
+    const a = (Math.PI / 8) * i - Math.PI / 2
+    pts.push(`${(16 + r * Math.cos(a)).toFixed(2)},${(16 + r * Math.sin(a)).toFixed(2)}`)
+  }
+  return (
+    <svg className={className} viewBox="0 0 32 32" aria-hidden="true">
+      <polygon points={pts.join(' ')} fill="currentColor" />
+    </svg>
+  )
+}
+
+const line = {
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.4,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+} as const
+
+export function IconSubway({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <rect x="5" y="3" width="14" height="14" rx="3" />
+      <path d="M5 11h14M8.5 14h.01M15.5 14h.01M8 21l2-4M16 21l-2-4" />
+    </svg>
+  )
+}
+
+export function IconBus({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <rect x="4" y="3" width="16" height="14" rx="2" />
+      <path d="M4 10h16M7 20v-3M17 20v-3M8 14h.01M16 14h.01" />
+    </svg>
+  )
+}
+
+export function IconCar({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <path d="M5 16l1.5-5.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 16M4 16h16v3H4zM7 19v1.5M17 19v1.5" />
+    </svg>
+  )
+}
+
+/** 전화 (가는 선) */
+export function IconPhone({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <path d="M6.5 3.5l3 3-2 2.5a12 12 0 0 0 7.5 7.5l2.5-2 3 3-2 3C11 20.5 3.5 13 3.5 5.5z" />
+    </svg>
+  )
+}
+
+/** 문자 (가는 선 말풍선) */
+export function IconMessage({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...line}>
+      <path d="M4 5h16v11H9l-5 4z" />
+    </svg>
+  )
+}
+
+/** ♥ 글리프 외곽선(Noto Sans Symbols 2) — 이름 줄 하트 (종이 편지) */
+export function IconHeartGlyph({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="51 0 638 719" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <g transform="translate(0 719) scale(1 -1)">
+        <path d="M346 0Q322 59 285.5 122.0Q249 185 199 252Q100 384 75 447Q51 507 51 559Q51 603 73.5 639.5Q96 676 133.5 697.5Q171 719 215 719Q262 719 302.5 695.0Q343 671 369 622Q396 671 437.0 695.0Q478 719 525 719Q568 719 605.5 697.5Q643 676 666.0 639.5Q689 603 689 559Q689 505 663 441Q637 378 539 249Q490 184 453.5 121.5Q417 59 393 0Z" />
+      </g>
+    </svg>
+  )
+}
+
+/** 펼침 화살표 V자 (종이 편지) */
+export function IconChevronLine({ className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 12 12"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 4.2l4 4 4-4" />
     </svg>
   )
 }

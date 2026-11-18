@@ -60,7 +60,8 @@ export function refundEligibility(input: {
   invitationPublishedAt: Date | string | null
   now?: Date
 }): { ok: true } | { ok: false; reason: string } {
-  if (input.status !== 'paid' || !input.approvedAt) return { ok: false, reason: '결제 완료 상태가 아니에요.' }
+  if (input.status !== 'paid' || !input.approvedAt)
+    return { ok: false, reason: '결제 완료 상태가 아니에요.' }
   if (input.invitationPublishedAt)
     return { ok: false, reason: '초대장을 발행한 뒤에는 그로블 환불 규정을 따라요.' }
   const now = (input.now ?? new Date()).getTime()

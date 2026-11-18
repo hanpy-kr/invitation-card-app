@@ -1,6 +1,5 @@
 import Link from 'next/link'
 
-import Logo from '@/components/site/Logo'
 import SiteFooter from '@/components/site/SiteFooter'
 import { getSession } from '@/lib/auth/session'
 import { getEntitlements } from '@/shared/entitlements'
@@ -19,13 +18,13 @@ const LOGIN_ERRORS: Record<string, string> = {
 
 function Start({ loggedIn }: { loggedIn: boolean }) {
   return loggedIn ? (
-    <Link href="/dashboard" className={styles.kakao}>
+    <Link href="/dashboard" className={styles.primary}>
       내 초대장으로
     </Link>
   ) : (
     <>
-      <a href="/api/auth/kakao/login?next=/new" className={styles.kakao}>
-        카카오로 시작하기
+      <a href="/api/auth/kakao/login?next=/new" className={styles.primary}>
+        초대장 만들기
       </a>
       <Link href={`/i/${SAMPLE_SLUG}`} className={styles.sample}>
         예시 초대장 보기
@@ -50,7 +49,7 @@ export default async function Home({
   return (
     <div className={styles.page}>
       <header className={styles.top}>
-        <Logo href={null} />
+        <span className={styles.brand}>dearday</span>
         {loggedIn ? (
           <Link href="/dashboard" className={styles.login}>
             내 초대장
@@ -63,45 +62,48 @@ export default async function Home({
       </header>
 
       <section className={styles.hero}>
-        <p className={styles.eyebrow}>MOBILE INVITATION</p>
         <h1>
-          마음을 담은 초대장,
+          마음을 담은 초대장
           <br />
           카톡 링크 하나로
         </h1>
         <p className={styles.lead}>
-          결혼식 · 돌잔치 · 송년회 · 모임까지.
+          결혼식부터 돌잔치, 송년회까지.
           <br />
-          5분이면 만들고, 응답은 한곳에서 받아요.
+          5분이면 만들고, 누가 오는지 바로 알 수 있어요.
         </p>
 
-        <div className={styles.fan} aria-hidden="true">
-          <div className={`${styles.card} ${styles.left}`}>
-            <img src="/landing/yearend-snow.webp" alt="" width="150" height="187" loading="eager" />
-          </div>
-          <div className={`${styles.card} ${styles.right}`}>
-            <img
-              src="/landing/birthday-balloon.webp"
-              alt=""
-              width="150"
-              height="187"
-              loading="eager"
-            />
-          </div>
-          <div className={`${styles.card} ${styles.center}`}>
-            <img
-              src="/landing/wedding-poppy.webp"
-              alt=""
-              width="190"
-              height="237"
-              loading="eager"
-              fetchPriority="high"
-            />
-            <span className={styles.over}>
-              <small>2026. 11. 21</small>
-              <b>민준 · 서연</b>
-            </span>
-          </div>
+        {/* 엽서 3장 묶음 + 꿀색 띠지 (시안 E) */}
+        <div className={styles.stack} aria-hidden="true">
+          <img
+            className={`${styles.card} ${styles.back1}`}
+            src="/landing/yearend-snow.webp"
+            alt=""
+            width="176"
+            height="220"
+            loading="eager"
+          />
+          <img
+            className={`${styles.card} ${styles.back2}`}
+            src="/landing/birthday-balloon.webp"
+            alt=""
+            width="176"
+            height="220"
+            loading="eager"
+          />
+          <img
+            className={`${styles.card} ${styles.front}`}
+            src="/landing/wedding-peony.webp"
+            alt=""
+            width="176"
+            height="220"
+            loading="eager"
+            fetchPriority="high"
+          />
+          <span className={styles.band}>
+            <b>HAPPY DAY</b>
+          </span>
+          <span className={styles.floor} />
         </div>
 
         {error ? (
@@ -112,28 +114,29 @@ export default async function Home({
         <div className={styles.actions}>
           <Start loggedIn={loggedIn} />
         </div>
-        <p className={styles.free}>무료 · 사진 {getEntitlements().photoLimit}장까지</p>
+        {loggedIn ? (
+          <p className={styles.free}>무료 · 사진 {getEntitlements().photoLimit}장까지</p>
+        ) : null}
       </section>
 
       <section className={styles.why}>
-        <p className={styles.eyebrow}>WHY DEARDAY</p>
         <ul>
           <li>
-            <strong>5분이면 완성</strong>
-            <small>행사를 고르면 문구와 구성이 채워져요</small>
+            <strong>5분이면 충분해요</strong>
+            <small>행사만 고르면 인사말과 순서가 미리 채워져 있어요</small>
           </li>
           <li>
-            <strong>응답이 한곳에</strong>
-            <small>참석 · 투표 · 방명록을 대시보드에서 모아 봐요</small>
+            <strong>누가 오는지 한눈에</strong>
+            <small>참석 여부와 축하 글을 내 초대장에서 바로 확인해요</small>
           </li>
           <li>
-            <strong>받는 분은 로그인 없이</strong>
-            <small>카톡 링크만 누르면 바로 열려요</small>
+            <strong>받는 분은 링크만 누르면 끝</strong>
+            <small>앱 설치나 로그인 없이 카톡에서 바로 열려요</small>
           </li>
         </ul>
       </section>
 
-      <SiteFooter />
+      <SiteFooter className={styles.footer} />
     </div>
   )
 }

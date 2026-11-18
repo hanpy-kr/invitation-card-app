@@ -103,7 +103,7 @@ async function designFlow(browser: Browser) {
   check(fam.includes('Gowun Batang'), '편집기 미리보기에 선택한 글씨체 적용')
 
   // 사진첩 3장 + 레이아웃 3종
-  await host.getByRole('button', { name: '사진첩', exact: true }).click()
+  await host.getByRole('button', { name: '갤러리', exact: true }).click()
   await uploadPhotos(host, 3)
   await host
     .getByRole('button', { name: /사진 3장|3장/ })
@@ -135,7 +135,7 @@ async function designFlow(browser: Browser) {
 
   // 기본 글씨체(금은보화)는 추가 CSS 없음
   const { page: h2 } = await createInvitation(browser, /결혼식/)
-  await h2.getByRole('button', { name: '사진첩', exact: true }).click()
+  await h2.getByRole('button', { name: '갤러리', exact: true }).click()
   await uploadPhotos(h2, 3)
   await waitSaved(h2)
   await h2.getByRole('button', { name: '원본 비율' }).click()
@@ -210,7 +210,7 @@ async function mediaFlow(browser: Browser) {
 async function thanksFlow(browser: Browser) {
   const { page: host } = await createInvitation(browser, /결혼식/)
   await host.getByLabel('초대장 제목').fill('E2E 감사장 원본 결혼')
-  await host.getByRole('button', { name: '표지', exact: true }).click()
+  // 표지 폼은 꾸미기 묶음에 항상 펼쳐져 있음
   await host.getByRole('button', { name: '사진', exact: true }).click() // 결혼 템플릿은 디자인 표지로 시작
   await host.locator('input[type=file]').first().setInputFiles(`${PHOTOS}/photo_1.jpg`)
   await host.getByAltText('표지 사진 미리보기').waitFor({ timeout: 30000 })
@@ -218,7 +218,7 @@ async function thanksFlow(browser: Browser) {
   await host.getByRole('button', { name: '인사말', exact: true }).click()
   await host.getByRole('textbox', { name: '보내는 사람 1' }).fill('태윤')
   await host.getByRole('textbox', { name: '보내는 사람 2' }).fill('하은')
-  await host.getByRole('button', { name: '사진첩', exact: true }).click()
+  await host.getByRole('button', { name: '갤러리', exact: true }).click()
   await uploadPhotos(host, 3)
   await host.getByText(/3장 ·/).waitFor({ timeout: 30000 })
   await waitSaved(host)
@@ -233,7 +233,7 @@ async function thanksFlow(browser: Browser) {
     '감사장: 이름이 채워진 제목',
   )
   check((await host.getByLabel('행사 종류').inputValue()) === 'thanks', '감사장: 행사 종류 thanks')
-  await host.getByRole('button', { name: '표지', exact: true }).click()
+  // 표지 폼은 꾸미기 묶음에 항상 펼쳐져 있음
   check(
     (await host
       .getByRole('button', { name: '디자인', exact: true })
@@ -246,7 +246,7 @@ async function thanksFlow(browser: Browser) {
     newCover && srcCover && newCover !== srcCover && newCover.includes(`/inv/${thanksId}/`),
     '감사장: 표지 사진은 새 key로 복사',
   )
-  await host.getByRole('button', { name: '사진첩', exact: true }).click()
+  await host.getByRole('button', { name: '갤러리', exact: true }).click()
   check((await host.getByText(/3장 ·/).count()) >= 1, '감사장: 사진첩 사진 3장 복사')
   check(
     (await host.getByRole('button', { name: '+ 참석 여부' }).count()) === 1,
@@ -530,7 +530,7 @@ async function memberNoticeFlow(browser: Browser) {
   // 카톡 공유 카드(Kakao.Share 인자)에도 없음
   const g1 = await guest(browser)
   await g1.goto(url, { waitUntil: 'networkidle' })
-  await g1.getByRole('button', { name: '친구에게 공유' }).click()
+  await g1.getByRole('button', { name: /카카오톡 공유|친구에게 공유/ }).click()
   await g1.waitForFunction(
     () => (window as unknown as { __kakaoShare?: unknown }).__kakaoShare,
     null,
@@ -707,7 +707,7 @@ async function coverFlow(browser: Browser) {
 
   const { page: host } = await createInvitation(browser, /결혼식/)
   await host.getByLabel('초대장 제목').fill('E2E 디자인 표지')
-  await host.getByRole('button', { name: '표지', exact: true }).click()
+  // 표지 폼은 꾸미기 묶음에 항상 펼쳐져 있음
   check(
     (await host
       .getByRole('button', { name: '디자인', exact: true })

@@ -7,6 +7,7 @@ import type { AccountConfig, AccountGroup, AccountItem } from '@/shared/blocks'
 import { formatWon, isKakaoPayUrl, isMobileUA, tossSendUrl } from '@/shared/money'
 
 import CopyButton, { copyText } from '../common/CopyButton'
+import { IconChevronLine } from '../common/icons'
 import Section from '../common/Section'
 import Text from '../common/Text'
 import styles from './Account.module.scss'
@@ -71,7 +72,9 @@ function Group({
   amount,
   mobile,
   defaultOpen,
+  first,
 }: {
+  first: boolean
   group: AccountGroup
   amount: number | null
   mobile: boolean
@@ -82,7 +85,7 @@ function Group({
   const accounts = group.accounts.filter(filled)
   if (accounts.length === 0) return null
   return (
-    <div className={cx('group', { open })}>
+    <div className={cx('group', { open, first })}>
       <button
         type="button"
         className={cx('group-head')}
@@ -92,7 +95,8 @@ function Group({
       >
         <span>{group.label || '계좌'}</span>
         <span className={cx('chevron')} aria-hidden>
-          ▾
+          <span className={cx('chev-old')}>▾</span>
+          <IconChevronLine className={cx('chev-new')} />
         </span>
       </button>
       <ul id={id} className={cx('list')} hidden={!open}>
@@ -129,6 +133,7 @@ export default function Account({ config }: { config: AccountConfig }) {
           amount={amount}
           mobile={mobile}
           defaultOpen={groups.length === 1}
+          first={i === 0}
         />
       ))}
     </Section>

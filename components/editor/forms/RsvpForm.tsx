@@ -94,7 +94,7 @@ function QuestionFields({
                 alignSelf: 'flex-start',
                 border: 0,
                 background: 'none',
-                color: 'var(--accent)',
+                color: 'var(--ink)',
                 padding: '4px 0',
               }}
               onClick={() => onChange({ options: [...options, ''] })}

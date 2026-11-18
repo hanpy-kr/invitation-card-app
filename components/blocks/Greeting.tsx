@@ -4,7 +4,7 @@ import { Fragment } from 'react'
 import type { GreetingConfig } from '@/shared/blocks'
 import { formatLongDate, formatTime } from '@/shared/date'
 
-import { IconFlower, IconHeart, IconPost } from './common/icons'
+import { IconFlower, IconHeart, IconHeartGlyph, IconPost, IconStar } from './common/icons'
 import Section, { LeafDivider } from './common/Section'
 import Text from './common/Text'
 import styles from './Greeting.module.scss'
@@ -17,12 +17,26 @@ export default function Greeting({ config, ctx }: { config: GreetingConfig; ctx:
   const hosts = config.hosts.filter(Boolean)
 
   return (
-    <Section eyebrow="INVITATION" className={cx('container')}>
-      <LeafDivider />
-      {config.icon === 'flower' ? <IconFlower className={cx('ico-flower')} /> : null}
-      {config.icon === 'post' ? <IconPost className={cx('ico-post')} /> : null}
-      {config.title ? <h2 className={cx('txt-heading')}>{config.title}</h2> : null}
-      {config.message ? <Text className={cx('txt-message')}>{config.message}</Text> : null}
+    <Section
+      eyebrow="INVITATION"
+      className={cx('container')}
+      headClassName={cx('head')}
+      title={config.title}
+      lead={
+        <>
+          {/* 아이콘이 없을 때만 가는 선 장식 (둘 다 있으면 장식이 겹쳐 보임) */}
+          {config.icon === 'none' ? <LeafDivider /> : null}
+          {config.icon === 'flower' ? <IconFlower className={cx('ico-flower')} /> : null}
+          {config.icon === 'post' ? <IconPost className={cx('ico-post')} /> : null}
+          {config.icon === 'star' ? <IconStar className={cx('ico-star')} /> : null}
+        </>
+      }
+    >
+      {config.message ? (
+        <Text className={cx('txt-message')} paragraphs>
+          {config.message}
+        </Text>
+      ) : null}
 
       {hosts.length > 0 ? (
         <div className={cx('wrap-hosts')}>
@@ -30,7 +44,10 @@ export default function Greeting({ config, ctx }: { config: GreetingConfig; ctx:
             <Fragment key={idx}>
               {idx > 0 ? (
                 config.hostSeparator === 'heart' ? (
-                  <IconHeart className={cx('ico-heart')} />
+                  <>
+                    <IconHeart className={cx('ico-heart')} />
+                    <IconHeartGlyph className={cx('ico-heart-gold')} />
+                  </>
                 ) : (
                   <span className={cx('sep-dot')}>·</span>
                 )
@@ -46,6 +63,19 @@ export default function Greeting({ config, ctx }: { config: GreetingConfig; ctx:
           <span>{formatLongDate(ctx.eventAt)}</span>
           <span>{formatTime(ctx.eventAt)}</span>
         </div>
+      ) : null}
+      {config.families.some((f) => f.name) ? (
+        <ul className={cx('families')}>
+          {config.families
+            .filter((f) => f.name)
+            .map((f, i) => (
+              <li key={i}>
+                {f.parents ? <span className={cx('parents')}>{f.parents}</span> : null}
+                <span className={cx('rel')}>의 {f.relation}</span>
+                <b>{f.name}</b>
+              </li>
+            ))}
+        </ul>
       ) : null}
     </Section>
   )

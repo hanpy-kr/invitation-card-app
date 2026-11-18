@@ -19,6 +19,7 @@ export default function Preview({
   mediaBaseUrl,
   kakaoJsKey,
   introEffects,
+  published,
 }: {
   meta: InvitationMeta
   blocks: EditorBlock[]
@@ -26,6 +27,8 @@ export default function Preview({
   mediaBaseUrl: string
   kakaoJsKey: string
   introEffects: boolean
+  /** 발행 전이면 옅은 SAMPLE 표시를 깔아 캡처본이 진짜 초대장으로 쓰이지 않게 함 */
+  published: boolean
 }) {
   const ctx: BlockContext = {
     slug,
@@ -61,6 +64,7 @@ export default function Preview({
           ↻ 다시 재생
         </button>
       ) : null}
+      {published ? null : <div className={styles.sampleMark} aria-hidden="true" />}
       <div key={play}>
         <BlockRenderer blocks={view} ctx={ctx} />
       </div>

@@ -8,7 +8,7 @@ export const THEMES = {
   // 기본 테마 = 종이 편지 팔레트 (styles/global.scss 토큰과 같은 값). 옛 초대장의 'classic'도 이 모양으로 보임
   classic: {
     label: '종이 편지',
-    font: 'gowun-batang',
+    font: 'noto-serif',
     events: [
       'wedding',
       'dol',
@@ -20,23 +20,27 @@ export const THEMES = {
       'birthday',
       'housewarming',
     ],
+    // 홈 시안 E9와 같은 결: 흰 코튼지(무늬 없이 옅은 결만, 본문이 잘 읽히게), 글자 음각, 먹색 테두리.
+    // 와인색은 빼고 포인트는 금박 계열(샴페인 골드)
     vars: {
-      accent: '#8a6a43',
-      text: '#4a4239',
-      muted: '#6b6156',
-      surface: '#f7f2e9',
-      bg: '#f3ede2',
-      line: '#d9ccb8',
-      btn: '#6e5a44',
-      btnText: '#f7f2e9',
-      btnLine: '#cbb89c',
-      deco: '#b79a74',
-      photo: '#e6dccc',
+      accent: '#8a7350',
+      text: '#2f2a26',
+      muted: '#6e655d',
+      surface: '#f8f7f3',
+      bg: '#f3f1ec',
+      line: '#d9d4cb',
+      btn: '#2f2a26',
+      btnText: '#f3eadb',
+      btnLine: 'rgba(47, 42, 38, 0.45)',
+      deco: '#c9b48a',
+      photo: '#e6e2da',
+      paper: "url('/landing/paper-cover.webp')",
+      deboss: '0 1px 0 rgba(255, 255, 255, 0.85), 0 -1px 0 rgba(60, 40, 20, 0.14)',
     },
   },
   blossom: {
     label: '블라썸',
-    font: 'geumeunbohwa',
+    font: 'noto-serif',
     events: ['wedding', 'dol', 'birthday'],
     vars: {
       accent: '#e88ea6',
@@ -49,7 +53,7 @@ export const THEMES = {
   },
   mint: {
     label: '민트',
-    font: 'geumeunbohwa',
+    font: 'noto-serif',
     events: ['housewarming', 'meetup', 'etc'],
     vars: {
       accent: '#4fa58f',
@@ -62,7 +66,7 @@ export const THEMES = {
   },
   navy: {
     label: '네이비',
-    font: 'geumeunbohwa',
+    font: 'noto-serif',
     events: ['yearend', 'meetup', 'prewedding'],
     vars: {
       accent: '#3d5a98',
@@ -185,6 +189,10 @@ type ThemeVars = {
   btnLine?: string
   deco?: string
   photo?: string
+  /** 종이 무늬 이미지(CSS url). 없으면 단색 */
+  paper?: string
+  /** 글자 음각 text-shadow. 없으면 평평한 글자 */
+  deboss?: string
 }
 
 export function themeStyle(theme: string, font?: string | null, cover?: CoverDef): CSSProperties {
@@ -208,6 +216,12 @@ export function themeStyle(theme: string, font?: string | null, cover?: CoverDef
     '--btn-line': t.btnLine ?? `color-mix(in srgb, ${t.text} 28%, ${t.bg})`,
     '--deco': t.deco ?? `color-mix(in srgb, ${t.accent} 65%, ${t.bg})`,
     '--photo': t.photo ?? `color-mix(in srgb, ${t.text} 10%, ${t.bg})`,
+    '--paper-img': t.paper ?? 'none',
+    '--deboss': t.deboss ?? 'none',
+    '--cover-flower': t.deboss ? 'block' : 'none',
+    '--section-rule': t.deboss ? 'block' : 'none',
+    // 종이 편지 본문 2안 정리(영문 소제목 · 금박 · 서체 · 여백). 다른 테마는 이 변수가 없어 기존 모양
+    ...(t.deboss && !cover?.dark ? CLASSIC_BODY_VARS : {}),
     ...(cover ? coverPaperVars(cover) : {}),
   } as CSSProperties
 }
@@ -224,9 +238,12 @@ function coverPaperVars(c: CoverDef): Record<string, string> {
     '--brown': c.sub,
     '--accent': c.point,
     '--red': c.point,
+    // 디자인 표지는 표지 종이 색을 따르므로 작약 무늬는 끈다
+    '--paper-img': 'none',
   }
   if (c.dark) {
     Object.assign(v, {
+      '--deboss': 'none',
       '--text': c.dark.ink,
       '--black': c.dark.ink,
       '--muted': c.dark.sub,
@@ -240,4 +257,132 @@ function coverPaperVars(c: CoverDef): Record<string, string> {
     })
   }
   return v
+}
+
+/**
+ * 종이 편지(classic) 본문 2안 정리 — 블록 스타일은 `var(--이름, 기존 값)`으로 읽으므로
+ * 이 변수가 있을 때만 새 모양이 되고, 다른 테마에서는 기존 값으로 돌아간다.
+ * (--cl-on: classic에서만 켜지는 요소의 display, --cl-off: classic에서 대신 끄는 기존 요소의 display)
+ */
+export const CLASSIC_BODY_VARS: Record<string, string> = {
+  '--cl-on': 'block',
+  '--cl-off': 'none',
+  // 금박 글자 · 먹색 제목 · 보조 글자
+  '--foil': '#a8915f',
+  '--foil-deep': '#8c7546',
+  '--foil-shadow': '0 1px 0 rgba(255,255,255,0.9), 0 -1px 0 rgba(90,68,30,0.22)',
+  '--ink-strong': '#35291f',
+  '--text': '#4a3f35',
+  '--sub-1': '#5e5246',
+  '--sub-2': '#8a7d6b',
+  '--sub-3': '#6e5f4c',
+  // 서체 (영문 대문자 · 숫자만 담은 woff2)
+  '--font-cap': "'Cinzel', 'Times New Roman', serif",
+  '--font-num': "'Bodoni Moda', 'Times New Roman', serif",
+  // 섹션 여백 · 사이 구분선
+  '--sec-pad': '76px 28px',
+  '--eyebrow-display': 'block',
+  '--cap-weight': '500',
+  '--eyebrow-size': '10.5px',
+  '--eyebrow-ls': '0.34em',
+  '--eyebrow-gap': '10px',
+  '--title-size': '19px',
+  '--title-ls': '-0.01em',
+  // 테두리 버튼 · 꽉 찬 먹색 버튼
+  '--ghost-border': 'rgba(53,41,31,0.42)',
+  '--ghost-bg': 'rgba(255,253,248,0.45)',
+  '--ghost-h': '48px',
+  '--ghost-bd-w': '1px',
+  '--solid-bg': '#35291f',
+  '--solid-text': '#f1e8d8',
+  '--solid-shadow': '0 1px 0 rgba(255,255,255,0.18) inset, 0 6px 14px rgba(47,42,38,0.2)',
+  '--solid-h': '52px',
+  '--open-size': '15px',
+  '--note-size': '12.5px',
+  // 인사말
+  '--msg-size': '14.5px',
+  '--msg-lh': '1.95',
+  '--para-gap': '18px',
+  '--host-size': '17px',
+  '--host-ls': '0.06em',
+  '--star-size': '22px',
+  '--star-gap': '18px',
+  '--greet-head-gap': '10px',
+  '--fam-mt': '30px',
+  '--fam-pt': '0',
+  '--fam-border': '0',
+  '--fam-shadow': 'none',
+  '--fam-size': '14px',
+  '--fam-lh': '2.1',
+  '--fam-rel': '12px',
+  '--fam-b': '600',
+  // 달력
+  '--month-border': '0',
+  '--cal-circle': '34px',
+  '--cal-row': '46px',
+  '--num-size': '15px',
+  '--sun': '#a8915f',
+  '--sat-color': '#4a3f35',
+  '--today-bg': 'transparent',
+  '--today-border': '1px solid #a8915f',
+  '--today-ink': '#8c7546',
+  '--today-size': '16px',
+  '--today-shadow': '0 1px 0 rgba(255,255,255,0.9)',
+  '--save-mt': '28px',
+  '--save-gap': '22px',
+  // 사진첩 · 오시는 길 · 연락하기 · 마음 전하실 곳
+  '--quiet-head': 'none',
+  '--gal-cols': '2',
+  '--place-size': '18px',
+  '--detail-size': '13.5px',
+  '--addr-size': '13.5px',
+  '--tmap-span': '1 / -1',
+  '--way-line': 'rgba(110,85,55,0.16)',
+  '--way-bt': '1px solid rgba(110,85,55,0.16)',
+  '--way-pad': '16px 0',
+  '--way-indent': '30px',
+  '--way-weight': '600',
+  '--link-cols': '2',
+  '--way-gap': '12px',
+  '--way-size': '14px',
+  '--way-ico': '18px',
+  '--contact-pad': '10px 4px',
+  '--rel-w': '40px',
+  '--rel-size': '12.5px',
+  '--list-line': 'rgba(110,85,55,0.18)',
+  '--grp-h': '0',
+  '--grp-gap': '0',
+  '--list-bg': 'transparent',
+  '--contact-gap': '6px',
+  '--contact-bb': '1px solid rgba(110,85,55,0.18)',
+  '--rel-mr': '0',
+  '--call-ico': '19px',
+  '--grp-pad': '16px 4px',
+  '--grp-size': '14.5px',
+  '--grp-bb': '1px solid rgba(110,85,55,0.18)',
+  '--grp-top': '1px solid rgba(110,85,55,0.18)',
+  // 하단
+  '--share-bd': '0',
+  '--share-deco': 'underline',
+  '--share-justify': 'center',
+  '--share-flex': '0 0 auto',
+  '--share-px': '6px',
+  '--kakao-bg': 'transparent',
+  '--kakao-bd': 'transparent',
+  '--kakao-ink': '#35291f',
+  '--brand-gap': '0',
+  '--wm-h': '0',
+  '--wm-weight': '600',
+  '--wm-ls': '0.34em',
+  '--wm-pl': '0.34em',
+  '--copy-mt': '12px',
+  '--copy-size': '11px',
+  '--copy-ink': '#9a8f80',
+  '--make-mt': '4px',
+  '--make-h': '28px',
+  '--make-size': '12.5px',
+  '--make-opacity': '0.5',
+  '--make-deco': 'none',
+  '--share-gap': '180px',
+  '--foot-pb': '56px',
 }

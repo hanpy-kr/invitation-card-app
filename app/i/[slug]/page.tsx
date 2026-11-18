@@ -18,6 +18,7 @@ import {
   shareTitle,
 } from '@/shared/share'
 import { designCoverOf } from '@/shared/covers'
+import { SAMPLE_SLUG } from '@/shared/site'
 import { resolveFont, themeStyle } from '@/shared/themes'
 
 import GuestFooter from './GuestFooter'
@@ -83,6 +84,8 @@ export default async function InvitationPage({ params }: Props) {
     <div className={styles.page} style={themeStyle(inv.theme, inv.font, designCoverOf(inv.blocks))}>
       {fontCss ? <link rel="stylesheet" href={fontCss} precedence="font" /> : null}
       <main className={styles.column} data-guest-column>
+        {/* 홈 '예시 초대장 보기'에만: 캡처해 그대로 쓰기 어렵게 옅은 대각선 표시. 사용자 초대장에는 없음 */}
+        {inv.slug === SAMPLE_SLUG ? <div className={styles.sampleMark} aria-hidden="true" /> : null}
         <BlockRenderer blocks={inv.blocks} ctx={ctx} />
         <ViewBeacon slug={inv.slug} />
         <LargeTextToggle />
