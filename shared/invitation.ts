@@ -14,6 +14,8 @@ export const createInvitationSchema = z.object({
     .string()
     .regex(/^[a-z0-9]{8}$/)
     .optional(),
+  /** 새 결혼 초대장의 표지 고르기: 1안 · 2안 · 3안 템플릿 또는 내 사진 표지 (결혼만 적용) */
+  coverTemplate: z.enum(['a', 'b', 'c', 'photo']).optional(),
 })
 
 export const invitationMetaSchema = z.object({

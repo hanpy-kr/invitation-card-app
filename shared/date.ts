@@ -96,3 +96,21 @@ export function kstInputToIso(date: string, time: string): string | null {
   const t = /^\d{2}:\d{2}$/.test(time) ? time : '12:00'
   return `${date}T${t}:00+09:00`
 }
+
+/** 영문 표지용 날짜 조각 (한국 시간). 2027-12-26 17:30 → DEC · December · 26 · SUNDAY · 5:30 PM */
+export function formatEnParts(value: Date | string) {
+  const d = toDate(value)
+  const day = parts(d, { day: 'numeric' }, 'en-US').day
+  const month = parts(d, { month: '2-digit' }, 'en-US').month
+  const long = parts(d, { month: 'long', weekday: 'long' }, 'en-US')
+  const t = parts(d, { hour: 'numeric', minute: '2-digit', hour12: true }, 'en-US')
+  return {
+    year: toKstDateString(d).slice(0, 4),
+    month, // 12
+    day, // 26
+    monthShort: long.month.slice(0, 3).toUpperCase(), // DEC
+    monthLong: long.month, // December
+    weekdayLong: long.weekday, // Sunday
+    time: `${t.hour}:${t.minute} ${t.dayPeriod}`, // 5:30 PM
+  }
+}

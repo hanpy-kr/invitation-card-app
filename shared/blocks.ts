@@ -129,8 +129,36 @@ export type EffectKind = (typeof EFFECT_KINDS)[number]
 
 const shortText = (max: number) => z.string().trim().max(max)
 
+/** 결혼 표지 템플릿 (shared/cover-templates.ts): 1안 · 2안(무료) · 3안 */
+export const COVER_TEMPLATE_KEYS = ['a', 'b', 'c'] as const
+export type CoverTemplateKey = (typeof COVER_TEMPLATE_KEYS)[number]
+
+/** 영문 이름: 영문 · 공백 · 하이픈만 (자동 로마자 변환은 하지 않음) */
+const nameEn = z
+  .string()
+  .trim()
+  .max(20)
+  .regex(/^$|^[A-Za-z][A-Za-z -]*$/)
+  .default('')
+/** 영문 예식장명 · 주소(2안): 영문 · 숫자 · 공백과 , . - ' & / # ( ) */
+const placeEn = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .regex(/^[A-Za-z0-9 .,'&/#()-]*$/)
+    .default('')
+
 export const coverConfigSchema = z.object({
-  layout: z.enum(['photo', 'text', 'design']).default('photo'),
+  layout: z.enum(['photo', 'text', 'design', 'template']).default('photo'),
+  /** layout 'template'일 때 결혼 표지 템플릿. 1안(a) · 3안(c)은 프리미엄, 2안(b)은 무료 */
+  template: z.enum(COVER_TEMPLATE_KEYS).default('b'),
+  /** 템플릿 표지의 영문 이름(신랑 · 신부). 비어 있으면 표지에서 이름 줄이 빠지고 편집기가 입력을 안내 */
+  groomEn: nameEn,
+  brideEn: nameEn,
+  /** 2안 전용: 영문 예식장명 · 주소(선택). 비우면 그 줄이 숨겨짐 */
+  venueEn: placeEn(40),
+  addressEn: placeEn(60),
   /** layout 'design'일 때 shared/covers.ts 의 표지 key (config만 저장, 마이그레이션 없음) */
   designKey: z
     .string()
