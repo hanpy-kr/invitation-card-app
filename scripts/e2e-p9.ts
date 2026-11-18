@@ -125,7 +125,8 @@ async function main() {
   const bad = await api(page, `/api/invitations/${idC}`, 'PUT', { meta: { title: 'x', eventType: 'wedding', eventAt: null, theme: 'classic', font: null }, blocks: [{ id: crypto.randomUUID?.() ?? '00000000-0000-4000-8000-000000000000', visible: true, type: 'cover', config: { layout: 'template', template: 'b', groomEn: '한글', brideEn: 'X' } }] })
   check(bad.status === 400, `서버도 영문 외 이름을 거부 (${bad.status})`)
   await page.getByRole('button', { name: /^3안 표지/ }).click()
-  await page.getByRole('status').filter({ hasText: '저장됨' }).waitFor({ timeout: 15000 })
+  // 이미 떠 있던 '저장됨'을 잡지 않도록 저장이 실제로 끝날 때까지(DB에 c가 들어갈 때까지) 기다림
+  for (let i = 0; i < 30 && coverCfg(idC).template !== 'c'; i++) await page.waitForTimeout(500)
 
   // ───────── 잠금: 프리미엄이 아닌데 3안 ─────────
   await sqlDate(idC)
