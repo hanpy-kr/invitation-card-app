@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import CoverTemplatePicker from '@/components/editor/CoverTemplatePicker'
 import { api } from '@/components/ui/api'
+import type { CoverTemplateKey } from '@/shared/blocks'
 import { EVENT_TYPE_LABELS, type EventType } from '@/shared/blocks'
 
 import styles from './page.module.scss'
@@ -96,21 +98,91 @@ const GROUPS: { en: string; title: string; items: { type: EventType; sub: string
   },
 ]
 
-export default function EventTypePicker() {
+export default function EventTypePicker({
+  lockedCoverKeys = [],
+}: {
+  /** 프리미엄이 필요한 결혼 표지 안(표시용). 고르기 · 미리보기는 누구나 */
+  lockedCoverKeys?: readonly CoverTemplateKey[]
+}) {
   const router = useRouter()
   const [pending, setPending] = useState<EventType | null>(null)
   const [error, setError] = useState('')
+  // 결혼을 고르면 '표지 고르기' 단계 (1안 · 2안 · 3안 · 내 사진 표지). 기본은 2안
+  const [coverStep, setCoverStep] = useState(false)
+  const [cover, setCover] = useState<CoverTemplateKey | 'photo'>('b')
 
-  async function create(eventType: EventType) {
+  async function create(eventType: EventType, coverTemplate?: CoverTemplateKey | 'photo') {
     setPending(eventType)
     setError('')
     try {
-      const { id } = await api<{ id: string }>('/api/invitations', { body: { eventType } })
+      const { id } = await api<{ id: string }>('/api/invitations', {
+        body: coverTemplate ? { eventType, coverTemplate } : { eventType },
+      })
       router.push(`/edit/${id}`)
     } catch (err) {
       setError((err as Error).message)
       setPending(null)
     }
+  }
+
+  if (coverStep) {
+    return (
+      <section className={styles.group} aria-label="표지 고르기">
+        <h2 className={styles.groupTitle}>
+          <span className={styles.groupEn} aria-hidden="true">
+            COVER
+          </span>
+          표지 고르기
+        </h2>
+        <p className={styles.desc}>
+          모바일 청첩장의 첫 화면이에요. 나중에 편집기에서 바꿀 수 있어요.
+        </p>
+        <CoverTemplatePicker
+          value={cover === 'photo' ? null : cover}
+          onChange={setCover}
+          lockedKeys={lockedCoverKeys}
+        />
+        {lockedCoverKeys.length > 0 ? (
+          <p className={styles.desc}>
+            1안 · 3안은 미리 보고 고를 수 있고, 발행할 때 프리미엄이 필요해요. 2안은 무료예요.
+          </p>
+        ) : null}
+        <button
+          type="button"
+          className={styles.row}
+          aria-pressed={cover === 'photo'}
+          data-pressed={cover === 'photo'}
+          onClick={() => setCover('photo')}
+          style={cover === 'photo' ? { outline: '2px solid var(--ink, #35291f)' } : undefined}
+        >
+          <span className={styles.text}>
+            <span className={styles.label}>내 사진 표지</span>
+            <span className={styles.sub}>직접 고른 사진으로 시작해요</span>
+          </span>
+        </button>
+        <button
+          type="button"
+          className={styles.fromBtn}
+          disabled={pending !== null}
+          onClick={() => create('wedding', cover)}
+          style={{ marginTop: 16 }}
+        >
+          {pending ? '만드는 중…' : '이 표지로 만들기'}
+        </button>
+        <button
+          type="button"
+          className={styles.row}
+          disabled={pending !== null}
+          onClick={() => setCoverStep(false)}
+          style={{ marginTop: 8 }}
+        >
+          <span className={styles.text}>
+            <span className={styles.label}>다른 종류 고르기</span>
+          </span>
+        </button>
+        {error ? <p className={styles.error}>{error}</p> : null}
+      </section>
+    )
   }
 
   return (
@@ -130,7 +202,7 @@ export default function EventTypePicker() {
                   type="button"
                   className={styles.row}
                   disabled={pending !== null}
-                  onClick={() => create(o.type)}
+                  onClick={() => (o.type === 'wedding' ? setCoverStep(true) : create(o.type))}
                 >
                   <span className={styles.icon} aria-hidden>
                     <svg

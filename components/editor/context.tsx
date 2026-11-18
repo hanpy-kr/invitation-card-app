@@ -16,6 +16,8 @@ export type EditorEnv = {
   photoLimit: number
   /** 봉투 · 효과가 하객에게 보이는 플랜인지 */
   introEffects: boolean
+  /** 결혼 표지 1안 · 3안을 발행할 수 있는 플랜인지 */
+  coverTemplates: boolean
 }
 
 const EditorEnvContext = createContext<EditorEnv | null>(null)

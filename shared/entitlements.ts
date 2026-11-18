@@ -17,6 +17,8 @@ export interface Entitlements {
   canHideMadeWith: boolean
   /** 표지 봉투 열기 · 떨어지는 효과. false면 설정이 있어도 하객 화면에 나오지 않음 */
   introEffects: boolean
+  /** 결혼 표지 템플릿 1안 · 3안을 하객 화면에 보여 줌 (2안은 누구나). false면 2안으로 대체 표시 */
+  coverTemplates: boolean
 }
 
 /**
@@ -25,9 +27,32 @@ export interface Entitlements {
  */
 export type Plan = 'free' | 'legacy' | 'premium' | 'event'
 
-const FREE: Entitlements = { photoLimit: 10, canHideMadeWith: false, introEffects: false }
-const EVENT: Entitlements = { photoLimit: 60, canHideMadeWith: false, introEffects: true }
-const PREMIUM: Entitlements = { photoLimit: 60, canHideMadeWith: true, introEffects: true }
+const FREE: Entitlements = {
+  photoLimit: 10,
+  canHideMadeWith: false,
+  introEffects: false,
+  coverTemplates: false,
+}
+const EVENT: Entitlements = {
+  photoLimit: 60,
+  canHideMadeWith: false,
+  introEffects: true,
+  coverTemplates: false,
+}
+const PREMIUM: Entitlements = {
+  photoLimit: 60,
+  canHideMadeWith: true,
+  introEffects: true,
+  coverTemplates: true,
+}
+
+/** 결혼 표지 템플릿 중 무료로 쓸 수 있는 안 (나머지는 프리미엄). 잠금 규칙은 이 한 곳 */
+export const FREE_COVER_TEMPLATE = 'b' as const
+
+/** 이 이용권으로 template 표지를 쓸 수 있나. 못 쓰면 FREE_COVER_TEMPLATE으로 대체해 보여 준다 */
+export function coverTemplateLocked(template: string, ent: Pick<Entitlements, 'coverTemplates'>): boolean {
+  return template !== FREE_COVER_TEMPLATE && !ent.coverTemplates
+}
 
 /** 로그인 없이 만들기 시작한 임시 사용자 (카카오로 로그인하면 원래 플랜) */
 const ANONYMOUS_PHOTO_LIMIT = 3

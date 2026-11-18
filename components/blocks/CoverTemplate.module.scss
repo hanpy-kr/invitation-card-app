@@ -1,0 +1,138 @@
+// 결혼 표지 템플릿 1 · 2 · 3안 (shared/cover-templates.ts). 390×844 시안을 --u(디자인 1px)로 비례 확대 · 축소한다.
+// 서체는 영문(라틴) 서브셋만. 표지가 쓰일 때만 내려받는다(font-display: swap + 미리 불러오기는 컴포넌트에서).
+@function u($n) {
+  @return calc(#{$n} * var(--u));
+}
+
+@font-face {
+  font-family: 'Cover Cinzel';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/cinzel/v1/cinzel-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cover Cinzel';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/cinzel/v1/cinzel-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cover Bodoni';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/bodoni-moda/v1/bodoni-moda-cover-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cover Pinyon';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/pinyon-script/v1/pinyon-script-400.woff2') format('woff2');
+}
+
+.cover {
+  --ch: max(var(--cover-h, 100svh), 520px);
+  // 디자인 1px = --u. 가로 · 세로 중 더 모자란 쪽에 맞춰 390×844 한 장이 통째로 들어오게 함
+  --u: calc(min(100cqw, var(--ch) * 390 / 844) / 390);
+  position: relative;
+  height: var(--ch);
+  overflow: hidden;
+  container-type: inline-size;
+  text-align: left;
+  // 코튼지 종이: #f4f2ed 위에 종이 결 타일(256px)을 multiply
+  background-color: #f4f2ed;
+  background-image: url('/landing/paper-cover.webp');
+  background-size: 256px;
+  background-blend-mode: multiply;
+  color: #35291f;
+  font-family: 'Cover Cinzel', serif;
+}
+
+// 줄여 보여 주는 썸네일(표지 고르기 · 편집기): 부모 칸(390:844)에 가로 폭으로 맞춘다
+.cover.thumb {
+  height: 100%;
+  --u: calc(100cqw / 390);
+}
+
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: u(390);
+  height: u(844);
+  transform: translate(-50%, -50%);
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.abs {
+  position: absolute;
+}
+
+// 작약 부조: 배경이 흰색인 그림이라 multiply로 종이 위에 얹는다. 종이 가장자리(표지 칸)에 붙임
+.peony {
+  position: absolute;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  height: auto;
+}
+
+.ink {
+  color: #35291f;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.foil {
+  color: #a8915f;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9),
+    0 -1px 0 rgba(90, 68, 30, 0.28);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.line {
+  margin: 0;
+}
+
+.heartInk {
+  display: block;
+}
+
+.heartFoil {
+  display: inline-block;
+  vertical-align: 0.02em;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.9)) drop-shadow(0 -1px 0 rgba(90, 68, 30, 0.25));
+}
+
+.bodoni {
+  font-family: 'Cover Bodoni', serif;
+  font-weight: 400;
+}
+
+.pinyon {
+  font-family: 'Cover Pinyon', cursive;
+}
+
+.deboss {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}

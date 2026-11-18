@@ -7,6 +7,9 @@ import { mediaSrc } from '@/shared/media'
 
 import CallaEmboss from './common/CallaEmboss'
 import Section from './common/Section'
+import { coverTemplateLocked, FREE_COVER_TEMPLATE } from '@/shared/entitlements'
+
+import { coverTemplateOf } from './CoverTemplate'
 import CoverEffect from './CoverEffect'
 import CoverShell from './CoverShell'
 import { fitCqw } from './coverFit'
@@ -16,6 +19,13 @@ import type { BlockContext } from './types'
 const cx = classNames.bind(styles)
 
 export default function Cover({ config, ctx }: { config: CoverConfig; ctx: BlockContext }) {
+  // 결혼 표지 템플릿: 이용권이 없으면(결제 전 발행 · 환불 등) 무료인 2안으로 대체해 보여 줌 (봉투 · 효과와 같은 방식)
+  if (config.layout === 'template') {
+    const key = coverTemplateLocked(config.template, { coverTemplates: ctx.coverTemplates })
+      ? FREE_COVER_TEMPLATE
+      : config.template
+    return coverTemplateOf(key, config, ctx.eventAt, { title: ctx.title, dateVoting: ctx.dateVoting })
+  }
   const design = config.layout === 'design' ? findCover(config.designKey) : undefined
   const photo = config.layout === 'photo' ? config.image : null
   const showDate = config.showDate && ctx.eventAt

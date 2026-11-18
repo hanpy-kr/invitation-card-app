@@ -45,6 +45,8 @@ type Props = {
   canHideMadeWith: boolean
   /** 결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음 */
   upsell: { price: number | null; openSale: boolean; event: boolean } | null
+  /** 프리미엄이 아닌데 1안 · 3안 표지: 발행 막고 결제 또는 2안으로 바꾸기 안내 */
+  coverLock: { label: string; onUseFree: () => void } | null
 }
 
 /** 발행 · 링크 복사 · 공유 시트 */
@@ -136,6 +138,25 @@ export default function PublishPanel(props: Props) {
               mediaBaseUrl={props.mediaBaseUrl}
               onShare={props.onShare}
             />
+            {props.coverLock ? (
+              <div className={styles.warnings} role="alert" data-testid="cover-lock">
+                <p>
+                  <strong>{props.coverLock.label} 표지는 프리미엄에서만 발행할 수 있어요.</strong>
+                  <br />
+                  결제하거나 무료인 2안 표지로 바꿔 주세요.
+                </p>
+                <button
+                  type="button"
+                  className={styles.secondary}
+                  onClick={() => {
+                    props.coverLock?.onUseFree()
+                    setMessage('2안 표지로 바꿨어요.')
+                  }}
+                >
+                  2안 표지로 바꾸기
+                </button>
+              </div>
+            ) : null}
             <PremiumBlock id={id} upsell={props.upsell} />
             {warnings.length > 0 ? (
               <ul className={styles.warnings} aria-label="발행 전에 확인해 보세요">
@@ -168,7 +189,7 @@ export default function PublishPanel(props: Props) {
               <button
                 type="button"
                 className={styles.primary}
-                disabled={busy}
+                disabled={busy || Boolean(props.coverLock)}
                 onClick={() => setPublished(true)}
               >
                 {busy ? '발행하는 중…' : '발행하기'}
