@@ -191,6 +191,31 @@ async function main() {
   await ph.goto(`${BASE}/i/${slugOf(idN)}`)
   await ph.waitForLoadState('networkidle')
   check(reqs.some((u) => u.includes('/fonts/cinzel/')) && !reqs.some((u) => u.includes('pinyon-script')), '2안: Cinzel만 내려받고 Pinyon은 안 받음')
+  // ───────── PC 미리보기: 표지가 휴대폰 틀 높이를 꽉 채움 · 워터마크 진하기 ─────────
+  const dctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, locale: 'ko-KR', reducedMotion: 'reduce' })
+  const dp = await newPage(dctx)
+  await dp.goto(`${OPEN}/api/auth/kakao/login?dev=1&as=3&next=/new`)
+  for (const key of ['a', 'b', 'c']) {
+    const did = (await api(dp, '/api/invitations', 'POST', { eventType: 'wedding', coverTemplate: key })).body.id as string
+    await setCover(did, { groomEn: 'HANUL', brideEn: 'BORAM' })
+    await dp.goto(`${OPEN}/edit/${did}`)
+    const cover = dp.locator(`[aria-label="미리보기"] [data-cover-template="${key}"]`)
+    await cover.waitFor({ timeout: 15000 })
+    await dp.waitForTimeout(500)
+    const frame = await dp.evaluate(() => {
+      const el = document.querySelector('[aria-label="미리보기"] [data-cover-template]') as HTMLElement
+      const f = el.closest('[class*=phone]') as HTMLElement
+      return { cover: el.getBoundingClientRect().height, frame: f.clientHeight }
+    })
+    check(Math.abs(frame.cover - frame.frame) <= 1 || (frame.frame < 520 && frame.cover === 520), `PC 미리보기 ${key}안: 표지 높이 ${Math.round(frame.cover)} = 틀 높이 ${frame.frame}`)
+  }
+  const wm = await dp.evaluate(() => {
+    const el = document.querySelector('[class*=sampleMark]') as HTMLElement | null
+    return el ? getComputedStyle(el).backgroundImage : ''
+  })
+  check(decodeURIComponent(wm).includes("fill-opacity='0.16'"), 'SAMPLE 워터마크 fill-opacity 0.16')
+  await dctx.close()
+
   check(!errors.length, `브라우저 오류 없음 ${errors.join(' | ')}`)
   await browser.close()
   console.log(failures ? `\n실패 ${failures}건` : '\n모두 통과')
