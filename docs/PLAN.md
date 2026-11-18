@@ -382,6 +382,16 @@ DB 마이그레이션 `0017`(추가만): 테이블 `bring_claims` · `invitee_li
 - [x] 인사말: 윗장식 4분할 · 혼주(families) · 날짜 토글 / 갤러리: 더보기 토글(collapse) · 제목 placeholder
 - 표지(CoverForm)는 STYLE 묶음에 항상 펼쳐 두고 블록 목록에서는 뺌 → e2e의 '표지' 펼치기 클릭 제거
 
+## 디자인 반영 요청 3 — 결혼 표지 템플릿 1·2·3안 (11/18, 브랜치 `cover-templates` — main 병합 전)
+
+- [x] 표지 block `layout:'template'` + `template: a|b|c`(기본 b). 이름 영문(신랑·신부 20자, 영문·공백·하이픈) · 2안 영문 예식장·주소(비면 줄 숨김). 날짜 · 요일 · 시간 · 이니셜은 자동(`shared/cover-templates.ts`, `shared/date.ts formatEnParts`)
+- [x] 렌더: `components/blocks/CoverTemplate.tsx`(+scss). 390×844 기준 `--u` 단위로 비례 확대 · 글자별 SVG 음각 필터 · ♥ 글리프 SVG · 한글 이름 · 예식장 없음 · 영문 이름이 비면 자리표시 없이 이름 줄만 뺌
+- [x] 서체: Cinzel 500/600(기존 subset) · Bodoni Moda 400 · Pinyon Script 라틴 subset woff2, 템플릿 표지일 때만 preload. `/i/[slug]` First Load JS 131kB
+- [x] 모란: `scripts/crop-peony.py`(홈 모란 webp에서 꽃 하나씩 최대 해상도로 잘라 좌우 반전 영역 없이, EXIF/XMP 저작 정보 복사) → `public/covers/templates/peony-{tl,br,tr}.webp`(각 약 9KB)
+- [x] 화면: /new 결혼 → '표지 고르기'(1·2·3안 · 내 사진 표지, 기본 2안) · 편집기 꾸미기 '템플릿'(썸네일 · 영문 이름 칸 · 이름이 비면 입력 안내) · 결혼에서만
+- [x] 프리미엄(`shared/entitlements.ts` `coverTemplates` · `coverTemplateLocked`): 2안 무료, 1·3안 premium. 미리보기는 누구나(SAMPLE 표시 + "발행하려면 프리미엄이 필요해요" + 결제 버튼), 발행은 서버 403 + 발행 시트 안내(결제 또는 2안으로 바꾸기), 공개 화면은 이용권이 없으면 2안으로 대체. 결제 시작 전(`PAYMENTS_LIVE_AT` null)에는 모두 premium
+- [x] e2e: `pnpm e2e:p9`(앱 2개: 3001 결제 전 · 3002 결제 시작 후)
+
 ## 공통 규칙 (2차)
 
 - 공개 초대장 성능 유지: 서버 쿼리 1회 유지, 새 블록의 데이터(명단 · 투표 결과 · 방명록)는 화면 근처에서 API로. `/i/[slug]` First Load JS 140kB 이하
@@ -455,3 +465,8 @@ DB 마이그레이션 `0017`(추가만): 테이블 `bring_claims` · `invitee_li
 
 - (디자인 2) 갤러리 사진 순서를 길게 눌러 끌기로 바꾸는 건 이번에 하지 않고 기존 ← → 버튼을 유지했어요(드래그 라이브러리 번들 증가). 필요하면 지시 주세요. 블록 줄 끌기 손잡이(점 6개)는 모양만 있고 순서 변경은 ↑↓ 버튼으로 해요.
 - (디자인 2) 빈 화면의 '카톡으로 공유하기' 링크, 블록 줄 전체 눌러 펼치기(지금은 이름 영역만)는 미반영.
+
+- (표지 템플릿) **모란 해상도**: 원본(홈 모란 webp)에서 꽃 하나가 약 215×310px뿐이라 2배 확대해도 새 디테일이 없어요. 390×844 화면에서는 잔잔하게 보이지만 3x 기기에서 약간 뭉개져요. 원본 모란 이미지(꽃 하나씩 800px 이상)를 받으면 `scripts/crop-peony.py` 입력만 바꾸면 돼요
+- (표지 템플릿) 3안은 시안의 '· SEOUL' 도시를 뺐어요(도시 데이터가 없고 한글 주소를 로마자로 바꾸지 않는 규칙). 2안은 영문 예식장 · 주소 칸이 있어 주최자가 직접 넣어요. 3안에도 필요하면 칸을 추가할게요
+- (표지 템플릿) 봉투 · 효과(intro/effects)는 템플릿 표지에 적용하지 않았어요(디자인 표지 전용 그대로). 카톡 공유 카드는 기본 이미지를 써요
+- (표지 템플릿) 이 브랜치는 main(`97fb890`) 기준이라 `payments-hub-2`(허브 검토 반영)가 병합되면 `lib/plan.ts`의 `newInvitationPlan`을 새 `planDecision`에 맞춰 한 줄 정리해야 해요
