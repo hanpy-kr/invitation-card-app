@@ -40,6 +40,7 @@ type Order = {
   createdAt: string
   paidAt: string | null
   refundedAt: string | null
+  refundedAmount: number
 }
 const PRODUCTS = [
   { sku: 'invitation.premium.family.open', name: '프리미엄 (결혼·돌·감사장) 오픈', amount: 9900, currency: 'KRW', onSale: true, grants: { key: 'premium', days: null, subjectType: 'invitation' } },
@@ -89,6 +90,7 @@ const server = createServer((req, res) => {
         createdAt: new Date().toISOString(),
         paidAt: null,
         refundedAt: null,
+        refundedAmount: 0,
       }
       orders.set(order.orderId, order)
       return send(res, 200, { order, action: { type: 'redirect', url: `https://groble.test/pay?ref=${order.ref}` } })
@@ -128,6 +130,13 @@ function markRefunded(o: Order) {
   o.status = 'refunded'
   o.refundedAt = new Date().toISOString()
   if (o.subject) entitled.delete(o.subject.id)
+}
+
+function markPartiallyRefunded(o: Order, amount: number) {
+  o.status = 'partially_refunded'
+  o.refundedAmount = amount
+  o.refundedAt = new Date().toISOString()
+  // 일부 환불은 이용권 유지 (entitled 그대로)
 }
 
 async function notify(
@@ -469,6 +478,53 @@ async function main() {
     await page.getByText(text).first().waitFor({ timeout: 10000 }).catch(() => {})
     check(await page.getByText(text).first().isVisible(), `/pay/return: ${status} → "${text}"`)
   }
+
+  // ───────── 일부 환불 (partially_refunded): 이용권 유지 · "일부 환불" 표시 ─────────
+  const partId = await create(page, /결혼식/, 'E2E 일부 환불')
+  const co = await checkout(page, partId)
+  check(co.status === 200, '일부 환불용 결제 시작')
+  const op = [...orders.values()].filter((o) => o.subject?.id === partId)[0]
+  markPaid(op)
+  check((await notify(op, 'payment.paid')) === 200 && premiumHub(partId), '일부 환불 전: 결제 완료 → premium_hub=true')
+  markPartiallyRefunded(op, 3000)
+  check((await notify(op, 'payment.refunded')) === 200, '알림(일부 환불) → 200')
+  check(premiumHub(partId), '일부 환불: 허브 이용권이 남아 있어 premium_hub=true 유지(상태값으로 판단하지 않음)')
+  await page.goto(`${BASE}/dashboard`)
+  const dash2 = await page.locator('#orders').innerText()
+  check(dash2.includes('일부 환불') && dash2.includes('환불 3,000원'), `대시보드: "일부 환불" + 환불액 (${dash2.replace(/\n/g, ' ').slice(0, 160)})`)
+  const dashAdmin = await page.locator('[data-testid=admin-hub]').allInnerTexts()
+  check(dashAdmin.some((t) => t.includes('주문 상태: 일부 환불(3,000원)') && t.includes('허브 이용권: 있음')), '관리자 확인 줄(대시보드): 주문 상태 일부 환불 + 이용권 있음')
+  await page.goto(`${BASE}/edit/${partId}`)
+  const editAdmin = await page.locator(ADMIN_LINE).innerText()
+  check(editAdmin.includes('주문 상태: 일부 환불') && editAdmin.includes('허브 이용권: 있음'), `관리자 확인 줄(편집기): ${editAdmin}`)
+  await page.goto(`${BASE}/`)
+  await page.evaluate((id) => sessionStorage.setItem('hanpy:lastOrderId', id), op.orderId)
+  await page.goto(`${BASE}/pay/return`)
+  await page.getByText('일부 환불된 결제예요').first().waitFor({ timeout: 10000 }).catch(() => {})
+  const ret = await page.locator('main').innerText()
+  check(ret.includes('일부 환불된 결제예요') && ret.includes('3,000원이 환불됐어요') && ret.includes('프리미엄은 그대로 유지돼요'), '/pay/return: 일부 환불 + 환불액 표시')
+  const detail = [...orders.values()].find((o) => o.orderId === op.orderId)!
+  markRefunded(detail)
+  check((await notify(detail, 'payment.refunded')) === 200 && !premiumHub(partId), '이어서 전액 환불 → 이용권 회수')
+
+  // ───────── 미성년자 고지: 결제 버튼이 있는 화면마다 ─────────
+  const MINOR = '만 19세 미만은 법정대리인의 동의가 필요합니다'
+  const minorId = await create(page, /결혼식/, 'E2E 미성년자 고지')
+  await page.goto(`${BASE}/pay/${minorId}`)
+  await page.getByRole('button', { name: /결제하기/ }).waitFor()
+  check((await page.getByText(MINOR).count()) === 1, '/pay: 결제 버튼 옆 미성년자 고지')
+  const nextBtn = await page.getByRole('button', { name: /결제하기/ }).boundingBox()
+  const note = await page.getByTestId('minor-notice').boundingBox()
+  check(!!nextBtn && !!note && note.y >= nextBtn.y && note.y - (nextBtn.y + nextBtn.height) < 40, '/pay: 고지가 결제 버튼 바로 아래')
+  await page.goto(`${BASE}/edit/${minorId}`)
+  await page.getByLabel('초대장 제목').waitFor()
+  await page.getByRole('button', { name: /^(발행하기|공유하기)$/ }).first().click()
+  const sheet = page.getByRole('dialog')
+  await sheet.getByRole('link', { name: '프리미엄 결제하기' }).first().waitFor({ timeout: 10000 })
+  check((await sheet.getByText(MINOR).count()) >= 1, '편집기 발행 시트(결제 안내): 미성년자 고지')
+  await page.keyboard.press('Escape')
+  await page.goto(`${BASE}/pricing`)
+  check((await page.getByText(MINOR).count()) === 1, '/pricing: 미성년자 고지')
 
   check(hub.auth === 0, '허브 호출은 모두 서비스 토큰 · 서비스 키 헤더가 맞음')
   check(sql('select count(*) from orders') === ordersBefore, '끝까지 자체 orders 행은 늘지 않음')

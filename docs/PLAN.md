@@ -369,6 +369,14 @@ DB 마이그레이션 `0017`(추가만): 테이블 `bring_claims` · `invitee_li
 - [x] 부모 환불 → 파생 초대장 e2e, 모임 이벤트 안내 문구("하단 문구 숨기기는 프리미엄에서만 돼요 · 3,900원")
 - 로컬 e2e 전용: `DEV_LOGIN=1`일 때만 `PAYMENTS_LIVE_AT_DEV`로 시각을 바꿈(운영은 DEV_LOGIN이 비어 있어 상수만 씀)
 
+### 허브 v2.1 반영 (11/18, 브랜치 `payments-hub-2`)
+
+- [x] `lib/hanpy-payments.ts`를 허브 레포 `clients/`에서 그대로 다시 복사(수정 없음). **요청은 v2.1이었지만 허브 레포 최신본이 payments v3(2026-11-18)** — v2.1의 `partially_refunded` · `refundedAmount`를 포함한 상위 버전이라 그대로 복사함(v3 추가분: 수량형 상품 · `paidAmount` · `listOrderChanges`는 아직 쓰지 않음)
+- [x] 일부 환불 표시: 결제 내역 "일부 환불 · 환불 ○○원", `/pay/return` "일부 환불된 결제예요 · ○○원이 환불됐어요 · 프리미엄은 그대로 유지돼요", 관리자 확인 줄 "· 주문 상태: 일부 환불(○○원)"(환불 요청 · 환불됨도 같은 줄에 덧붙임). 프리미엄 판단은 그대로 알림 → 허브 재조회(상태값으로 판단하지 않음)
+- [x] 미성년자 고지 "만 19세 미만은 법정대리인의 동의가 필요합니다"(`components/ui/MinorNotice`): `/pay`(허브 · 그로블 · 옛 토스 3종 결제 버튼 아래) · 편집기 발행 시트의 프리미엄 안내 2곳 · `/pricing` 결제 방법
+- [x] e2e-p8: 가짜 허브에 `partially_refunded` 주문(환불 3,000원) 추가 → 결제 내역 · `/pay/return` · 관리자 줄 · premium_hub 유지 · 이어서 전액 환불 시 회수, 미성년자 고지 3화면(고지가 결제 버튼 바로 아래인지 위치도 확인). `PAYMENTS_LIVE_AT`을 임시로 고정해 돌리면 전부 통과(상수는 null로 되돌림)
+- 병합 메모: `cover-templates` 브랜치의 미리보기 잠금 배너(결제 버튼, `Preview.tsx`)에도 미성년자 고지가 필요함 — 두 브랜치 병합 때 `<MinorNotice tone="onDark" />` 한 줄 추가
+
 ## 공통 규칙 (2차)
 
 - 공개 초대장 성능 유지: 서버 쿼리 1회 유지, 새 블록의 데이터(명단 · 투표 결과 · 방명록)는 화면 근처에서 API로. `/i/[slug]` First Load JS 140kB 이하
