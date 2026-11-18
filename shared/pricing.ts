@@ -51,7 +51,7 @@ export const PREMIUM_DERIVED_EVENTS: readonly EventType[] = ['prewedding', 'than
 export const REFUND_DAYS = 7
 
 export const REFUND_NOTICE =
-  `결제 후 ${REFUND_DAYS}일 이내이고 발행 전이면 전액 환불돼요. 그 밖에는 그로블 환불 규정을 따라요.`
+  `발행 전에는 결제 후 ${REFUND_DAYS}일 이내 전액 환불돼요. 발행하면 초대장이 하객에게 공개되어 환불이 제한돼요.`
 
 /** 환불 가능 안내 판단 (서버 · 화면 공용). 실제 환불 신청은 그로블 주문조회에서 */
 export function refundEligibility(input: {

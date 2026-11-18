@@ -14,7 +14,7 @@ import {
   FAMILY_OPEN_NOTE,
   formatWon,
   isFamilyEvent,
-  REFUND_DAYS,
+  REFUND_NOTICE,
 } from '@/shared/pricing'
 
 import styles from '../terms/legal.module.scss'
@@ -146,8 +146,7 @@ export default async function PricingPage() {
         <h2>환불 규정</h2>
         <ul>
           <li>
-            결제 후 {REFUND_DAYS}일 이내이고 발행 전이면 <b>전액 환불</b>돼요. 그 밖에는 그로블 환불
-            규정을 따라요.
+            {REFUND_NOTICE}
           </li>
           <li>
             환불은 &lsquo;내 초대장&rsquo; 화면의 결제 내역에서 안내하는 그로블 주문조회에서
