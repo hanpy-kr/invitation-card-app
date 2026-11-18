@@ -380,13 +380,13 @@ async function main() {
   }
   const pa = await create(page, /결혼식/, 'E2E 허브 관리자줄')
   let l = await adminLine(pa)
-  check(/허브 이용권: 없음 · 확인 시각 \d\d:\d\d · 프리미엄 근거: 무료/.test(l), `관리자 줄: 결제 전 → 없음 · 무료 (${l})`)
+  check(/허브 이용권: 없음 · 확인 시각 \d\d:\d\d · 주문 없음 · 프리미엄 근거: 무료/.test(l), `관리자 줄: 결제 전 → 없음 · 무료 (${l})`)
   const pc = await checkout(page, pa)
   check(pc.status === 200, '관리자 줄용 결제 시작')
   const opa = [...orders.values()].find((o) => o.subject?.id === pa)!
   markPaid(opa)
   l = await adminLine(pa) // 알림이 오기 전이라도 화면을 여는 순간 허브에 바로 다시 물어 본다(캐시 아님)
-  check(l.includes('허브 이용권: 있음') && l.includes('프리미엄 근거: 허브 결제'), `관리자 줄: 결제 → 있음 · 허브 결제 (${l})`)
+  check(l.includes('허브 이용권: 있음') && l.includes('주문 상태: 결제 완료') && l.includes('프리미엄 근거: 허브 결제'), `관리자 줄: 결제 → 있음 · 허브 결제 (${l})`)
   // 파생: 부모(결혼) 결제 → 파생 청첩장 모임 premium → 부모 환불 알림 → 파생도 premium 아님
   await notify(opa, 'payment.paid')
   const pk = await create(page, /결혼식/, 'E2E 허브 파생 자식')

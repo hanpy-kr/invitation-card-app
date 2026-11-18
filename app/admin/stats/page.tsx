@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { requireKakaoSession } from '@/lib/auth/session'
-import { hubAdminPanel } from '@/lib/admin-hub'
+import { failLong, hubAdminPanel } from '@/lib/admin-hub'
 import { adminStats, isAdmin } from '@/lib/stats'
 import { EVENT_TYPE_LABELS, EVENT_TYPE_ORDER, type EventType } from '@/shared/blocks'
 
@@ -50,7 +50,7 @@ export default async function AdminStatsPage() {
       </div>
       {hub.error ? (
         <p className={styles.note}>
-          상품 조회 실패 · status {hub.error.status} · code {hub.error.code}
+          상품 조회 실패 · {failLong(hub.error)}
         </p>
       ) : hub.products ? (
         <div className={styles.scroll}>
