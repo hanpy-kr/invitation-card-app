@@ -44,7 +44,7 @@ export default function ReturnClient() {
             const d = (await res.json()) as Reply
             const invitationId = d.invitationId ?? read('hanpy:lastInvitationId')
             if (d.status === 'paid' && invitationId) {
-              window.location.href = `/edit/${invitationId}`
+              window.location.href = `/edit/${invitationId}?paid=1`
               return
             }
             if (!cancelled) setLast({ ...d, invitationId })

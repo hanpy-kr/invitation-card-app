@@ -26,6 +26,7 @@ import {
   IconUp,
 } from './BlockIcons'
 import { BasicsForm, StyleForm } from './MetaForm'
+import PaidWelcome from './PaidWelcome'
 import Preview from './Preview'
 import PublishPanel from './PublishPanel'
 import { useAutosave, type SaveState } from './useAutosave'
@@ -58,6 +59,8 @@ export type EditorProps = {
   adminHub?: string | null
   /** 결제한 초대장이면 환불 가능 여부 */
   paid: { refundable: boolean } | null
+  /** 결제 직후(주소 paid=1) + 서버가 실제 프리미엄으로 확인했을 때만 true: 결제 완료 모달 */
+  paidWelcome?: boolean
 }
 
 const SAVE_LABEL: Record<SaveState, string> = {
@@ -420,6 +423,9 @@ export default function Editor(props: EditorProps) {
             coverLock={coverLock ? { label: coverLock.label, onUseFree: useFreeCover } : null}
             onClose={() => setShowPublish(false)}
           />
+        ) : null}
+        {props.paidWelcome ? (
+          <PaidWelcome photoLimit={props.photoLimit} wedding={meta.eventType === 'wedding'} />
         ) : null}
       </div>
     </EditorEnvProvider>
