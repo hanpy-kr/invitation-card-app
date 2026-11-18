@@ -5,6 +5,7 @@ import Link from 'next/link'
 
 import { requireSession } from '@/lib/auth/session'
 import { listMyInvitations } from '@/lib/dashboard'
+import { planBadgeOf } from '@/lib/plan'
 import { getNotifyState } from '@/lib/notify'
 import { adminHubLines } from '@/lib/admin-hub'
 import { GROBLE_ORDER_URL, listHubOrders } from '@/lib/hub-orders'
@@ -13,6 +14,7 @@ import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { formatLongDate } from '@/shared/date'
 import { formatWon } from '@/shared/pricing'
 
+import CardMenu from './CardMenu'
 import DuplicateButtons from './DuplicateButtons'
 import NotifyToggle from './NotifyToggle'
 import QrButton from './QrButton'
@@ -76,8 +78,16 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <ul className={styles.list}>
-          {invitations.map((inv) => (
-            <li key={inv.id}>
+          {invitations.map((inv) => {
+            const badge = planBadgeOf(inv)
+            // 주문이 환불됨이고 이용권(허브 결제 · 상속)이 없으면 '환불됨' (이 페이지가 이미 읽은 허브 주문 목록 재사용)
+            const refunded =
+              badge !== 'paid' &&
+              !inv.premiumHub &&
+              orders.some((o) => o.invitationId === inv.id && o.status === 'refunded')
+            return (
+            <li key={inv.id} className={styles.card}>
+              {inv.isOwner ? <CardMenu id={inv.id} paid={Boolean(inv.premiumHub)} /> : null}
               <Link href={`/edit/${inv.id}`} className={styles.cardLink}>
                 <div className={styles.row}>
                   <div className={styles.title}>
@@ -95,6 +105,19 @@ export default async function DashboardPage() {
                   {EVENT_TYPE_LABELS[inv.eventType]}
                   {inv.eventAt ? ` · ${formatLongDate(inv.eventAt)}` : ' · 날짜 미정'}
                 </div>
+                {badge === 'paid' ? (
+                  <span className={`${styles.plan} ${styles.planPaid}`} data-testid="plan-badge">
+                    프리미엄 · 결제
+                  </span>
+                ) : badge === 'perk' ? (
+                  <span className={`${styles.plan} ${styles.planPerk}`} data-testid="plan-badge">
+                    프리미엄 · 무료 혜택
+                  </span>
+                ) : refunded ? (
+                  <span className={`${styles.plan} ${styles.planPerk}`} data-testid="plan-badge">
+                    환불됨
+                  </span>
+                ) : null}
               </Link>
               {inv.status === 'published' || inv.responses > 0 ? (
                 <div className={styles.stats}>
@@ -135,7 +158,8 @@ export default async function DashboardPage() {
                 {inv.isOwner ? <DuplicateButtons id={inv.id} eventType={inv.eventType} /> : null}
               </div>
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
       {orders.length > 0 ? (

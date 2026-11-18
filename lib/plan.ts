@@ -3,7 +3,7 @@ import 'server-only'
 import { sql } from 'drizzle-orm'
 
 import type { EventType } from '@/shared/blocks'
-import { resolvePlan, type Plan } from '@/shared/entitlements'
+import { planDecision, resolvePlan, type Plan } from '@/shared/entitlements'
 import { isFamilyEvent, PAYMENTS_LIVE_AT, PREMIUM_DERIVED_EVENTS, PREMIUM_PARENT_EVENTS } from '@/shared/pricing'
 
 import { schema } from './db/client'
@@ -97,6 +97,21 @@ export function planOf(row: {
     derivedPremium: Boolean(row.derivedPremium),
     isMeetup: !isFamilyEvent(row.eventType),
   })
+}
+
+/** 카드 배지: 허브 결제 → 'paid', 무료 혜택(오픈 전 생성 · 모임 이벤트 · 부모 상속) → 'perk'. 무료 · 결제 전(모두 프리미엄)은 없음. 캐시 값만 씀 */
+export function planBadgeOf(row: Parameters<typeof planOf>[0]): 'paid' | 'perk' | null {
+  const { basis } = planDecision({
+    liveAt: paymentsLiveAt(),
+    createdAt: row.createdAt,
+    premiumHub: Boolean(row.premiumHub),
+    premiumOrderId: row.premiumOrderId,
+    derivedPremium: Boolean(row.derivedPremium),
+    isMeetup: !isFamilyEvent(row.eventType),
+  })
+  if (basis === 'hub' || basis === 'old-order') return 'paid'
+  if (basis === 'before-live' || basis === 'meetup-event' || basis === 'parent') return 'perk'
+  return null
 }
 
 /** 지금 새로 만드는 초대장이 받을 플랜 (허브 이용권 없음, 만든 시각 = 지금). 새 초대장 화면의 표시용 */

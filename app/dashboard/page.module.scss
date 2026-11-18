@@ -62,6 +62,7 @@
   padding: 0;
 
   li {
+    position: relative;
     border: 1px solid var(--paper-line);
     border-radius: 2px;
     background: var(--paper-surface);
@@ -116,6 +117,33 @@
       font-size: 21px;
       color: var(--ink);
     }
+  }
+
+  .plan {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 7px 1px;
+    border-radius: 1px;
+    font-size: 11px;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+
+  .planPaid {
+    border: 1px solid var(--gold);
+    color: var(--gold-deep);
+    background: rgba(176, 141, 62, 0.1);
+  }
+
+  .planPerk {
+    border: 1px solid var(--paper-line);
+    color: var(--ink-faint);
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  /* 오른쪽 위 ⋯ 메뉴 자리 */
+  .card .row {
+    padding-right: 30px;
   }
 
   .cardLink {
