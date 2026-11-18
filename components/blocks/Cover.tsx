@@ -90,7 +90,6 @@ export default function Cover({ config, ctx }: { config: CoverConfig; ctx: Block
       '--cv-surface': design.surface,
       '--cv-line': design.line,
       '--cv-accent': design.dark?.point ?? design.accent,
-      ...(ctx.preview ? { '--cover-h': '640px', '--fall': '640px' } : {}),
     } as React.CSSProperties
     const cls = cx('cover', design.tone)
     const inner = (

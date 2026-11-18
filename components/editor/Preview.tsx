@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import BlockRenderer from '@/components/blocks/BlockRenderer'
 import type { BlockContext } from '@/components/blocks/types'
@@ -49,6 +49,26 @@ export default function Preview({
   const view = blocks.map((b, position) => ({ ...b, position }) as Block)
   // 봉투 · 효과를 처음부터 다시 보기 (표지 블록을 새로 그림)
   const [play, setPlay] = useState(0)
+  // 미리보기 틀(PC: 스크롤되는 휴대폰 틀)의 높이를 --cover-h로 줘서 표지가 틀을 꽉 채우게 한다.
+  // 모바일(틀이 따로 스크롤되지 않음)은 화면 높이(100svh) 그대로.
+  const screenRef = useRef<HTMLDivElement>(null)
+  const [frameH, setFrameH] = useState<number | null>(null)
+  useEffect(() => {
+    const frame = screenRef.current?.parentElement
+    if (!frame) return
+    const measure = () => {
+      const oy = getComputedStyle(frame).overflowY
+      setFrameH(oy === 'auto' || oy === 'scroll' ? frame.clientHeight : null)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(frame)
+    window.addEventListener('resize', measure)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [])
   const cover = view.find((b) => b.type === 'cover' && b.visible)
   const hasIntro =
     cover?.type === 'cover' &&
@@ -56,8 +76,12 @@ export default function Preview({
     (cover.config.intro !== 'none' || cover.config.effect !== 'none')
   return (
     <div
+      ref={screenRef}
       className={styles.previewScreen}
-      style={themeStyle(meta.theme, meta.font, designCoverOf(view))}
+      style={{
+        ...themeStyle(meta.theme, meta.font, designCoverOf(view)),
+        ...(frameH ? ({ '--cover-h': `${frameH}px`, '--fall': `${frameH}px` } as React.CSSProperties) : {}),
+      }}
     >
       {fontCss ? <link rel="stylesheet" href={fontCss} precedence="font" /> : null}
       {hasIntro ? (
