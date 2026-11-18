@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 
 import { formatWon } from '@/shared/pricing'
 
+import MinorNotice from '@/components/ui/MinorNotice'
 import styles from '../pay.module.scss'
 
 /**
@@ -85,6 +86,7 @@ export default function HubPayClient({
             ? '결제창으로 이동 중…'
             : `${formatWon(amount)} 결제하기`}
       </button>
+      <MinorNotice />
       {error ? (
         <p className={styles.error} role="alert">
           {error}

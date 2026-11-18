@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { formatWon } from '@/shared/pricing'
 
+import MinorNotice from '@/components/ui/MinorNotice'
 import styles from '../pay.module.scss'
 
 /** 그로블 결제: 결제 시작 API가 주문을 만들고, 이 버튼이 그로블 결제창 링크(?ref=주문번호)로 보낸다 */
@@ -64,6 +65,7 @@ export default function GroblePayClient({
       <button type="button" className={styles.btn} disabled={!agreed || busy} onClick={pay}>
         {busy ? '결제창으로 이동 중…' : `${formatWon(amount)} 결제하기`}
       </button>
+      <MinorNotice />
       {error ? (
         <p className={styles.error} role="alert">
           {error}

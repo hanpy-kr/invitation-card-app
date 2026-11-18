@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { formatWon } from '@/shared/pricing'
 
+import MinorNotice from '@/components/ui/MinorNotice'
 import styles from '../pay.module.scss'
 
 const SDK = 'https://js.tosspayments.com/v2/standard'
@@ -115,6 +116,7 @@ export default function PayClient({
       >
         {busy ? '결제창을 여는 중…' : `${formatWon(amount)} 결제하기`}
       </button>
+      <MinorNotice />
       {error ? (
         <p className={styles.error} role="alert">
           {error}

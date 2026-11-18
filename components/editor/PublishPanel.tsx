@@ -22,6 +22,7 @@ import { formatWon, REFUND_NOTICE } from '@/shared/pricing'
 import { PLAN_FEATURES } from '@/shared/entitlements'
 
 import { api } from '../ui/api'
+import MinorNotice from '@/components/ui/MinorNotice'
 import styles from './Editor.module.scss'
 import ShareCard from './ShareCard'
 
@@ -309,6 +310,7 @@ function PremiumBlock({ id, upsell }: { id: string; upsell: { price: number | nu
             프리미엄 결제하기
           </a>
         )}
+        {upsell.price === null ? null : <MinorNotice />}
       </section>
     )
   return (
@@ -335,6 +337,7 @@ function PremiumBlock({ id, upsell }: { id: string; upsell: { price: number | nu
           프리미엄 결제하기
         </a>
       )}
+      {upsell.price === null ? null : <MinorNotice />}
     </section>
   )
 }

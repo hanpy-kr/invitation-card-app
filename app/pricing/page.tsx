@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import Logo from '@/components/site/Logo'
+import MinorNotice from '@/components/ui/MinorNotice'
 import SiteFooter from '@/components/site/SiteFooter'
 import { paymentsOpen } from '@/lib/plan'
 import { priceTable } from '@/lib/prices'
@@ -128,6 +129,7 @@ export default async function PricingPage() {
           구매자 정보는 그로블 · 결제대행사가 직접 받고 dearday는 받거나 저장하지 않아요. 그로블
           결제에는 그로블 표준 환불 규정이 함께 적용돼요.
         </p>
+        <MinorNotice />
 
         <h2>환불 규정</h2>
         <ul>

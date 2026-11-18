@@ -1,0 +1,11 @@
+.minor {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-3, #8a8378);
+  text-align: center;
+
+  &[data-tone='onDark'] {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
