@@ -102,7 +102,7 @@ export function planOf(row: {
 /** 지금 새로 만드는 초대장이 받을 플랜 (허브 이용권 없음, 만든 시각 = 지금). 새 초대장 화면의 표시용 */
 export function newInvitationPlan(eventType: EventType): Plan {
   return resolvePlan({
-    liveSince: paymentsLiveSince(),
+    liveAt: paymentsLiveAt(),
     createdAt: new Date(),
     premiumHub: false,
     premiumOrderId: null,
