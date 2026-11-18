@@ -373,7 +373,7 @@ DB 마이그레이션 `0017`(추가만): 테이블 `bring_claims` · `invitee_li
 
 - [x] main(c26b644) 병합(충돌은 PLAN.md · Editor.module.scss만, 양쪽 유지). 관리자 확인 줄에 주문 상태 항상 표시("허브 이용권 · 확인 시각 · 주문 상태 · 프리미엄 근거"), 허브 오류는 HanpyApiError면 status · code, 아니면 오류 이름 + 메시지 앞 80자(예: `TypeError: fetch failed`), 토큰 · 키 값은 어디에도 안 나감(주소를 일부러 틀리게 띄워 확인)
 
-- [x] `lib/hanpy-payments.ts`를 허브 레포 `clients/`에서 그대로 다시 복사(수정 없음). **요청은 v2.1이었지만 허브 레포 최신본이 payments v3(2026-11-18)** — v2.1의 `partially_refunded` · `refundedAmount`를 포함한 상위 버전이라 그대로 복사함(v3 추가분: 수량형 상품 · `paidAmount` · `listOrderChanges`는 아직 쓰지 않음)
+- [x] `lib/hanpy-payments.ts`를 허브 레포 `clients/`에서 그대로 다시 복사(수정 없음). **v3(2026-11-18)로 확정(11/18 관리 세션 추가 지시: v2.1은 v3에 추가만 된 것이라 v3를 복사)** — v2.1의 `partially_refunded` · `refundedAmount`를 포함한 상위 버전이라 그대로 복사함(v3 추가분: 수량형 상품 · `paidAmount` · `listOrderChanges`는 아직 쓰지 않음)
 - [x] 일부 환불 표시: 결제 내역 "일부 환불 · 환불 ○○원", `/pay/return` "일부 환불된 결제예요 · ○○원이 환불됐어요 · 프리미엄은 그대로 유지돼요", 관리자 확인 줄 "· 주문 상태: 일부 환불(○○원)"(환불 요청 · 환불됨도 같은 줄에 덧붙임). 프리미엄 판단은 그대로 알림 → 허브 재조회(상태값으로 판단하지 않음)
 - [x] 미성년자 고지 "만 19세 미만은 법정대리인의 동의가 필요합니다"(`components/ui/MinorNotice`): `/pay`(허브 · 그로블 · 옛 토스 3종 결제 버튼 아래) · 편집기 발행 시트의 프리미엄 안내 2곳 · `/pricing` 결제 방법
 - [x] e2e-p8: 가짜 허브에 `partially_refunded` 주문(환불 3,000원) 추가 → 결제 내역 · `/pay/return` · 관리자 줄 · premium_hub 유지 · 이어서 전액 환불 시 회수, 미성년자 고지 3화면(고지가 결제 버튼 바로 아래인지 위치도 확인). `PAYMENTS_LIVE_AT`을 임시로 고정해 돌리면 전부 통과(상수는 null로 되돌림)
