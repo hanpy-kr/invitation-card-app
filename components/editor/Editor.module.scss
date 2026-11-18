@@ -783,3 +783,52 @@ $wide: 960px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='220'%3E%3Ctext x='150' y='118' text-anchor='middle' transform='rotate(-30 150 110)' font-family='Georgia,serif' font-size='17' letter-spacing='5' fill='%2335291f' fill-opacity='0.09'%3ESAMPLE %C2%B7 dearday%3C/text%3E%3C/svg%3E");
   background-repeat: repeat;
 }
+
+// 프리미엄이 아닌데 1안 · 3안 표지를 고른 미리보기: 위에 붙는 안내 (SAMPLE 표시는 .sampleMark)
+.coverLock {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: rgba(53, 41, 31, 0.92);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.45;
+
+  strong {
+    font-size: 13px;
+  }
+
+  div {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  a,
+  button {
+    flex: 1;
+    min-height: 36px;
+    padding: 0 10px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  a {
+    background: #fff;
+    color: #35291f;
+    font-weight: 600;
+  }
+}

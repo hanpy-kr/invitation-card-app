@@ -76,6 +76,7 @@ export default async function InvitationPage({ params }: Props) {
     mediaBaseUrl: getMediaBaseUrl(),
     kakaoJsKey: process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? '',
     introEffects: ent.introEffects,
+    coverTemplates: ent.coverTemplates,
   }
 
   const pageUrl = `${siteUrl()}/i/${inv.slug}`

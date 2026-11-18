@@ -1,0 +1,57 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+
+  button {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 0 6px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    text-align: center;
+    color: var(--ink, inherit);
+
+    &[aria-pressed='true'] {
+      border-color: var(--ink, #35291f);
+    }
+  }
+}
+
+// 표지를 그대로 줄여 놓는다 (390×844 한 장)
+.thumb {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 390 / 844;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+}
+
+.name {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  em {
+    font-style: normal;
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 8px;
+    background: rgba(168, 145, 95, 0.18);
+    color: #6b5a33;
+
+    &[data-free] {
+      background: rgba(0, 0, 0, 0.06);
+      color: #5b5148;
+    }
+  }
+}

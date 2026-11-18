@@ -7,6 +7,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { BLOCK_LABELS, BLOCK_TYPES, parseBlockConfig, type BlockType } from '@/shared/blocks'
 import { collectMediaRefs } from '@/shared/media'
 import { SINGLE_BLOCK_TYPES, type EditorBlock, type InvitationMeta } from '@/shared/invitation'
+import { templateName } from '@/shared/cover-templates'
+import { coverTemplateLocked, FREE_COVER_TEMPLATE } from '@/shared/entitlements'
 import { withEventDefaults } from '@/shared/templates'
 
 import { api } from '../ui/api'
@@ -47,6 +49,8 @@ export type EditorProps = {
   ownerAnonymous: boolean
   /** 결제 플랜에 따른 권한 (shared/entitlements.ts) */
   introEffects: boolean
+  /** 결혼 표지 1안 · 3안을 발행할 수 있는 플랜(프리미엄)인지 */
+  coverTemplates: boolean
   canHideMadeWith: boolean
   /** 프리미엄 안내 · 결제 버튼 (결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음) */
   upsell: { price: number | null; openSale: boolean } | null
@@ -82,6 +86,7 @@ export default function Editor(props: EditorProps) {
       geoSearchEnabled: props.geoSearchEnabled,
       photoLimit: props.photoLimit,
       introEffects: props.introEffects,
+      coverTemplates: props.coverTemplates,
       photoCount: new Set(
         [...collectMediaRefs(blocks), ...(meta.share.image ? [meta.share.image] : [])].map(
           (r) => r.id,
@@ -128,6 +133,16 @@ export default function Editor(props: EditorProps) {
   }
 
   const coverBlock = blocks.find((b) => b.type === 'cover')
+  // 프리미엄이 아닌데 1안 · 3안 표지를 고른 상태: 미리보기는 되지만 발행은 막힘 (shared/entitlements.ts)
+  const coverLock =
+    coverBlock?.visible &&
+    coverBlock.type === 'cover' &&
+    coverBlock.config.layout === 'template' &&
+    coverTemplateLocked(coverBlock.config.template, props)
+      ? { label: templateName(coverBlock.config.template) }
+      : null
+  const useFreeCover = () =>
+    coverBlock ? updateBlock(coverBlock.id)((c) => ({ ...c, template: FREE_COVER_TEMPLATE }) as EditorBlock['config']) : undefined
   const existing = new Set(blocks.map((b) => b.type))
   const addable = BLOCK_TYPES.filter((t) => !(SINGLE_BLOCK_TYPES.includes(t) && existing.has(t)))
 
@@ -217,6 +232,7 @@ export default function Editor(props: EditorProps) {
                     block={coverBlock}
                     update={updateBlock(coverBlock.id)}
                     eventType={meta.eventType}
+                    eventAt={meta.eventAt}
                   />
                 </div>
               ) : null}
@@ -291,6 +307,7 @@ export default function Editor(props: EditorProps) {
                             block={block}
                             update={updateBlock(block.id)}
                             eventType={meta.eventType}
+                            eventAt={meta.eventAt}
                           />
                         </div>
                       ) : null}
@@ -363,6 +380,15 @@ export default function Editor(props: EditorProps) {
                 kakaoJsKey={props.kakaoJsKey}
                 introEffects={props.introEffects}
                 published={status === 'published'}
+                coverLock={
+                  coverLock
+                    ? {
+                        label: coverLock.label,
+                        payHref: props.upsell ? `/pay/${props.id}` : null,
+                        onUseFree: useFreeCover,
+                      }
+                    : null
+                }
               />
             </div>
           </aside>
@@ -384,6 +410,7 @@ export default function Editor(props: EditorProps) {
             onShare={(fn) => setMeta((m) => ({ ...m, share: fn(m.share) }))}
             canHideMadeWith={props.canHideMadeWith}
             upsell={props.upsell}
+            coverLock={coverLock ? { label: coverLock.label, onUseFree: useFreeCover } : null}
             onClose={() => setShowPublish(false)}
           />
         ) : null}

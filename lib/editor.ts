@@ -12,7 +12,8 @@ import {
 } from '@/shared/blocks'
 import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/invitation'
 import { findCover } from '@/shared/covers'
-import { getEntitlements, type Plan } from '@/shared/entitlements'
+import { templateName } from '@/shared/cover-templates'
+import { coverTemplateLocked, getEntitlements, type Plan } from '@/shared/entitlements'
 import { isFamilyEvent, refundEligibility } from '@/shared/pricing'
 import { collectAudioRefs, collectMediaRefs } from '@/shared/media'
 import { buildFromLayout, buildTemplate } from '@/shared/templates'
@@ -47,6 +48,8 @@ export type EditableInvitation = {
   /** 결제 플랜과 권한 · 결제 안내 (shared/entitlements.ts · pricing.ts) */
   plan: Plan
   introEffects: boolean
+  /** 결혼 표지 템플릿 1안 · 3안을 하객에게 보여 주는 플랜인지 */
+  coverTemplates: boolean
   canHideMadeWith: boolean
   /** 결제 버튼을 보여 줄지(PAYMENTS_LIVE가 켜지고 아직 프리미엄이 아닐 때) · 가격 */
   upsell: { price: number | null; openSale: boolean } | null
@@ -64,6 +67,7 @@ export async function createInvitation(
   userId: string,
   requestedType: EventType,
   from?: string,
+  coverTemplate?: 'a' | 'b' | 'c' | 'photo',
 ): Promise<{ id: string }> {
   let eventType = requestedType
   let template: {
@@ -116,6 +120,18 @@ export async function createInvitation(
       }
       template = { title: built.title, theme: source.theme, blocks: built.blocks }
       createdFrom = source.slug
+    }
+  }
+  // 새 결혼 초대장의 '표지 고르기' 결과 (결혼만): 1 · 2 · 3안 템플릿 또는 내 사진 표지
+  if (eventType === 'wedding' && !createdFrom && coverTemplate) {
+    for (const b of template.blocks) {
+      if (b.type !== 'cover') continue
+      b.config = parseBlockConfig(
+        'cover',
+        coverTemplate === 'photo'
+          ? { ...(b.config as object), layout: 'photo', designKey: null }
+          : { ...(b.config as object), layout: 'template', designKey: null, template: coverTemplate },
+      )
     }
   }
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -225,6 +241,7 @@ export async function getEditableInvitation(
     ownerAnonymous: Boolean(row.owner?.anonymous),
     plan,
     introEffects: ent.introEffects,
+    coverTemplates: ent.coverTemplates,
     canHideMadeWith: ent.canHideMadeWith,
     paid,
     upsell:
@@ -393,6 +410,23 @@ export async function setPublished(
   if (!access) throw new ApiError(404, '초대장을 찾을 수 없어요.')
   if (published && access.ownerAnonymous)
     throw new ApiError(403, '카카오로 로그인하면 발행하고 공유할 수 있어요.')
+  if (published) {
+    // 프리미엄이 아닌데 1안 · 3안 표지로 발행하려 하면 막는다 (shared/entitlements.ts 한 곳의 규칙)
+    const [cv] = await getDb()
+      .select({ config: schema.blocks.config, visible: schema.blocks.visible })
+      .from(schema.blocks)
+      .where(and(eq(schema.blocks.invitationId, id), eq(schema.blocks.type, 'cover')))
+      .limit(1)
+    const cfg = cv?.visible ? parseBlockConfig('cover', cv.config) : null
+    if (
+      cfg?.layout === 'template' &&
+      coverTemplateLocked(cfg.template, getEntitlements({ plan: access.plan }))
+    )
+      throw new ApiError(
+        403,
+        `${templateName(cfg.template)} 표지는 프리미엄에서만 발행할 수 있어요. 결제하거나 2안 표지로 바꿔 주세요.`,
+      )
+  }
   const [row] = await getDb()
     .update(schema.invitations)
     .set({

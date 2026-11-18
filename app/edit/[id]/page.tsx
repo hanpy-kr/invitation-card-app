@@ -34,6 +34,7 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
       photoLimit={inv.photoLimit}
       ownerAnonymous={inv.ownerAnonymous}
       introEffects={inv.introEffects}
+      coverTemplates={inv.coverTemplates}
       canHideMadeWith={inv.canHideMadeWith}
       upsell={inv.upsell}
       paid={inv.paid}

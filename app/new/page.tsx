@@ -7,6 +7,8 @@ import { requireSession } from '@/lib/auth/session'
 import { getLayoutSource } from '@/lib/editor'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { THEMES } from '@/shared/themes'
+import { coverTemplateLocked, getEntitlements } from '@/shared/entitlements'
+import { newInvitationPlan } from '@/lib/plan'
 
 import EventTypePicker, { StartFromDesign } from './EventTypePicker'
 import styles from './page.module.scss'
@@ -22,6 +24,9 @@ export default async function NewInvitationPage({
   const { from } = await searchParams
   const fromSlug = typeof from === 'string' && /^[a-z0-9]{8}$/.test(from) ? from : null
   await requireSession(fromSlug ? `/new?from=${fromSlug}` : '/new')
+  // 지금 새로 만드는 결혼 초대장의 플랜 → 프리미엄이 필요한 표지 안(결제 전에는 모두 열려 있어 빈 배열)
+  const ent = getEntitlements({ plan: newInvitationPlan('wedding') })
+  const lockedCoverKeys = (['a', 'b', 'c'] as const).filter((k) => coverTemplateLocked(k, ent))
   const source = fromSlug ? await getLayoutSource(fromSlug) : null
   return (
     <main className={styles.page}>
@@ -48,7 +53,7 @@ export default async function NewInvitationPage({
           </p>
         </>
       )}
-      <EventTypePicker />
+      <EventTypePicker lockedCoverKeys={lockedCoverKeys} />
     </main>
   )
 }

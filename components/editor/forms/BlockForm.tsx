@@ -30,14 +30,21 @@ export default function BlockForm({
   block,
   update,
   eventType,
+  eventAt = null,
 }: {
   block: EditorBlock
   update: AnyUpdater
   eventType: string
+  eventAt?: string | null
 }) {
   switch (block.type) {
     case 'cover':
-      return <CoverForm config={block.config} update={as<'cover'>(update)} eventType={eventType} />
+      return <CoverForm
+          config={block.config}
+          update={as<'cover'>(update)}
+          eventType={eventType}
+          eventAt={eventAt}
+        />
     case 'greeting':
       return <GreetingForm config={block.config} update={as<'greeting'>(update)} eventType={eventType} />
     case 'gallery':
