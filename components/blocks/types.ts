@@ -13,6 +13,8 @@ export type BlockContext = {
   kakaoJsKey: string
   /** 표지 봉투 열기 · 떨어지는 효과를 보여 줄지 (결제 플랜, shared/entitlements.ts) */
   introEffects: boolean
+  /** 결혼 표지 템플릿 1안 · 3안을 보여 줄지 (프리미엄, shared/entitlements.ts). 아니면 2안으로 대체 */
+  coverTemplates: boolean
   /** 날짜 투표 중 (표지 날짜 자리에 '날짜 투표 중', 날짜를 쓰는 블록은 숨김) */
   dateVoting?: boolean
   /** 편집기 미리보기 (하객 쓰기 기능은 보내지 않음) */

@@ -37,6 +37,7 @@ next-env.d.ts
 # 디자인 표지 그림은 관리 결정으로 커밋 (장당 160KB 이하, shared/covers.ts)
 !public/covers/*.webp
 !public/landing/*.webp
+!public/covers/templates/*.webp
 
 # misc
 .DS_Store
