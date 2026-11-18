@@ -472,7 +472,11 @@ $wide: 960px;
   max-width: 480px;
   max-height: 92vh;
   overflow-y: auto;
-  background: var(--paper-surface);
+  // 발행 시트는 불투명 종이로 (반투명 면을 쓰면 뒤 편집기가 비쳐 보임)
+  background: var(--paper) url('/landing/paper-cover.webp') repeat;
+  background-size: 256px;
+  background-blend-mode: multiply;
+  box-shadow: 0 -8px 30px rgba(30, 26, 22, 0.18);
   border-radius: var(--radius) 20px 0 0;
   padding: 28px 20px calc(24px + env(safe-area-inset-bottom));
   display: flex;
