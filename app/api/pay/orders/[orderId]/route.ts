@@ -17,7 +17,11 @@ export const GET = handle(
       throw new ApiError(404, '없는 주문이에요.')
     if (order.status === 'paid' && order.subject) await refreshPremium([order.subject.id])
     return json(
-      { status: order.status, invitationId: order.subject?.id ?? null },
+      {
+        status: order.status,
+        invitationId: order.subject?.id ?? null,
+        refundedAmount: order.refundedAmount ?? 0,
+      },
       { headers: { 'Cache-Control': 'no-store' } },
     )
   },

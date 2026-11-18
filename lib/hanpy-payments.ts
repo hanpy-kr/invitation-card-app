@@ -5,13 +5,17 @@
  * - 의존성 없음 (Node 18+ 의 fetch, node:crypto)
  * - 브라우저 코드에서 import 하지 않는다. 서비스 토큰이 노출된다
  * - 사용법: docs/payments-integration.md
- * - 버전: payments v2 (2026-11-16). 바뀐 내용은 허브 레포 CHANGELOG.md
+ * - 버전: payments v3 (2026-11-18). 바뀐 내용은 허브 레포 CHANGELOG.md
  */
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
 export type HanpyServiceKey = 'invitation' | 'math' | 'oneultalk' | 'hapyebo' | 'wedding' | 'toss-apps';
 
-export type HanpyOrderStatus = 'pending' | 'paid' | 'cancel_requested' | 'refunded' | 'canceled' | 'expired';
+/**
+ * partially_refunded: 일부만 환불됨 (이용권은 유지, refundedAmount 에 누적 환불액).
+ * refunded: 전액 환불됨 (이용권 회수)
+ */
+export type HanpyOrderStatus = 'pending' | 'paid' | 'cancel_requested' | 'partially_refunded' | 'refunded' | 'canceled' | 'expired';
 
 /** 대상 단위 이용권이 붙는 대상. 예: { type: 'invitation', id: 초대장 ID } */
 export interface HanpySubject {
@@ -31,6 +35,8 @@ export interface HanpyOrder {
   subject: HanpySubject | null;
   /** 원 단위 정수 */
   amount: number;
+  /** 누적 환불액 (원 단위 정수). 환불이 없으면 0 */
+  refundedAmount: number;
   currency: string;
   status: HanpyOrderStatus;
   createdAt: string;
@@ -43,6 +49,12 @@ export interface HanpyEntitlement {
   orderId: string;
   /** 대상 단위 이용권이면 대상, 사람 단위면 null */
   subject: HanpySubject | null;
+  /** 수량형(크레딧 등) 묶음의 지급량. 있다/없다 이용권이면 null. 차감·잔액은 서비스가 관리한다 */
+  quantity: number | null;
+  /** 이 이용권을 만든 주문의 결제 금액(원) */
+  paidAmount: number;
+  /** 이 이용권을 만든 주문의 결제 시각 (ISO) */
+  paidAt: string | null;
   validFrom: string;
   /** null 이면 기간 제한 없음 */
   validUntil: string | null;
@@ -57,7 +69,8 @@ export interface HanpyProduct {
   /** false 면 새 결제를 받지 않는다 (checkout 이 409 PRODUCT_NOT_ON_SALE) */
   onSale: boolean;
   /** subjectType 이 있으면 대상 단위 상품 (checkout 에 같은 종류의 subject 필수) */
-  grants: { key: string; days: number | null; subjectType: string | null };
+  /** quantity 가 있으면 수량형 상품 (결제 1건 = 묶음 1개, 반복 구매 가능) */
+  grants: { key: string; days: number | null; subjectType: string | null; quantity: number | null };
 }
 
 export interface HanpyCheckout {
@@ -170,6 +183,17 @@ export function createHanpyPayments(config: HanpyPaymentsConfig) {
       if (filter.status) q.set('status', filter.status);
       if (filter.limit) q.set('limit', String(filter.limit));
       return (await call<{ items: HanpyOrder[] }>('GET', `/v1/payments/orders?${q}`)).items;
+    },
+
+    /**
+     * 서비스 전체에서 since(포함) 이후 바뀐 주문 (바뀐 시각 오름차순, 매일 대조용).
+     * nextCursor 가 null 이 될 때까지 cursor 로 이어서 부른다.
+     */
+    listOrderChanges(input: { since: Date | string; cursor?: string; limit?: number }): Promise<{ items: HanpyOrder[]; nextCursor: string | null }> {
+      const q = new URLSearchParams({ since: typeof input.since === 'string' ? input.since : input.since.toISOString() });
+      if (input.cursor) q.set('cursor', input.cursor);
+      if (input.limit) q.set('limit', String(input.limit));
+      return call('GET', `/v1/payments/orders/changes?${q}`);
     },
 
     /** 사람 단위로 지금 유효한 이용 권한 (대상 단위 이용권은 포함하지 않는다) */

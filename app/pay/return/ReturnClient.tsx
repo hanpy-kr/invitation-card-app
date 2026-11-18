@@ -8,8 +8,13 @@ import styles from '../pay.module.scss'
 const INTERVAL_MS = 2000
 const MAX_TRIES = 15 // 2초 × 15 = 30초
 
-type Status = 'paid' | 'pending' | 'expired' | 'canceled' | 'refunded' | 'cancel_requested' | 'none'
-type Reply = { status: Status; invitationId: string | null; orderId?: string | null }
+type Status = 'paid' | 'pending' | 'expired' | 'canceled' | 'refunded' | 'cancel_requested' | 'partially_refunded' | 'none'
+type Reply = {
+  status: Status
+  invitationId: string | null
+  orderId?: string | null
+  refundedAmount?: number
+}
 
 function read(key: string): string | null {
   try {
@@ -66,6 +71,19 @@ export default function ReturnClient() {
         <h1>환불을 신청했어요</h1>
         <p className={styles.note} role="status">
           환불 신청이 접수됐어요. 처리가 끝나기 전까지 프리미엄은 유지돼요.
+        </p>
+        <Link className={styles.btn} href="/dashboard#orders">
+          결제 내역 보기
+        </Link>
+      </>
+    )
+  if (status === 'partially_refunded')
+    return (
+      <>
+        <h1>일부 환불된 결제예요</h1>
+        <p className={styles.note} role="status">
+          {last?.refundedAmount ? `${last.refundedAmount.toLocaleString('ko-KR')}원이 환불됐어요. ` : ''}
+          프리미엄은 그대로 유지돼요.
         </p>
         <Link className={styles.btn} href="/dashboard#orders">
           결제 내역 보기

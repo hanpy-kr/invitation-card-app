@@ -18,7 +18,9 @@ export type HubOrderRow = {
   invitationTitle: string
   orderName: string
   amount: number
-  status: 'paid' | 'cancel_requested' | 'refunded'
+  status: 'paid' | 'cancel_requested' | 'partially_refunded' | 'refunded'
+  /** 누적 환불액(원). 환불이 없으면 0 */
+  refundedAmount: number
   paidAt: string | null
   refundedAt: string | null
   refundable: boolean
@@ -34,7 +36,7 @@ export async function listHubOrders(userId: string): Promise<HubOrderRow[]> {
   } catch {
     return []
   }
-  const shown = orders.filter((o) => ['paid', 'cancel_requested', 'refunded'].includes(o.status))
+  const shown = orders.filter((o) => ['paid', 'cancel_requested', 'partially_refunded', 'refunded'].includes(o.status))
   const ids = shown.flatMap((o) => (o.subject?.type === 'invitation' ? [o.subject.id] : []))
   const rows = ids.length
     ? await getDb()
@@ -64,6 +66,7 @@ export async function listHubOrders(userId: string): Promise<HubOrderRow[]> {
       status: o.status as HubOrderRow['status'],
       paidAt: o.paidAt,
       refundedAt: o.refundedAt,
+      refundedAmount: o.refundedAmount ?? 0,
       refundable: el.ok,
       refundNote: el.ok
         ? `결제 후 ${REFUND_DAYS}일 이내 · 발행 전이라 전액 환불돼요.`

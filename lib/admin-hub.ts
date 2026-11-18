@@ -84,6 +84,23 @@ export async function adminHubLines(
       fail = failOf(e)
     }
   }
+  // 주문 상태: 일부 환불 · 환불 요청 같은 예외 상태만 줄에 덧붙인다(초대장당 최신 주문 1건, 허브에 직접 조회)
+  const orderNote = new Map<string, string>()
+  if (hubConfigured()) {
+    await Promise.all(
+      rows.slice(0, 30).map(async (r) => {
+        try {
+          const [o] = await hanpy.listOrders({ subject: { type: 'invitation', id: r.id }, limit: 1 })
+          if (o?.status === 'partially_refunded')
+            orderNote.set(r.id, ` · 주문 상태: 일부 환불(${(o.refundedAmount ?? 0).toLocaleString('ko-KR')}원)`)
+          else if (o?.status === 'cancel_requested') orderNote.set(r.id, ' · 주문 상태: 환불 요청')
+          else if (o?.status === 'refunded') orderNote.set(r.id, ' · 주문 상태: 환불됨')
+        } catch {
+          // 주문 조회 실패는 줄을 막지 않는다
+        }
+      }),
+    )
+  }
   for (const r of rows) {
     const { basis } = planDecision({
       liveAt: paymentsLiveAt(),
@@ -96,7 +113,7 @@ export async function adminHubLines(
     const head = on
       ? `허브 이용권: ${on.has(r.id) ? '있음' : '없음'}`
       : `허브 이용권: 확인 못 함(${fail?.status ?? 0} ${fail?.code ?? 'ERROR'})`
-    out[r.id] = `${head} · 확인 시각 ${at} · 프리미엄 근거: ${BASIS_LABEL[basis]}`
+    out[r.id] = `${head} · 확인 시각 ${at} · 프리미엄 근거: ${BASIS_LABEL[basis]}${orderNote.get(r.id) ?? ''}`
   }
   return out
 }

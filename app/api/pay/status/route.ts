@@ -16,7 +16,9 @@ export const GET = handle(async (req: NextRequest) => {
   const [o] = await hanpy.listOrders({ customerRef: session.userId, limit: 1 }).catch(() => [])
   if (o?.status === 'paid' && o.subject) await refreshPremium([o.subject.id])
   return json(
-    { status: o?.status ?? 'none', invitationId: o?.subject?.id ?? null, orderId: o?.orderId ?? null },
+    { status: o?.status ?? 'none', invitationId: o?.subject?.id ?? null, orderId: o?.orderId ?? null,
+      refundedAmount: o?.refundedAmount ?? 0,
+    },
     { headers: { 'Cache-Control': 'no-store' } },
   )
 })

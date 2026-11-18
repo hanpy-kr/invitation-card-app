@@ -137,13 +137,16 @@ export default async function DashboardPage() {
                   <span className={styles.badge}>
                     {o.status === 'refunded'
                       ? '환불됨'
-                      : o.status === 'cancel_requested'
-                        ? '환불 요청됨'
-                        : '결제 완료'}
+                      : o.status === 'partially_refunded'
+                        ? '일부 환불'
+                        : o.status === 'cancel_requested'
+                          ? '환불 요청됨'
+                          : '결제 완료'}
                   </span>
                 </div>
                 <div className={styles.meta}>
                   {o.invitationTitle} · {formatWon(o.amount)}
+                  {o.status === 'partially_refunded' ? ` · 환불 ${formatWon(o.refundedAmount)}` : ''}
                 </div>
                 <div className={styles.meta}>
                   {o.status === 'refunded' && o.refundedAt
