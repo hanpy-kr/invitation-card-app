@@ -1,19 +1,47 @@
 .menu {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 2;
+  top: 8px;
+  right: 10px;
+  z-index: 3;
 }
 
+.inline {
+  position: relative;
+  top: auto;
+  right: auto;
+  flex: none;
+
+  .trigger {
+    width: 36px;
+    background: none;
+    box-shadow: none;
+  }
+}
+
+/* 사진 위에서도 보이도록 종이색 동그라미 */
 .trigger {
-  width: 40px;
-  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: 0;
-  background: none;
-  color: var(--ink-faint);
-  font-size: 20px;
+  border-radius: 50%;
+  background: rgba(250, 248, 243, 0.92);
+  box-shadow: 0 0 0 1px var(--paper-line);
+  color: var(--ink-sub);
+  font-size: 18px;
   line-height: 1;
   cursor: pointer;
+
+  /* 누르는 영역은 44px로 넓힘 */
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
 
   &:hover,
   &[aria-expanded='true'] {
@@ -25,21 +53,53 @@
   position: absolute;
   top: 38px;
   right: 0;
-  min-width: 96px;
+  display: flex;
+  flex-direction: column;
+  min-width: 156px;
   border: 1px solid var(--paper-line);
-  background: var(--paper-surface);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: #faf8f3;
+  box-shadow: 0 10px 24px -8px rgba(70, 50, 25, 0.3);
+  overflow: hidden;
+
+  a,
+  button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  /* QR 저장을 펼치면 나오는 두 선택지 */
+  > div {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+  }
+
+  > div button {
+    min-height: 40px;
+    padding-left: 28px;
+    border-left: 0;
+    font-size: 13px;
+    color: var(--ink-sub);
+  }
+
+  > * + * {
+    border-top: 1px solid rgba(110, 85, 55, 0.12);
+  }
 }
 
 .danger {
-  display: block;
-  width: 100%;
-  min-height: 44px;
-  padding: 0 16px;
-  border: 0;
-  background: none;
-  color: #a3382f;
-  font-size: 14px;
-  text-align: left;
-  cursor: pointer;
+  color: #9b4a3c !important;
 }

@@ -112,7 +112,9 @@ async function main() {
 
   // ① 대시보드 QR
   await host.goto(`${BASE}/dashboard`)
-  await host.getByRole('button', { name: 'QR 저장' }).first().click()
+  const pubCard = host.locator('li').filter({ hasText: 'PUBLISHED' }).first()
+  await pubCard.getByRole('button', { name: '더 보기' }).click()
+  await pubCard.getByRole('button', { name: 'QR 저장' }).click()
   const dl1 = host.waitForEvent('download')
   await host.getByRole('button', { name: /QR만/ }).click()
   const f1 = await dl1

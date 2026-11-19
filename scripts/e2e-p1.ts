@@ -95,11 +95,9 @@ async function voteFlow(browser: Browser) {
   await waitSaved(host)
 
   await host.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
-  await host
-    .locator('li')
-    .filter({ hasText: 'E2E 민준 ♥ 서연 결혼합니다' })
-    .getByRole('button', { name: '청첩장 모임 만들기' })
-    .click()
+  const weddingCard = host.locator('li').filter({ hasText: 'E2E 민준 ♥ 서연 결혼합니다' })
+  await weddingCard.getByRole('button', { name: '더 보기' }).click()
+  await weddingCard.getByRole('button', { name: '청첩장 모임 만들기' }).click()
   await host.waitForURL(/\/edit\//)
   const invitationId = host.url().split('/').pop()!
   check(
@@ -290,12 +288,12 @@ async function resendFlow(browser: Browser) {
 async function copyFlow(browser: Browser) {
   const { page: host } = await login(browser, '/dashboard')
   await host.waitForURL(/\/dashboard/)
-  await host
+  const srcCard = host
     .locator('li')
     .filter({ has: host.getByText('디어고 12기 송년회', { exact: true }) })
-    .getByRole('button', { name: '복제' })
     .first()
-    .click()
+  await srcCard.getByRole('button', { name: '더 보기' }).click()
+  await srcCard.getByRole('button', { name: '복제' }).click()
   await host.waitForURL(/\/edit\//)
   check(
     (await host.getByLabel('초대장 제목').inputValue()) === '디어고 12기 송년회 (복사본)',

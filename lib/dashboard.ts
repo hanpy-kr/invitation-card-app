@@ -35,6 +35,11 @@ export async function listMyInvitations(userId: string) {
       updatedAt: inv.updatedAt,
       responses: sql<number>`count(${rsvps.id})::int`,
       attendees: sql<number>`coalesce(sum(${rsvps.partySize}) filter (where ${rsvps.attending}), 0)::int`,
+      // 참석 · 불참 응답 수(카드의 참석 비율 막대용. 인원이 아니라 응답 기준)
+      attendingResponses: sql<number>`count(${rsvps.id}) filter (where ${rsvps.attending})::int`,
+      declined: sql<number>`count(${rsvps.id}) filter (where not ${rsvps.attending})::int`,
+      // 표지 사진(카드 썸네일). 사진 표지가 아니면 null
+      coverKey: schema.media.storageKey,
       // 응답 화면을 마지막으로 본 뒤 들어온 응답 (본 적 없으면 전부)
       newResponses: sql<number>`count(${rsvps.id}) filter (where ${rsvps.createdAt} > coalesce(${seen.seenAt}, 'epoch'))::int`,
       isOwner: sql<boolean>`${inv.ownerId} = ${userId}`,
@@ -46,8 +51,9 @@ export async function listMyInvitations(userId: string) {
     .from(inv)
     .leftJoin(rsvps, eq(rsvps.invitationId, inv.id))
     .leftJoin(seen, and(eq(seen.invitationId, inv.id), eq(seen.userId, userId)))
+    .leftJoin(schema.media, eq(schema.media.id, inv.coverMediaId))
     .where(canEditWhere(userId))
-    .groupBy(inv.id, seen.seenAt)
+    .groupBy(inv.id, seen.seenAt, schema.media.id)
     .orderBy(desc(inv.updatedAt))
 }
 

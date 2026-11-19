@@ -114,3 +114,10 @@ export function formatEnParts(value: Date | string) {
     time: `${t.hour}:${t.minute} ${t.dayPeriod}`, // 5:30 PM
   }
 }
+
+/** 오늘(한국 날짜)부터 행사일까지 남은 날 수. 오늘이면 0, 지났으면 음수 */
+export function daysUntilKst(value: Date | string, now: Date = new Date()): number {
+  const a = Date.parse(`${toKstDateString(value)}T00:00:00+09:00`)
+  const b = Date.parse(`${toKstDateString(now)}T00:00:00+09:00`)
+  return Math.round((a - b) / 86400000)
+}

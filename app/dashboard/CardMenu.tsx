@@ -1,14 +1,40 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import { api } from '@/components/ui/api'
 
+import DuplicateButtons from './DuplicateButtons'
+import QrButton from './QrButton'
 import styles from './CardMenu.module.scss'
 
-/** 카드 오른쪽 위 '⋯' 메뉴: [삭제] (소유자만). 확인 창 뒤 기존 삭제 API 사용 */
-export default function CardMenu({ id, paid }: { id: string; paid: boolean }) {
+type Props = {
+  id: string
+  slug: string
+  title: string
+  dateLabel: string | null
+  eventType: string
+  published: boolean
+  isOwner: boolean
+  paid: boolean
+  /** 가로형 카드: 줄 오른쪽 끝(절대 위치 없이 흐름 안에) */
+  inline?: boolean
+}
+
+/** 카드 오른쪽 위 '⋯' 메뉴: 초대장 보기 · QR 저장 · 복제 · 청첩장 모임 · 감사장 · 삭제(소유자만) */
+export default function CardMenu({
+  id,
+  slug,
+  title,
+  dateLabel,
+  eventType,
+  published,
+  isOwner,
+  paid,
+  inline,
+}: Props) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -45,7 +71,7 @@ export default function CardMenu({ id, paid }: { id: string; paid: boolean }) {
   }
 
   return (
-    <div className={styles.menu} ref={box}>
+    <div className={inline ? `${styles.menu} ${styles.inline}` : styles.menu} ref={box}>
       <button
         type="button"
         className={styles.trigger}
@@ -55,13 +81,22 @@ export default function CardMenu({ id, paid }: { id: string; paid: boolean }) {
         disabled={busy}
         onClick={() => setOpen((v) => !v)}
       >
-        ⋯
+        <span aria-hidden="true">⋯</span>
       </button>
       {open ? (
         <div className={styles.pop} role="menu">
-          <button type="button" role="menuitem" className={styles.danger} onClick={remove}>
-            삭제
-          </button>
+          {published ? (
+            <Link href={`/i/${slug}`} target="_blank" role="menuitem">
+              초대장 보기
+            </Link>
+          ) : null}
+          {published ? <QrButton slug={slug} title={title} dateLabel={dateLabel} /> : null}
+          {isOwner ? <DuplicateButtons id={id} eventType={eventType} /> : null}
+          {isOwner ? (
+            <button type="button" role="menuitem" className={styles.danger} onClick={remove}>
+              삭제
+            </button>
+          ) : null}
         </div>
       ) : null}
     </div>

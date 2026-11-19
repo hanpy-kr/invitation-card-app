@@ -225,6 +225,7 @@ async function thanksFlow(browser: Browser) {
 
   await host.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' })
   const card = host.locator('li').filter({ hasText: 'E2E 감사장 원본 결혼' })
+  await card.getByRole('button', { name: '더 보기' }).click()
   await card.getByRole('button', { name: '감사장 만들기' }).click()
   await host.waitForURL(/\/edit\//)
   const thanksId = host.url().split('/').pop()!

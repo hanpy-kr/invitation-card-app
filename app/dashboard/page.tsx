@@ -11,13 +11,13 @@ import { adminHubLines } from '@/lib/admin-hub'
 import { GROBLE_ORDER_URL, listHubOrders } from '@/lib/hub-orders'
 import { REFUND_NOTICE } from '@/shared/pricing'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
-import { formatLongDate } from '@/shared/date'
+import { daysUntilKst, formatEnParts, formatLongDate, formatTime } from '@/shared/date'
+import { mediaSrc } from '@/shared/media'
+import { getMediaBaseUrl } from '@/lib/media'
 import { formatWon } from '@/shared/pricing'
 
-import CardMenu from './CardMenu'
-import DuplicateButtons from './DuplicateButtons'
+import DashboardList, { type CardItem } from './DashboardList'
 import NotifyToggle from './NotifyToggle'
-import QrButton from './QrButton'
 import styles from './page.module.scss'
 import WithdrawButton from './WithdrawButton'
 
@@ -38,6 +38,49 @@ export default async function DashboardPage() {
         session.userId,
         invitations.filter((i) => i.isOwner),
       )
+
+  const mediaBase = getMediaBaseUrl()
+  const items: CardItem[] = invitations.map((inv) => {
+    const badge = planBadgeOf(inv)
+    // 주문이 환불됨이고 이용권(허브 결제 · 상속)이 없으면 '환불됨' (이 페이지가 이미 읽은 허브 주문 목록 재사용)
+    const refunded =
+      badge !== 'paid' &&
+      !inv.premiumHub &&
+      orders.some((o) => o.invitationId === inv.id && o.status === 'refunded')
+    const en = inv.eventAt ? formatEnParts(inv.eventAt) : null
+    const left = inv.eventAt ? daysUntilKst(inv.eventAt) : null
+    return {
+      id: inv.id,
+      slug: inv.slug,
+      title: inv.title || EVENT_TYPE_LABELS[inv.eventType],
+      eventType: inv.eventType,
+      typeLabel: EVENT_TYPE_LABELS[inv.eventType],
+      published: inv.status === 'published',
+      dateLabel: inv.eventAt ? formatLongDate(inv.eventAt) : null,
+      shortDate: en ? `${en.month}.${en.day.padStart(2, '0')}` : null,
+      timeLabel: inv.eventAt ? formatTime(inv.eventAt) : null,
+      day: en ? en.day.padStart(2, '0') : null,
+      monthShort: en?.monthShort ?? null,
+      year: en?.year ?? null,
+      cover: inv.coverKey ? mediaSrc(mediaBase, inv.coverKey) : null,
+      // 발행된 초대장만, 행사 당일까지. 지난 행사는 칩을 숨김
+      dday:
+        inv.status === 'published' && left !== null && left >= 0
+          ? left === 0
+            ? 'D-DAY'
+            : `D-${left}`
+          : null,
+      plan: badge ?? (refunded ? 'refunded' : null),
+      attendees: inv.attendees,
+      responses: inv.responses,
+      attendingResponses: inv.attendingResponses,
+      declined: inv.declined,
+      newResponses: inv.newResponses,
+      isOwner: inv.isOwner,
+      paid: Boolean(inv.premiumHub),
+      hubLine: hubLines?.[inv.id] ?? null,
+    }
+  })
 
   return (
     <main className={styles.page}>
@@ -77,90 +120,7 @@ export default async function DashboardPage() {
           <Link href="/new">첫 초대장 만들기</Link>
         </div>
       ) : (
-        <ul className={styles.list}>
-          {invitations.map((inv) => {
-            const badge = planBadgeOf(inv)
-            // 주문이 환불됨이고 이용권(허브 결제 · 상속)이 없으면 '환불됨' (이 페이지가 이미 읽은 허브 주문 목록 재사용)
-            const refunded =
-              badge !== 'paid' &&
-              !inv.premiumHub &&
-              orders.some((o) => o.invitationId === inv.id && o.status === 'refunded')
-            return (
-            <li key={inv.id} className={styles.card}>
-              {inv.isOwner ? <CardMenu id={inv.id} paid={Boolean(inv.premiumHub)} /> : null}
-              <Link href={`/edit/${inv.id}`} className={styles.cardLink}>
-                <div className={styles.row}>
-                  <div className={styles.title}>
-                    {inv.title || EVENT_TYPE_LABELS[inv.eventType]}
-                  </div>
-                  <span
-                    className={styles.badge}
-                    role="img"
-                    aria-label={inv.status === 'published' ? '발행됨' : '작성 중'}
-                  >
-                    {inv.status === 'published' ? 'PUBLISHED' : 'DRAFT'}
-                  </span>
-                </div>
-                <div className={styles.meta}>
-                  {EVENT_TYPE_LABELS[inv.eventType]}
-                  {inv.eventAt ? ` · ${formatLongDate(inv.eventAt)}` : ' · 날짜 미정'}
-                </div>
-                {badge === 'paid' ? (
-                  <span className={`${styles.plan} ${styles.planPaid}`} data-testid="plan-badge">
-                    프리미엄 · 결제
-                  </span>
-                ) : badge === 'perk' ? (
-                  <span className={`${styles.plan} ${styles.planPerk}`} data-testid="plan-badge">
-                    프리미엄 · 무료 혜택
-                  </span>
-                ) : refunded ? (
-                  <span className={`${styles.plan} ${styles.planPerk}`} data-testid="plan-badge">
-                    환불됨
-                  </span>
-                ) : null}
-              </Link>
-              {inv.status === 'published' || inv.responses > 0 ? (
-                <div className={styles.stats}>
-                  <span>
-                    <b>{inv.attendees}</b>참석
-                  </span>
-                  <span>
-                    <b>{inv.responses}</b>응답
-                  </span>
-                  {inv.newResponses > 0 ? (
-                    <Link href={`/dashboard/${inv.id}`} className={styles.newCount}>
-                      새 응답 {inv.newResponses}
-                    </Link>
-                  ) : null}
-                </div>
-              ) : null}
-              {!inv.isOwner ? <div className={styles.meta}>함께 편집 중인 초대장</div> : null}
-              {hubLines?.[inv.id] ? (
-                <div className={styles.meta} data-testid="admin-hub">
-                  {hubLines[inv.id]}
-                </div>
-              ) : null}
-              <div className={styles.actions}>
-                <Link href={`/edit/${inv.id}`}>편집</Link>
-                <Link href={`/dashboard/${inv.id}`}>응답 보기</Link>
-                {inv.status === 'published' ? (
-                  <Link href={`/i/${inv.slug}`} target="_blank">
-                    초대장 보기
-                  </Link>
-                ) : null}
-                {inv.status === 'published' ? (
-                  <QrButton
-                    slug={inv.slug}
-                    title={inv.title || EVENT_TYPE_LABELS[inv.eventType]}
-                    dateLabel={inv.eventAt ? formatLongDate(inv.eventAt) : null}
-                  />
-                ) : null}
-                {inv.isOwner ? <DuplicateButtons id={inv.id} eventType={inv.eventType} /> : null}
-              </div>
-            </li>
-            )
-          })}
-        </ul>
+        <DashboardList items={items} />
       )}
       {orders.length > 0 ? (
         <section id="orders" className={styles.orders} aria-label="결제 내역">
