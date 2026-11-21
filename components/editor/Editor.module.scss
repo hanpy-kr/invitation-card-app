@@ -182,7 +182,9 @@ $wide: 960px;
 
 .previewScreen {
   position: relative;
-  background: var(--bg);
+  // 공개 화면(.column)과 같은 종이 결: 표지와 본문이 같은 종이로 보이게
+  background: var(--bg) var(--paper-img, none) 0 0 / 256px repeat;
+  background-blend-mode: multiply;
   color: var(--text);
   min-height: 100%;
 }

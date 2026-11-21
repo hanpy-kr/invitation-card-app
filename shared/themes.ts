@@ -3,9 +3,23 @@ import type { CSSProperties } from 'react'
 
 import { DEFAULT_FONT, FONTS, isFontKey, type FontKey } from './fonts'
 
-/** 초대장 테마. CSS 변수로 블록 색을 바꾼다. */
+/**
+ * 초대장 테마 = '포인트 색'만 바꾼다.
+ * 바탕 · 종이 결 · 본문 글자 · 버튼 · 선은 모든 테마가 기본 '종이 편지' 값(PAPER_LETTER)으로 같다.
+ * 테마가 바꾸는 건 accent(영문 소제목 · 하트 · 별 · 구분 장식 · 26일 동그라미 같은 포인트)와, 필요하면 deco뿐.
+ * accent는 종이(#f3f1ec) 위에서 대비 3:1 이상이 되게 맞춘다(옅은 색은 한 단계 진하게 — docs/PLAN.md '디자인 수정 5' 표).
+ * 한글 제목 · 본문 · 이름은 테마와 상관없이 먹색.
+ */
+type ThemeDef = {
+  label: string
+  font: string
+  events: readonly string[]
+  vars: { accent: string; deco?: string }
+}
+
 export const THEMES = {
-  // 기본 테마 = 종이 편지 팔레트 (styles/global.scss 토큰과 같은 값). 옛 초대장의 'classic'도 이 모양으로 보임
+  // 기본 테마 = 종이 편지 (styles/global.scss 토큰과 같은 값). 옛 초대장의 'classic'도 이 모양으로 보임.
+  // 포인트는 금박 계열(샴페인 골드). 영문 소제목 · 별 · 하트 금박은 CLASSIC_BODY_VARS의 --foil이 그대로 쓰임
   classic: {
     label: '종이 편지',
     font: 'noto-serif',
@@ -20,141 +34,77 @@ export const THEMES = {
       'birthday',
       'housewarming',
     ],
-    // 홈 시안 E9와 같은 결: 흰 코튼지(무늬 없이 옅은 결만, 본문이 잘 읽히게), 글자 음각, 먹색 테두리.
-    // 와인색은 빼고 포인트는 금박 계열(샴페인 골드)
-    vars: {
-      accent: '#8a7350',
-      text: '#2f2a26',
-      muted: '#6e655d',
-      surface: '#f8f7f3',
-      bg: '#f3f1ec',
-      line: '#d9d4cb',
-      btn: '#2f2a26',
-      btnText: '#f3eadb',
-      btnLine: 'rgba(47, 42, 38, 0.45)',
-      deco: '#c9b48a',
-      photo: '#e6e2da',
-      paper: "url('/landing/paper-cover.webp')",
-      deboss: '0 1px 0 rgba(255, 255, 255, 0.85), 0 -1px 0 rgba(60, 40, 20, 0.14)',
-    },
+    vars: { accent: '#8a7350', deco: '#c9b48a' },
   },
   blossom: {
     label: '블라썸',
     font: 'noto-serif',
     events: ['wedding', 'dol', 'birthday'],
-    vars: {
-      accent: '#e88ea6',
-      text: '#5b4a50',
-      muted: '#9a8088',
-      surface: '#fbf1f3',
-      bg: '#fffdfd',
-      line: '#ecd5da',
-    },
+    vars: { accent: '#b97484' }, // 원래 #e88ea6 (종이 위 대비 2.1 → 3.2)
   },
   mint: {
     label: '민트',
     font: 'noto-serif',
     events: ['housewarming', 'meetup', 'etc'],
-    vars: {
-      accent: '#4fa58f',
-      text: '#3f4d49',
-      muted: '#7a8c87',
-      surface: '#eff6f3',
-      bg: '#ffffff',
-      line: '#d3e2dc',
-    },
+    vars: { accent: '#4b9884' }, // 원래 #4fa58f (2.6 → 3.0)
   },
   navy: {
     label: '네이비',
     font: 'noto-serif',
     events: ['yearend', 'meetup', 'prewedding'],
-    vars: {
-      accent: '#3d5a98',
-      text: '#2f3442',
-      muted: '#737a8c',
-      surface: '#f0f2f7',
-      bg: '#ffffff',
-      line: '#d5d9e4',
-    },
+    vars: { accent: '#3d5a98' },
   },
   ivory: {
     label: '아이보리',
     font: 'gowun-batang',
     events: ['wedding', 'thanks'],
-    vars: {
-      accent: '#a9865b',
-      text: '#4a443c',
-      muted: '#8d8478',
-      surface: '#f7f3ec',
-      bg: '#fffdf9',
-      line: '#e4d9c6',
-    },
+    vars: { accent: '#a38158' }, // 원래 #a9865b (3.0 → 3.2)
   },
   sage: {
     label: '세이지',
     font: 'gowun-batang',
     events: ['wedding', 'thanks', 'housewarming'],
-    vars: {
-      accent: '#7a9a7e',
-      text: '#3f4a41',
-      muted: '#7f8c80',
-      surface: '#f0f4ee',
-      bg: '#fdfefc',
-      line: '#d9e2d6',
-    },
+    vars: { accent: '#728e75' }, // 원래 #7a9a7e (2.8 → 3.2)
   },
   sunny: {
     label: '써니',
     font: 'gowun-dodum',
     events: ['dol', 'birthday'],
-    vars: {
-      accent: '#e0a526',
-      text: '#524a3a',
-      muted: '#8f8570',
-      surface: '#fdf6e3',
-      bg: '#fffefa',
-      line: '#efe2bd',
-    },
+    vars: { accent: '#aa7f24' }, // 원래 #e0a526 (1.9 → 3.2)
   },
   sky: {
     label: '스카이',
     font: 'gaegu',
     events: ['dol', 'birthday', 'thanks'],
-    vars: {
-      accent: '#5b9fd6',
-      text: '#3b4856',
-      muted: '#7a8896',
-      surface: '#eef5fb',
-      bg: '#fdfeff',
-      line: '#d3e2ef',
-    },
+    vars: { accent: '#548dbb' }, // 원래 #5b9fd6 (2.5 → 3.2)
   },
   wine: {
     label: '와인',
     font: 'song-myung',
     events: ['yearend', 'prewedding', 'meetup'],
-    vars: {
-      accent: '#a23b4f',
-      text: '#4b3a3e',
-      muted: '#8a7378',
-      surface: '#f8eff0',
-      bg: '#fffdfd',
-      line: '#ebd3d7',
-    },
+    vars: { accent: '#a23b4f' },
   },
   pine: {
     label: '파인',
     font: 'gowun-dodum',
     events: ['yearend', 'housewarming', 'meetup'],
-    vars: {
-      accent: '#2f6b57',
-      text: '#33403b',
-      muted: '#71847c',
-      surface: '#edf4f1',
-      bg: '#fcfefd',
-      line: '#d0e0d9',
-    },
+    vars: { accent: '#2f6b57' },
   },
+} as const satisfies Record<string, ThemeDef>
+
+/** 모든 테마가 같이 쓰는 종이 편지 바탕 · 글자 · 버튼 · 선 (홈 시안 E9: 흰 코튼지, 글자 음각, 먹색 테두리) */
+const PAPER_LETTER = {
+  text: '#2f2a26',
+  muted: '#6e655d',
+  surface: '#f8f7f3',
+  bg: '#f3f1ec',
+  line: '#d9d4cb',
+  btn: '#2f2a26',
+  btnText: '#f3eadb',
+  btnLine: 'rgba(47, 42, 38, 0.45)',
+  photo: '#e6e2da',
+  paper: "url('/landing/paper-cover.webp')",
+  deboss: '0 1px 0 rgba(255, 255, 255, 0.85), 0 -1px 0 rgba(60, 40, 20, 0.14)',
 } as const
 
 export type ThemeKey = keyof typeof THEMES
@@ -177,31 +127,15 @@ export function resolveFont(theme: string, font: string | null | undefined): Fon
   return isFontKey(t) ? t : DEFAULT_FONT
 }
 
-type ThemeVars = {
-  accent: string
-  text: string
-  muted: string
-  surface: string
-  bg: string
-  line?: string
-  btn?: string
-  btnText?: string
-  btnLine?: string
-  deco?: string
-  photo?: string
-  /** 종이 무늬 이미지(CSS url). 없으면 단색 */
-  paper?: string
-  /** 글자 음각 text-shadow. 없으면 평평한 글자 */
-  deboss?: string
-}
-
 export function themeStyle(theme: string, font?: string | null, cover?: CoverDef): CSSProperties {
-  const t: ThemeVars = THEMES[isThemeKey(theme) ? theme : 'classic'].vars
+  const key = isThemeKey(theme) ? theme : 'classic'
+  const t = PAPER_LETTER
+  const v: { accent: string; deco?: string } = THEMES[key].vars
   const family = FONTS[resolveFont(theme, font)].family
   return {
     '--font-display': `'${family}'`,
-    '--accent': t.accent,
-    '--red': t.accent,
+    '--accent': v.accent,
+    '--red': v.accent,
     '--text': t.text,
     '--black': t.text,
     '--muted': t.muted,
@@ -209,21 +143,33 @@ export function themeStyle(theme: string, font?: string | null, cover?: CoverDef
     '--surface': t.surface,
     '--beige': t.surface,
     '--bg': t.bg,
-    // 종이 팔레트가 아닌 테마는 글자색 · 면 색에서 버튼 · 선 색을 만든다
-    '--line': t.line ?? `color-mix(in srgb, ${t.text} 14%, ${t.bg})`,
-    '--btn': t.btn ?? t.text,
-    '--btn-text': t.btnText ?? t.surface,
-    '--btn-line': t.btnLine ?? `color-mix(in srgb, ${t.text} 28%, ${t.bg})`,
-    '--deco': t.deco ?? `color-mix(in srgb, ${t.accent} 65%, ${t.bg})`,
-    '--photo': t.photo ?? `color-mix(in srgb, ${t.text} 10%, ${t.bg})`,
-    '--paper-img': t.paper ?? 'none',
-    '--deboss': t.deboss ?? 'none',
-    '--cover-flower': t.deboss ? 'block' : 'none',
-    '--section-rule': t.deboss ? 'block' : 'none',
-    // 종이 편지 본문 2안 정리(영문 소제목 · 금박 · 서체 · 여백). 다른 테마는 이 변수가 없어 기존 모양
-    ...(t.deboss && !cover?.dark ? CLASSIC_BODY_VARS : {}),
+    '--line': t.line,
+    '--btn': t.btn,
+    '--btn-text': t.btnText,
+    '--btn-line': t.btnLine,
+    '--deco': v.deco ?? `color-mix(in srgb, ${v.accent} 65%, ${t.bg})`,
+    '--photo': t.photo,
+    '--paper-img': t.paper,
+    '--deboss': t.deboss,
+    '--cover-flower': 'block',
+    '--section-rule': 'block',
+    // 종이 편지 본문 2안 정리(영문 소제목 · 서체 · 여백). 어두운 디자인 표지는 coverPaperVars가 따로 정함
+    ...(!cover?.dark ? CLASSIC_BODY_VARS : {}),
+    // 종이 편지가 아닌 테마는 금박 포인트(영문 소제목 · 별 · 하트 · 26일 동그라미)만 테마 색으로
+    ...(key !== 'classic' ? signatureVars(v.accent) : {}),
     ...(cover ? coverPaperVars(cover) : {}),
   } as CSSProperties
+}
+
+/** 금박(#a8915f) 포인트를 테마의 포인트 색으로 바꾸는 변수들 */
+function signatureVars(accent: string): Record<string, string> {
+  return {
+    '--foil': accent,
+    '--foil-deep': `color-mix(in srgb, ${accent} 78%, #2b2620)`,
+    '--sun': accent,
+    '--today-border': `1px solid ${accent}`,
+    '--today-ink': `color-mix(in srgb, ${accent} 78%, #2b2620)`,
+  }
 }
 
 /** 디자인 표지를 쓰면 본문 종이를 그 표지 색에 맞춘다. 어두운 표지는 글자 · 포인트 · 버튼도 함께 */
