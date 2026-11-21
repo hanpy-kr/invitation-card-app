@@ -80,7 +80,10 @@ export default function CoverForm({
           ...(eventType === 'wedding' || config.layout === 'template'
             ? [{ value: 'template' as const, label: '템플릿' }]
             : []),
-          { value: 'design', label: '디자인' },
+          // 결혼은 표지 템플릿이 생겨 디자인 표지를 새로 고르지 않음. 이미 디자인 표지인 초대장만 현재 선택으로 보임
+          ...(eventType !== 'wedding' || config.layout === 'design'
+            ? [{ value: 'design' as const, label: '디자인' }]
+            : []),
           { value: 'photo', label: '사진' },
           { value: 'text', label: '글자만' },
         ]}
@@ -97,6 +100,12 @@ export default function CoverForm({
           )
         }
       />
+      {eventType === 'wedding' && config.layout === 'design' ? (
+        <p className={styles.hint} data-testid="design-cover-retire">
+          이 초대장은 예전 디자인 표지를 쓰고 있어요. 다른 모양을 고르면 디자인 표지로 되돌아갈 수
+          없어요.
+        </p>
+      ) : null}
       {config.layout === 'template' ? (
         <>
           <p className={styles.caption}>표지 템플릿</p>

@@ -83,7 +83,8 @@
   height: var(--cover-h, 100svh);
   min-height: 520px;
   overflow: hidden;
-  background: var(--bg);
+  // 바탕은 깔지 않는다: 페이지 종이(디자인 표지는 --bg가 표지 종이 색)가 그대로 비친다
+  background: transparent;
   text-align: center;
 
   .art {

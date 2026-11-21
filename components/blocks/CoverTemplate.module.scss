@@ -45,11 +45,8 @@
   overflow: hidden;
   container-type: inline-size;
   text-align: left;
-  // 코튼지 종이: #f4f2ed 위에 종이 결 타일(256px)을 multiply
-  background-color: #f4f2ed;
-  background-image: url('/landing/paper-cover.webp');
-  background-size: 256px;
-  background-blend-mode: multiply;
+  // 바탕은 깔지 않는다: 본문과 같은 페이지 종이(.column · 미리보기 틀)가 그대로 비쳐 이음새가 없다
+  background: transparent;
   color: #35291f;
   font-family: 'Cover Cinzel', serif;
 }

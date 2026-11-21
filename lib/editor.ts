@@ -125,15 +125,17 @@ export async function createInvitation(
       createdFrom = source.slug
     }
   }
-  // 새 결혼 초대장의 '표지 고르기' 결과 (결혼만): 1 · 2 · 3안 템플릿 또는 내 사진 표지
-  if (eventType === 'wedding' && !createdFrom && coverTemplate) {
+  // 새 결혼 초대장의 '표지 고르기' 결과 (결혼만): 1 · 2 · 3안 템플릿 또는 내 사진 표지.
+  // 고르지 않고 만들어도(API 직접 호출 등) 결혼은 디자인 표지가 아니라 2안(무료)으로 시작
+  if (eventType === 'wedding' && !createdFrom) {
+    const choice = coverTemplate ?? 'b'
     for (const b of template.blocks) {
       if (b.type !== 'cover') continue
       b.config = parseBlockConfig(
         'cover',
-        coverTemplate === 'photo'
+        choice === 'photo'
           ? { ...(b.config as object), layout: 'photo', designKey: null }
-          : { ...(b.config as object), layout: 'template', designKey: null, template: coverTemplate },
+          : { ...(b.config as object), layout: 'template', designKey: null, template: choice },
       )
     }
   }

@@ -62,7 +62,7 @@ export function BasicsForm({ meta, onChange }: Props) {
   )
 }
 
-/** STYLE · 꾸미기: 테마 색 · 글씨체 (표지 사진은 Editor가 CoverForm을 위에 붙임) */
+/** STYLE · 꾸미기: 포인트 색(테마) · 글씨체 (표지 사진은 Editor가 CoverForm을 위에 붙임) */
 export function StyleForm({ meta, onChange }: Props) {
   const current = resolveFont(meta.theme, meta.font)
   const set = (patch: Partial<InvitationMeta>) => onChange((m) => ({ ...m, ...patch }))
@@ -70,8 +70,8 @@ export function StyleForm({ meta, onChange }: Props) {
 
   return (
     <>
-      <div className={fieldStyles.field} role="radiogroup" aria-label="테마 색">
-        <span>테마 색</span>
+      <div className={fieldStyles.field} role="radiogroup" aria-label="포인트 색">
+        <span>포인트 색</span>
         <div className={styles.swatches}>
           {themesForEvent(meta.eventType).map((key) => (
             <button
