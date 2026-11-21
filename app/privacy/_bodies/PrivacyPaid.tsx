@@ -1,7 +1,7 @@
-import { BUSINESS, pending } from '@/shared/business'
+import { BUSINESS, GROBLE, pending } from '@/shared/business'
 
 /**
- * 개인정보처리방침 개정안 본문 (결제 · 토스페이먼츠 위탁 추가, 2026-11-15 판 기준).
+ * 개인정보처리방침 개정안 본문 (결제 · 결제 허브 · 그로블 위탁 추가, 2026-11-15 판 기준).
  * 시행일은 정해지지 않았다(⏸ 사용자 결정). 시행 전에는 /privacy/payments 에서만 보이고 /privacy 는 그대로다.
  */
 export default function BodyPaid() {
@@ -138,7 +138,14 @@ export default function BodyPaid() {
             <td>미국 등 Google 서버 (접속 IP 등이 전달될 수 있음)</td>
           </tr>
           <tr>
-            <td>한피(결제 허브 운영) · 그로블(통신판매중개) · 그로블의 결제대행사</td>
+            <td>
+              한피(결제 허브 운영)
+              <br />
+              {GROBLE.name} · 대표 {GROBLE.representative} · 사업자등록번호 {GROBLE.registrationNumber} ·
+              통신판매업 {GROBLE.mailOrderNumber} · {GROBLE.address}
+              <br />
+              그로블의 결제대행사
+            </td>
             <td>
               프리미엄 이용료 결제 · 승인 · 환불 처리, 결제 기록 보관 (한피 결제 허브가 주문 · 이용권을 기록하고, 그로블 결제창에서 입력한 카드 · 결제 정보와
               구매자 정보는 그로블 · 결제대행사가 직접 받음. 회사는 결제 결과만 전달받음)

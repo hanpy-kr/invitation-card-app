@@ -179,7 +179,7 @@ curl -sI https://thedearday.com/fonts/nanum-geumeunbohwa/v1/119.woff2 | grep -iE
    - 진입(랜딩) 페이지 `https://thedearday.com/pricing`
    - 결제 후 이동 페이지 `https://thedearday.com/pay/return`
 2. **웹훅 등록** — 그로블 판매자 설정에 주소 `https://thedearday.com/api/webhooks/groble`, 이벤트 `payment.completed` · `payment.refunded` · `payment.cancel_requested`. 이때 나오는 **웹훅 시크릿**을 복사해 둡니다.
-3. **Amplify 환경변수** — `GROBLE_LINK_14900`, `GROBLE_LINK_3900`(각 상품의 결제창 링크, `https://`로 시작), `GROBLE_WEBHOOK_SECRET`. (선택) `GROBLE_ORDER_URL`: 대시보드 [그로블에서 환불 신청]이 보내는 그로블 주문조회 주소(비우면 https://www.groble.im — 실제 주소와 다르면 꼭 넣으세요).
+3. **Amplify 환경변수** — `GROBLE_LINK_14900`, `GROBLE_LINK_3900`(각 상품의 결제창 링크, `https://`로 시작), `GROBLE_WEBHOOK_SECRET`. (선택) `GROBLE_ORDERS_URL`(옛 이름 `GROBLE_ORDER_URL`도 읽음, 비우면 https://www.groble.im/legal/refund): 대시보드 [그로블에서 환불 신청]이 보내는 그로블 주문조회 주소(비우면 https://www.groble.im — 실제 주소와 다르면 꼭 넣으세요).
 4. **`PAYMENT_PROVIDER=groble`** 넣고 **재배포**. 링크 2개와 시크릿 중 하나라도 비어 있으면 결제가 열리지 않습니다(관리자 미리 보기도 안 열림).
 5. **관리자 3,900원 실결제 · 환불 확인** — `ADMIN_KAKAO_IDS`에 내 회원번호가 있으면 `PAYMENTS_LIVE`가 비어 있어도 나만 결제 버튼이 보입니다. 모임 초대장(3,900원)을 만들어 결제 → 그로블 결제창 → 이동 페이지에서 "결제를 확인하고 있어요" 뒤 편집기로 돌아오는지, 대시보드 결제 내역이 '결제 완료'인지 확인. 이어서 그로블 주문조회에서 환불 신청 → 처리되면 '환불됨'(요청 직후에는 '환불 요청됨')으로 바뀌고 프리미엄이 풀리는지 확인합니다. 결제가 완료로 안 바뀌면 `orders.fail_reason`(금액 불일치 등)을 보세요.
 6. 문제가 없으면 8장의 6~8단계(약관 · 방침 공지 → `PAYMENTS_LIVE` 미래 시각 → 재배포)로 일반 회원에게 엽니다.

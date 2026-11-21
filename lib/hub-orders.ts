@@ -3,14 +3,17 @@ import 'server-only'
 import { inArray } from 'drizzle-orm'
 
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
-import { refundEligibility, REFUND_DAYS } from '@/shared/pricing'
+import { GROBLE_REFUND_URL_DEFAULT, refundEligibility, REFUND_DAYS } from '@/shared/pricing'
 
 import { getDb, schema } from './db/client'
 import { hanpy } from './hanpy'
 import { hubConfigured } from './plan'
 
-/** 그로블 주문조회(구매자가 환불을 신청하는 곳). 바뀌면 GROBLE_ORDER_URL 환경변수로 */
-export const GROBLE_ORDER_URL = process.env.GROBLE_ORDER_URL?.trim() || 'https://www.groble.im'
+/** 그로블 주문조회(구매자가 환불을 신청하는 곳). 바뀌면 GROBLE_ORDERS_URL 환경변수로(GROBLE_ORDER_URL도 읽음) */
+export const GROBLE_ORDER_URL =
+  process.env.GROBLE_ORDERS_URL?.trim() ||
+  process.env.GROBLE_ORDER_URL?.trim() ||
+  GROBLE_REFUND_URL_DEFAULT
 
 export type HubOrderRow = {
   orderId: string

@@ -53,6 +53,14 @@ export const REFUND_DAYS = 7
 export const REFUND_NOTICE =
   `발행 전에는 결제 후 ${REFUND_DAYS}일 이내 전액 환불돼요. 발행하면 초대장이 하객에게 공개되어 환불이 제한돼요.`
 
+/** 그로블 환불 안내 링크 기본값 (환경변수 GROBLE_ORDERS_URL로 바꿈) */
+export const GROBLE_REFUND_URL_DEFAULT = 'https://www.groble.im/legal/refund'
+
+/** 환불 신청 방법 안내 — '그로블 주문조회'가 나오는 모든 화면은 이 문구 하나를 쓴다 */
+export const GROBLE_REFUND_GUIDE =
+  '환불은 그로블에서 신청해 주세요. 회원은 로그인 후 구매내역, 비회원은 결제한 휴대폰 번호 인증 후 주문조회에서 신청할 수 있어요. 어려우면 groble@groble.im 으로 주문번호와 함께 문의해 주세요.'
+export const GROBLE_REFUND_LINK_LABEL = '그로블 환불 안내 보기'
+
 /** 환불 가능 안내 판단 (서버 · 화면 공용). 실제 환불 신청은 그로블 주문조회에서 */
 export function refundEligibility(input: {
   status: string

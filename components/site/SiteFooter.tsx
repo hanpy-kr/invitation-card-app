@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { BUSINESS, pending } from '@/shared/business'
+import { BUSINESS, pending, pendingMailOrder } from '@/shared/business'
 
 import PrivacyNoticeBadge from './PrivacyNoticeBadge'
 import styles from './SiteFooter.module.scss'
@@ -22,7 +22,7 @@ export default function SiteFooter({ className }: { className?: string } = {}) {
         <br />
         사업자등록번호 {pending(BUSINESS.registrationNumber)}
         <br />
-        통신판매업 신고번호 {pending(BUSINESS.mailOrderNumber)}
+        통신판매업 신고번호 {pendingMailOrder(BUSINESS.mailOrderNumber)}
         <br />
         문의 <a href={`mailto:${BUSINESS.email}`}>{pending(BUSINESS.email)}</a>
       </p>

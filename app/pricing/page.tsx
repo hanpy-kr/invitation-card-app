@@ -4,7 +4,9 @@ import Link from 'next/link'
 import BackLink from '@/components/site/BackLink'
 import Logo from '@/components/site/Logo'
 import MinorNotice from '@/components/ui/MinorNotice'
+import RefundGuide from '@/components/site/RefundGuide'
 import SiteFooter from '@/components/site/SiteFooter'
+import { GROBLE_ORDER_URL } from '@/lib/hub-orders'
 import { paymentsOpen } from '@/lib/plan'
 import { priceTable } from '@/lib/prices'
 import { EVENT_TYPE_LABELS, type EventType } from '@/shared/blocks'
@@ -149,9 +151,8 @@ export default async function PricingPage() {
             {REFUND_NOTICE}
           </li>
           <li>
-            환불은 &lsquo;내 초대장&rsquo; 화면의 결제 내역에서 안내하는 그로블 주문조회에서
-            신청해요. 환불이 확인되면 프리미엄이 해제되고, 카드사에 따라 취소가 반영되는 데 며칠
-            걸릴 수 있어요.
+            <RefundGuide url={GROBLE_ORDER_URL} /> 환불이 확인되면 프리미엄이 해제되고, 카드사에
+            따라 취소가 반영되는 데 며칠 걸릴 수 있어요.
           </li>
           <li>
             dearday의 사정으로 프리미엄 기능을 쓰지 못한 경우에는 발행 여부와 관계없이 환불해요.

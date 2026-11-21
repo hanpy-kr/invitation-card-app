@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import { api } from '@/components/ui/api'
+import { GROBLE_REFUND_GUIDE } from '@/shared/pricing'
 
 import DuplicateButtons from './DuplicateButtons'
 import QrButton from './QrButton'
@@ -58,7 +59,7 @@ export default function CardMenu({
     setOpen(false)
     const msg =
       '정말 삭제할까요? 응답 · 방명록도 함께 지워져요.' +
-      (paid ? '\n\n결제한 초대장이에요. 삭제해도 환불은 그로블 주문조회에서 따로 해야 해요.' : '')
+      (paid ? `\n\n결제한 초대장이에요. 삭제해도 환불은 따로 신청해야 해요.\n${GROBLE_REFUND_GUIDE}` : '')
     if (!window.confirm(msg)) return
     setBusy(true)
     try {

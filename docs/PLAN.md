@@ -428,6 +428,18 @@ DB 마이그레이션 `0017`(추가만): 테이블 `bring_claims` · `invitee_li
 - [x] 새 e2e: `scripts/e2e-p10.ts`(19개 통과). e2e-p8(111) · e2e-p4 통과. 메뉴로 옮겨진 버튼에 맞춰 e2e-p1 · p2 · p4 선택자를 고침
 - 확인: lint · typecheck · build 통과, 390×844 캡처로 세로형 · 가로형 · ⋯ 메뉴 · 초안 · 지난 행사 확인
 
+## 허브 가이드 0-1장 반영 — 그로블 · 판매자 고정 정보 (11/21, 브랜치 `hub-info`, origin/main 위)
+
+- [x] **환불 링크**: `GROBLE_ORDER_URL` 기본값 → `https://www.groble.im/legal/refund`. `GROBLE_ORDERS_URL` → `GROBLE_ORDER_URL` → 기본값 순으로 읽음(`lib/hub-orders.ts` · `lib/payments.ts`). `.env.example`에 `GROBLE_ORDERS_URL` 추가.
+- [x] **환불 안내 문구 한 상수**: `shared/pricing.ts`의 `GROBLE_REFUND_GUIDE` · `GROBLE_REFUND_LINK_LABEL`("그로블 환불 안내 보기"). 쓰는 곳: 결제 내역(대시보드) · 카드 ⋯ 삭제 확인 · `/pricing` 환불 규정 · 옛 환불 API 오류 문구. `REFUND_NOTICE`(7일 · 발행 후 제한)는 그대로 앞에 둠. `/pay/return` · 결제 완료 화면에는 원래 '주문조회' 문구가 없어 `REFUND_NOTICE`만 유지.
+- [x] **[주문번호 복사]**: 결제 내역 각 행에 허브 주문번호 복사 버튼(`app/dashboard/CopyOrderId.tsx`).
+- [x] **개인정보 결제 개정안(`/privacy/payments`)**: 위탁 표 그로블 행에 리에종(그로블) · 대표 주서영 · 사업자등록번호 515-36-92976 · 통신판매업 2026-서울마포-0186 · 주소, 그로블의 결제대행사. 값은 `shared/business.ts`의 `GROBLE`. 토스페이먼츠 언급(요약 · 주석)은 삭제. 현재 시행 중인 `/privacy`는 그대로.
+- [x] **이용약관 결제 개정안**: 환불 신청 문장을 "회원은 로그인 후 구매내역, 비회원은 휴대폰 번호 인증 후 주문조회"로.
+- [x] **푸터**: 통신판매업 신고번호가 비면 '신고 준비 중'(`pendingMailOrder`). 다른 값은 '등록 예정' 그대로.
+- 검증: lint · typecheck · build(`/i/[slug]` 131kB), e2e-p8(결제 켜짐/꺼짐) 통과. p8에 환불 문구 · 링크 기본값 · 주문번호 복사 · 푸터 · /privacy/payments · /terms/payments 확인 추가. p5(토스 문구) · p7(옛 문구)는 새 문구로 고쳤지만 이번에 실행하지 않음(p5 · p7은 옛 자체 결제 흐름 기준).
+- 참고: `app/api/webhooks/toss` · `lib/payments.ts` 등 옛 자체 결제 코드는 "전환 확인 뒤 삭제" 규칙대로 이번에 건드리지 않음.
+- 서버 환경변수: 운영 Amplify에서 `GROBLE_ORDER_URL`을 따로 넣었다면 `GROBLE_ORDERS_URL`로 바꾸거나 비워 두면 기본값(환불 안내)이 쓰임(⏸ 사용자 확인).
+
 ## 공통 규칙 (2차)
 
 - 공개 초대장 성능 유지: 서버 쿼리 1회 유지, 새 블록의 데이터(명단 · 투표 결과 · 방명록)는 화면 근처에서 API로. `/i/[slug]` First Load JS 140kB 이하

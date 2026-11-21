@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false },
 }
 
-/** 결제 정보 보관 · 토스페이먼츠 위탁을 더한 방침 개정안. 시행일 미정(⏸) — 지금 방침은 /privacy */
+/** 결제 정보 보관 · 그로블(결제 위탁)을 더한 방침 개정안. 시행일 미정(⏸) — 지금 방침은 /privacy */
 export default function PrivacyPaymentsPage() {
   return (
     <>

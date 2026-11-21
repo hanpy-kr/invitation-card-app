@@ -187,9 +187,9 @@ async function main() {
   const orders = page.getByRole('region', { name: '결제 내역' })
   await orders.waitFor()
   check(await orders.getByText('결제 완료').count(), '대시보드: 결제 완료')
-  check(await orders.getByRole('link', { name: '그로블에서 환불 신청' }).count(), '대시보드: 그로블에서 환불 신청 링크')
+  check(await orders.getByRole('link', { name: '그로블 환불 안내 보기' }).count(), '대시보드: 그로블 환불 안내 링크')
   check((await orders.getByRole('button', { name: '환불 요청' }).count()) === 0, '그로블 주문은 [환불 요청] 버튼 없음')
-  check(await orders.getByText('그로블 주문조회에서 환불을 신청해 주세요').count(), '대시보드: 환불 가능 안내')
+  check(await orders.getByText('환불은 그로블에서 신청해 주세요').count(), '대시보드: 환불 가능 안내')
   const rf = await page.evaluate(async (i) => (await fetch(`/api/invitations/${i}/refund`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).status, id)
   check(rf === 409, '그로블 주문은 dearday 환불 API로 취소 불가(409)')
 

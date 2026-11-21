@@ -9,6 +9,7 @@ import { planBadgeOf } from '@/lib/plan'
 import { getNotifyState } from '@/lib/notify'
 import { adminHubLines } from '@/lib/admin-hub'
 import { GROBLE_ORDER_URL, listHubOrders } from '@/lib/hub-orders'
+import RefundGuide from '@/components/site/RefundGuide'
 import { REFUND_NOTICE } from '@/shared/pricing'
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { daysUntilKst, formatEnParts, formatLongDate, formatTime } from '@/shared/date'
@@ -16,6 +17,7 @@ import { mediaSrc } from '@/shared/media'
 import { getMediaBaseUrl } from '@/lib/media'
 import { formatWon } from '@/shared/pricing'
 
+import CopyOrderId from './CopyOrderId'
 import DashboardList, { type CardItem } from './DashboardList'
 import NotifyToggle from './NotifyToggle'
 import styles from './page.module.scss'
@@ -151,18 +153,14 @@ export default async function DashboardPage() {
                       ? `결제 ${formatLongDate(o.paidAt)}`
                       : ''}
                 </div>
+                <div className={styles.actions}>
+                  <CopyOrderId orderId={o.orderId} />
+                </div>
                 {o.status === 'paid' ? (
-                  <>
-                    <div className={styles.actions}>
-                      <a href={GROBLE_ORDER_URL} target="_blank" rel="noopener noreferrer">
-                        그로블에서 환불 신청
-                      </a>
-                    </div>
-                    <div className={styles.meta}>
-                      {REFUND_NOTICE} 그로블 주문조회에서 환불을 신청해 주세요. 환불이 확인되면 이
-                      내역이 바뀌어요.
-                    </div>
-                  </>
+                  <div className={styles.meta} data-testid="refund-guide">
+                    {REFUND_NOTICE} <RefundGuide url={GROBLE_ORDER_URL} /> 환불이 확인되면 이 내역이
+                    바뀌어요.
+                  </div>
                 ) : null}
               </li>
             ))}

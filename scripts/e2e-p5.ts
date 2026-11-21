@@ -728,7 +728,7 @@ async function main() {
   await g2.goto(`${ON}/terms/payments`)
   check(await g2.getByRole('heading', { name: /유료 서비스/ }).count(), '/terms/payments 개정안')
   await g2.goto(`${ON}/privacy/payments`)
-  check(await g2.getByText('토스페이먼츠 주식회사').count(), '/privacy/payments 개정안')
+  check(await g2.getByText('515-36-92976').count(), '/privacy/payments 개정안')
   await g2.goto(`${ON}/terms`)
   check((await g2.getByText('프리미엄').count()) === 0, '지금 시행 중인 /terms 는 그대로')
 

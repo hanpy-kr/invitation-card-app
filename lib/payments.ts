@@ -6,7 +6,12 @@ import { and, desc, eq, inArray } from 'drizzle-orm'
 
 import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { orderNameFor, priceFor } from '@/shared/pricing-legacy'
-import { refundEligibility, REFUND_DAYS } from '@/shared/pricing'
+import {
+  GROBLE_REFUND_GUIDE,
+  GROBLE_REFUND_URL_DEFAULT,
+  refundEligibility,
+  REFUND_DAYS,
+} from '@/shared/pricing'
 
 import { getAccess } from './access'
 import { ApiError } from './api'
@@ -61,8 +66,11 @@ async function toss<T>(path: string, body?: unknown, method: 'POST' | 'GET' = 'P
   return data
 }
 
-/** 그로블 주문조회(구매자가 환불을 신청하는 곳). 바뀌면 GROBLE_ORDER_URL 환경변수로 */
-const GROBLE_ORDER_URL = process.env.GROBLE_ORDER_URL?.trim() || 'https://www.groble.im'
+/** 그로블 주문조회(구매자가 환불을 신청하는 곳). 바뀌면 GROBLE_ORDERS_URL 환경변수로(GROBLE_ORDER_URL도 읽음) */
+const GROBLE_ORDER_URL =
+  process.env.GROBLE_ORDERS_URL?.trim() ||
+  process.env.GROBLE_ORDER_URL?.trim() ||
+  GROBLE_REFUND_URL_DEFAULT
 
 const tossCodeOf = (e: unknown) => (e as { tossCode?: string }).tossCode
 
@@ -296,7 +304,7 @@ export async function requestRefund(invitationId: string, userId: string): Promi
   })
   if (!ok.ok) throw new ApiError(409, ok.reason)
   if (order.provider === 'groble')
-    throw new ApiError(409, '그로블 결제는 그로블 주문조회에서 환불을 신청해 주세요.')
+    throw new ApiError(409, GROBLE_REFUND_GUIDE)
   if (!order.paymentKey) throw new ApiError(409, '결제 정보를 찾을 수 없어요. 문의해 주세요.')
 
   try {
