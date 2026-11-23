@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq, isNull, sql } from 'drizzle-orm'
 
 import { toKstDateString } from '@/shared/date'
 
@@ -12,14 +12,30 @@ const { invitations: inv, invitationViewsDaily: views, users } = schema
  * 하객 화면 열람 1회 (브라우저가 하루 한 번 sendBeacon으로 보냄). 페이지 렌더링에는 DB 쓰기를 넣지 않는다.
  * 발행된 초대장만 센다.
  */
-export async function recordView(slug: string): Promise<void> {
+export async function recordView(slug: string, viewerId: string | null = null): Promise<void> {
   if (!/^[a-z0-9]{8}$/.test(slug)) return
   const db = getDb()
   const [row] = await db
-    .select({ id: inv.id })
+    .select({ id: inv.id, ownerId: inv.ownerId })
     .from(inv)
     .where(and(eq(inv.slug, slug), eq(inv.status, 'published')))
   if (!row) return
+  // 주인 · 공동 편집자의 열람은 집계에도, 환불 기록(first_guest_view_at)에도 남기지 않는다
+  if (viewerId) {
+    if (viewerId === row.ownerId) return
+    const [ed] = await db
+      .select({ userId: schema.invitationEditors.userId })
+      .from(schema.invitationEditors)
+      .where(
+        and(eq(schema.invitationEditors.invitationId, row.id), eq(schema.invitationEditors.userId, viewerId)),
+      )
+    if (ed) return
+  }
+  // 처음 한 번만 기록 (이미 있으면 그대로)
+  await db
+    .update(inv)
+    .set({ firstGuestViewAt: new Date() })
+    .where(and(eq(inv.id, row.id), isNull(inv.firstGuestViewAt)))
   await db
     .insert(views)
     .values({ invitationId: row.id, day: toKstDateString(new Date()), views: 1 })

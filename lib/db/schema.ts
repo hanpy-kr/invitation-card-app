@@ -58,6 +58,10 @@ export const invitations = pgTable(
     status: invitationStatusEnum('status').notNull().default('draft'),
     /** (2차) 처음 발행한 시각 — 운영 지표(주간 발행 수)용 */
     publishedAt: timestamp('published_at', { withTimezone: true }),
+    /** (환불) 주인 · 공동 편집자가 링크 복사 · 카톡 공유 · QR 저장을 처음 한 시각. null이면 아직 공유 전(기존 초대장도 null로 시작) */
+    firstSharedAt: timestamp('first_shared_at', { withTimezone: true }),
+    /** (환불) 주인 · 공동 편집자가 아닌 사람이 공개 화면을 처음 연 시각 */
+    firstGuestViewAt: timestamp('first_guest_view_at', { withTimezone: true }),
     /** (2차) 카톡 공유 카드 직접 지정 {title, description, image}. 비어 있으면 자동 */
     share: jsonb('share').notNull().default({}),
     /** (2차) '나도 만들기'로 만들었을 때 원본 초대장 slug — 하객 → 주최자 전환 지표 */

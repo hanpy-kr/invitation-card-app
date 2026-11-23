@@ -125,6 +125,7 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
 
       {data.status === 'published' ? (
         <ResendCards
+          invitationId={data.id}
           input={data.shareInput}
           url={`${siteUrl()}/i/${data.slug}`}
           imageUrl={absolute(siteUrl(), shareImagePath(data.shareInput, getMediaBaseUrl()))}

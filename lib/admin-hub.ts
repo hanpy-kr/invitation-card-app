@@ -7,6 +7,7 @@ import type { EventType } from '@/shared/blocks'
 import { HanpyApiError } from './hanpy-payments'
 import { hanpy } from './hanpy'
 import { hubConfigured, paymentsLiveAt } from './plan'
+import { refundStatus } from './refund'
 import { isAdmin } from './stats'
 
 const BASIS_LABEL: Record<PlanBasis, string> = {
@@ -64,10 +65,30 @@ type Row = {
   premiumHub?: boolean | null
   premiumOrderId: string | null
   derivedPremium?: boolean | null
+  firstSharedAt?: Date | string | null
+  firstGuestViewAt?: Date | string | null
 }
 
 const hhmm = (d: Date) =>
   new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', hour12: false }).format(d)
+
+/** 'M/D HH:mm'(한국 시간). 없으면 '없음' */
+const stamp = (v: Date | string | null | undefined) => {
+  if (!v) return '없음'
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('ko-KR', {
+      timeZone: 'Asia/Seoul',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })
+      .formatToParts(new Date(v))
+      .map((x) => [x.type, x.value]),
+  )
+  return `${p.month}/${p.day} ${p.hour}:${p.minute}`
+}
 
 /**
  * 관리자 전용 한 줄: "허브 이용권: 있음/없음 · 확인 시각 HH:mm · 프리미엄 근거: …".
@@ -107,12 +128,14 @@ export async function adminHubLines(
     expired: '만료',
   }
   const orderNote = new Map<string, string>()
+  const paidAtOf = new Map<string, string | null>()
   if (hubConfigured()) {
     await Promise.all(
       rows.slice(0, 30).map(async (r) => {
         try {
           const [o] = await hanpy.listOrders({ subject: { type: 'invitation', id: r.id }, limit: 1 })
           if (!o) return orderNote.set(r.id, ' · 주문 없음')
+          if (o.status === 'paid') paidAtOf.set(r.id, o.paidAt)
           const label = ORDER_LABEL[o.status] ?? o.status
           orderNote.set(
             r.id,
@@ -136,7 +159,18 @@ export async function adminHubLines(
     const head = on
       ? `허브 이용권: ${on.has(r.id) ? '있음' : '없음'}`
       : `허브 이용권: 확인 못 함(${fail ? failShort(fail) : 'ERROR'})`
-    out[r.id] = `${head} · 확인 시각 ${at}${orderNote.get(r.id) ?? ''} · 프리미엄 근거: ${BASIS_LABEL[basis]}`
+    // 환불 줄(표시용): 첫 공유 · 첫 하객 열람(주인 · 편집자 열람 제외) · 결제한 주문이 있을 때 환불 판단
+    const paidAt = paidAtOf.get(r.id) ?? null
+    const refund = paidAt
+      ? refundStatus({
+          paidAt,
+          firstSharedAt: r.firstSharedAt ?? null,
+          firstGuestViewAt: r.firstGuestViewAt ?? null,
+        }) === 'full'
+        ? '전액 환불 가능'
+        : '환불 제한'
+      : '해당 없음'
+    out[r.id] = `${head} · 확인 시각 ${at}${orderNote.get(r.id) ?? ''} · 프리미엄 근거: ${BASIS_LABEL[basis]} · 첫 공유 ${stamp(r.firstSharedAt)} · 첫 하객 열람 ${stamp(r.firstGuestViewAt)} · 환불 판단 ${refund}`
   }
   return out
 }

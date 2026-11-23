@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import { api } from '@/components/ui/api'
-import { GROBLE_REFUND_GUIDE } from '@/shared/pricing'
+import { GROBLE_REFUND_GUIDE, REFUND_NOTICE } from '@/shared/pricing'
 
 import DuplicateButtons from './DuplicateButtons'
 import QrButton from './QrButton'
@@ -20,6 +20,8 @@ type Props = {
   published: boolean
   isOwner: boolean
   paid: boolean
+  /** 결제했고 아직 전액 환불 가능(공유 전): QR 저장 전에 확인 창 */
+  shareGuard: boolean
   /** 가로형 카드: 줄 오른쪽 끝(절대 위치 없이 흐름 안에) */
   inline?: boolean
 }
@@ -34,6 +36,7 @@ export default function CardMenu({
   published,
   isOwner,
   paid,
+  shareGuard,
   inline,
 }: Props) {
   const router = useRouter()
@@ -59,7 +62,7 @@ export default function CardMenu({
     setOpen(false)
     const msg =
       '정말 삭제할까요? 응답 · 방명록도 함께 지워져요.' +
-      (paid ? `\n\n결제한 초대장이에요. 삭제해도 환불은 따로 신청해야 해요.\n${GROBLE_REFUND_GUIDE}` : '')
+      (paid ? `\n\n결제한 초대장이에요. 삭제해도 환불은 따로 신청해야 해요.\n${REFUND_NOTICE}\n${GROBLE_REFUND_GUIDE}` : '')
     if (!window.confirm(msg)) return
     setBusy(true)
     try {
@@ -91,7 +94,7 @@ export default function CardMenu({
               초대장 보기
             </Link>
           ) : null}
-          {published ? <QrButton slug={slug} title={title} dateLabel={dateLabel} /> : null}
+          {published ? <QrButton id={id} slug={slug} title={title} dateLabel={dateLabel} guard={shareGuard} /> : null}
           {isOwner ? <DuplicateButtons id={id} eventType={eventType} /> : null}
           {isOwner ? (
             <button type="button" role="menuitem" className={styles.danger} onClick={remove}>

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 import { copyText } from '@/components/blocks/common/CopyButton'
+import { useShareGuard } from '@/components/shared/ShareGuard'
 
 import CardMenu from './CardMenu'
 import styles from './DashboardList.module.scss'
@@ -38,6 +39,8 @@ export type CardItem = {
   newResponses: number
   isOwner: boolean
   paid: boolean
+  /** 결제했고 아직 전액 환불 가능(공유 전): 처음 공유할 때 확인 창 */
+  shareGuard: boolean
   /** 관리자에게만 보이는 허브 확인 줄 */
   hubLine: string | null
 }
@@ -133,8 +136,9 @@ function DateTile({ it, small }: { it: CardItem; small?: boolean }) {
   )
 }
 
-function ShareButton({ slug, title }: { slug: string; title: string }) {
+function ShareButton({ id, slug, title, guard }: { id: string; slug: string; title: string; guard: boolean }) {
   const [done, setDone] = useState(false)
+  const g = useShareGuard(id, guard)
   async function share() {
     const url = `${window.location.origin}/i/${slug}`
     if (typeof navigator.share === 'function') {
@@ -151,9 +155,12 @@ function ShareButton({ slug, title }: { slug: string; title: string }) {
     }
   }
   return (
-    <button type="button" onClick={share}>
-      {done ? '링크 복사됨' : '공유'}
-    </button>
+    <>
+      <button type="button" onClick={() => g.run(share)}>
+        {done ? '링크 복사됨' : '공유'}
+      </button>
+      {g.dialog}
+    </>
   )
 }
 
@@ -168,6 +175,7 @@ function Menu({ it, inline }: { it: CardItem; inline?: boolean }) {
       published={it.published}
       isOwner={it.isOwner}
       paid={it.paid}
+      shareGuard={it.shareGuard}
       inline={inline}
     />
   )
@@ -256,7 +264,7 @@ function CardV({ it }: { it: CardItem }) {
       <nav className={styles.bar3} aria-label="초대장 작업">
         <Link href={`/edit/${it.id}`}>편집</Link>
         <Link href={`/dashboard/${it.id}`}>응답 보기</Link>
-        {it.published ? <ShareButton slug={it.slug} title={it.title} /> : null}
+        {it.published ? <ShareButton id={it.id} slug={it.slug} title={it.title} guard={it.shareGuard} /> : null}
       </nav>
     </article>
   )

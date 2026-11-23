@@ -354,12 +354,12 @@ export default function Editor(props: EditorProps) {
                   <p>받은 응답과 사진도 함께 지워지고 되돌릴 수 없어요.</p>
                   {props.paid.refundable ? (
                     <p className={styles.refundHint}>
-                      결제 후 7일 안이고 발행 전이면 먼저 환불할 수 있어요.{' '}
+                      결제 후 7일 안이고 아직 공유 전이면 먼저 환불할 수 있어요.{' '}
                       <Link href="/dashboard#orders">환불하기</Link>
                     </p>
                   ) : (
                     <p className={styles.refundHint}>
-                      지금은 환불 조건(결제 후 7일 이내 · 발행 전)이 아니라서, 지우면 결제 금액은
+                      지금은 환불 조건(결제 후 7일 이내 · 공유 전)이 아니라서, 지우면 결제 금액은
                       돌려받지 못해요.
                     </p>
                   )}
@@ -420,6 +420,7 @@ export default function Editor(props: EditorProps) {
             onShare={(fn) => setMeta((m) => ({ ...m, share: fn(m.share) }))}
             canHideMadeWith={props.canHideMadeWith}
             upsell={props.upsell}
+            shareGuard={Boolean(props.paid?.refundable)}
             coverLock={coverLock ? { label: coverLock.label, onUseFree: useFreeCover } : null}
             onClose={() => setShowPublish(false)}
           />

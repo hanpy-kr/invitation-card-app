@@ -19,6 +19,7 @@ import { parseYoutubeId } from '@/shared/video'
 import { isDateVoting, usableOptions } from '@/shared/vote'
 
 import { formatWon, REFUND_NOTICE } from '@/shared/pricing'
+import { useShareGuard } from '@/components/shared/ShareGuard'
 import { PLAN_FEATURES } from '@/shared/entitlements'
 
 import { api } from '../ui/api'
@@ -45,6 +46,8 @@ type Props = {
   canHideMadeWith: boolean
   /** 결제가 열려 있고 아직 프리미엄이 아닐 때만 값이 있음 */
   upsell: { price: number | null; openSale: boolean; event: boolean } | null
+  /** 결제한 초대장이고 아직 전액 환불 가능(공유 전): 처음 공유할 때 확인 창 */
+  shareGuard: boolean
   /** 프리미엄이 아닌데 1안 · 3안 표지: 발행 막고 결제 또는 2안으로 바꾸기 안내 */
   coverLock: { label: string; onUseFree: () => void } | null
 }
@@ -55,6 +58,7 @@ export default function PublishPanel(props: Props) {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const url = `${siteUrl}/i/${slug}`
+  const guard = useShareGuard(id, props.shareGuard)
 
   async function setPublished(published: boolean) {
     setBusy(true)
@@ -116,6 +120,7 @@ export default function PublishPanel(props: Props) {
 
   return (
     <div className={styles.sheetDim} onClick={onClose}>
+      {guard.dialog}
       <div
         className={styles.sheet}
         role="dialog"
@@ -206,7 +211,7 @@ export default function PublishPanel(props: Props) {
                 aria-label="초대장 주소"
                 onFocus={(e) => e.target.select()}
               />
-              <button type="button" onClick={copy}>
+              <button type="button" onClick={() => guard.run(copy)}>
                 복사
               </button>
             </div>
@@ -217,13 +222,13 @@ export default function PublishPanel(props: Props) {
               onShare={props.onShare}
             />
             {kakaoJsKey ? (
-              <button type="button" className={styles.kakaoBtn} onClick={shareKakao}>
+              <button type="button" className={styles.kakaoBtn} onClick={() => guard.run(shareKakao)}>
                 카카오톡으로 보내기
               </button>
             ) : null}
             <div className={styles.shareRow}>
               {canWebShare ? (
-                <button type="button" className={styles.secondary} onClick={shareSystem}>
+                <button type="button" className={styles.secondary} onClick={() => guard.run(shareSystem)}>
                   다른 앱으로 공유
                 </button>
               ) : null}

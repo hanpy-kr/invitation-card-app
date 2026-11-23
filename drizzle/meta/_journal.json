@@ -141,6 +141,13 @@
       "when": 1794888020626,
       "tag": "0019_talented_celestials",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1795423103359,
+      "tag": "0020_military_red_wolf",
+      "breakpoints": true
     }
   ]
 }

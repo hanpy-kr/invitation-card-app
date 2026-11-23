@@ -80,6 +80,7 @@ export default async function DashboardPage() {
       newResponses: inv.newResponses,
       isOwner: inv.isOwner,
       paid: Boolean(inv.premiumHub),
+      shareGuard: orders.some((o) => o.invitationId === inv.id && o.refundable),
       hubLine: hubLines?.[inv.id] ?? null,
     }
   })
@@ -158,6 +159,12 @@ export default async function DashboardPage() {
                 </div>
                 {o.status === 'paid' ? (
                   <div className={styles.meta} data-testid="refund-guide">
+                    {o.refundNote ? (
+                      <strong data-testid="refund-status" data-refund={o.refundable ? 'full' : 'limited'}>
+                        {o.refundNote}
+                      </strong>
+                    ) : null}
+                    <br />
                     {REFUND_NOTICE} <RefundGuide url={GROBLE_ORDER_URL} /> 환불이 확인되면 이 내역이
                     바뀌어요.
                   </div>

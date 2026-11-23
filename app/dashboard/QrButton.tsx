@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 
+import { useShareGuard } from '@/components/shared/ShareGuard'
 import { SEAL } from '@/shared/brand'
 
 import styles from './QrButton.module.scss'
@@ -87,16 +88,21 @@ function drawSeal(ctx: CanvasRenderingContext2D, cx: number, cy: number, d: numb
 
 /** 대시보드 카드의 [QR 저장]: QR만(1024px) · 인쇄용 카드, 둘 다 브라우저에서 캔버스로 그려 내려받음 */
 export default function QrButton({
+  id,
   slug,
   title,
   dateLabel,
+  guard,
 }: {
+  id: string
+  guard: boolean
   slug: string
   title: string
   dateLabel: string | null
 }) {
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
+  const g = useShareGuard(id, guard)
   const url = () => `${window.location.origin}/i/${slug}`
   const safe = (title || 'dearday').replace(/[\\/:*?"<>|]/g, '')
 
@@ -183,12 +189,13 @@ export default function QrButton({
       <button type="button" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
         QR 저장
       </button>
+      {g.dialog}
       {open ? (
         <div className={styles.panel} role="group" aria-label="QR 저장">
-          <button type="button" disabled={busy} onClick={saveQr}>
+          <button type="button" disabled={busy} onClick={() => g.run(saveQr)}>
             QR만 (1024px)
           </button>
-          <button type="button" disabled={busy} onClick={saveCard}>
+          <button type="button" disabled={busy} onClick={() => g.run(saveCard)}>
             인쇄용 카드
           </button>
         </div>

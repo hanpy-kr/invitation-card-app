@@ -14,13 +14,14 @@ import type { EditorBlock, InvitationMeta, SaveInvitationInput } from '@/shared/
 import { findCover } from '@/shared/covers'
 import { templateName } from '@/shared/cover-templates'
 import { coverTemplateLocked, getEntitlements, type Plan } from '@/shared/entitlements'
-import { isFamilyEvent, refundEligibility } from '@/shared/pricing'
+import { isFamilyEvent } from '@/shared/pricing'
 import { collectAudioRefs, collectMediaRefs } from '@/shared/media'
 import { buildFromLayout, buildTemplate } from '@/shared/templates'
 import type { EventType } from '@/shared/blocks'
 
 import { canEditWhere, getAccess } from './access'
 import { adminHubLines } from './admin-hub'
+import { refundStatus } from './refund'
 import { canCheckout, derivedPremiumSql, hasPaidPremium, planOf } from './plan'
 import { hanpy } from './hanpy'
 import { refreshIfStale } from './premium'
@@ -197,9 +198,10 @@ export async function getEditableInvitation(
   // 주인 화면: 허브 이용권 캐시가 10분보다 오래됐으면 허브에 다시 묻고 한 번 더 읽는다
   if (retry && (await refreshIfStale([{ id: row.id, premiumCheckedAt: row.premiumCheckedAt }])))
     return getEditableInvitation(id, userId, false)
-  // 결제한 초대장이면 지우기 전에 환불 안내를 보여 주기 위해 환불 가능 여부를 같이 준다 (소유자만)
+  // 결제한 초대장이면 환불 가능 여부(전액 = 결제 후 7일 이내 · 공유 전 · 하객 열람 없음)를 같이 준다.
+  // 지우기 확인창 안내와 '처음 공유할 때 확인 창'에 쓰인다 (편집할 수 있는 사람 모두)
   let paid: { refundable: boolean } | null = null
-  if (row.premiumHub && row.ownerId === userId) {
+  if (row.premiumHub) {
     try {
       const orders = await hanpy.listOrders({
         subject: { type: 'invitation', id: row.id },
@@ -209,11 +211,12 @@ export async function getEditableInvitation(
       const order = orders[0]
       paid = {
         refundable: order
-          ? refundEligibility({
-              status: order.status,
-              approvedAt: order.paidAt,
-              invitationPublishedAt: row.publishedAt,
-            }).ok
+          ? refundStatus({
+              orderStatus: order.status,
+              paidAt: order.paidAt,
+              firstSharedAt: row.firstSharedAt,
+              firstGuestViewAt: row.firstGuestViewAt,
+            }) === 'full'
           : false,
       }
     } catch {

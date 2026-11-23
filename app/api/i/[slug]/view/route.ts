@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 
 import { handle } from '@/lib/api'
+import { getSession } from '@/lib/auth/session'
 import { rateLimit } from '@/lib/rate-limit'
 import { recordView } from '@/lib/stats'
 
@@ -12,7 +13,9 @@ export const POST = handle(
   async (req: NextRequest, { params }: { params: Promise<{ slug: string }> }) => {
     const { slug } = await params
     await rateLimit(req, `view:${slug}`, { limit: 20, windowSec: 3600 })
-    await recordView(slug)
+    // 로그인 세션이 주인 · 편집자면 recordView가 건너뜀 (익명 하객은 세션 없음)
+    const session = await getSession()
+    await recordView(slug, session?.userId ?? null)
     return new Response(null, { status: 204 })
   },
 )

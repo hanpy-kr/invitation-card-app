@@ -9,6 +9,7 @@ import styles from './page.module.scss'
 
 /** 다시 보내기: 문구만 다른 카카오 공유 카드 (서버가 보내는 게 아니라 주최자가 단톡방에 공유) */
 export default function ResendCards({
+  invitationId,
   input,
   url,
   imageUrl,
@@ -16,6 +17,7 @@ export default function ResendCards({
   kakaoJsKey,
   acceptsRsvp,
 }: {
+  invitationId: string
   input: ShareInput
   url: string
   imageUrl: string
@@ -41,6 +43,8 @@ export default function ResendCards({
 
   async function send(feed: KakaoFeed) {
     setMsg('')
+    // 다시 보내기도 공유: 처음 공유 시각을 남긴다(이미 있으면 그대로)
+    void fetch(`/api/invitations/${invitationId}/shared`, { method: 'POST', keepalive: true }).catch(() => {})
     try {
       const Kakao = await loadKakaoSdk(kakaoJsKey)
       Kakao.Share.sendDefault(feed)

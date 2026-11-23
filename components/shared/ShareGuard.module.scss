@@ -1,0 +1,58 @@
+.back {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(43, 38, 32, 0.45);
+}
+
+.box {
+  width: min(100%, 340px);
+  padding: 24px 22px 18px;
+  border: 1px solid var(--paper-line, #d9d4cb);
+  border-radius: 10px;
+  background: #faf8f3;
+  color: #2f2a26;
+  box-shadow: 0 18px 40px -12px rgba(43, 38, 32, 0.45);
+  text-align: center;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  p {
+    margin: 0 0 18px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #6e655d;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+
+  button {
+    flex: 1;
+    min-height: 44px;
+    border: 1px solid rgba(47, 42, 38, 0.45);
+    border-radius: 8px;
+    background: transparent;
+    color: #2f2a26;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  button[data-primary] {
+    border-color: #2f2a26;
+    background: #2f2a26;
+    color: #f3eadb;
+  }
+}

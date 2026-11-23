@@ -479,7 +479,7 @@ async function main() {
   await page.getByRole('button', { name: '초대장 지우기' }).click()
   const dlg1 = page.getByRole('alertdialog')
   check(
-    await dlg1.getByText('결제 후 7일 안이고 발행 전이면 먼저 환불할 수 있어요').count(),
+    await dlg1.getByText('결제 후 7일 안이고 아직 공유 전이면 먼저 환불할 수 있어요').count(),
     '지우기(환불 가능): 환불 안내 문구',
   )
   check(

@@ -47,11 +47,12 @@ export const formatWon = (n: number): string => `${n.toLocaleString('ko-KR')}원
 export const PREMIUM_PARENT_EVENTS: readonly EventType[] = ['wedding', 'dol']
 export const PREMIUM_DERIVED_EVENTS: readonly EventType[] = ['prewedding', 'thanks']
 
-/** 환불 안내 기준: 결제 후 이 일수 이내이고 아직 발행하지 않았을 때 전액 */
+/** 환불 안내 기준: 결제 후 이 일수 이내이고 아직 공유하지 않았을 때 전액 (판단은 lib/refund.ts) */
 export const REFUND_DAYS = 7
 
+/** 환불 규칙 안내 — 결제 버튼 근처 · /pay · 가격 페이지 · 결제 완료 모달 · 삭제 확인은 모두 이 상수 하나를 쓴다 */
 export const REFUND_NOTICE =
-  `발행 전에는 결제 후 ${REFUND_DAYS}일 이내 전액 환불돼요. 발행하면 초대장이 하객에게 공개되어 환불이 제한돼요.`
+  `결제 후 ${REFUND_DAYS}일 이내이고 아직 공유하지 않았다면 전액 환불돼요. 링크를 공유하거나 하객이 열어 본 뒤에는 환불이 제한돼요.`
 
 /** 그로블 환불 안내 링크 기본값 (환경변수 GROBLE_ORDERS_URL로 바꿈) */
 export const GROBLE_REFUND_URL_DEFAULT = 'https://www.groble.im/legal/refund'

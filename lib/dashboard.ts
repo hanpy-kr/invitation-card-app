@@ -47,6 +47,8 @@ export async function listMyInvitations(userId: string) {
       premiumHub: inv.premiumHub,
       premiumOrderId: inv.premiumOrderId,
       derivedPremium: derivedPremiumSql(),
+      firstSharedAt: inv.firstSharedAt,
+      firstGuestViewAt: inv.firstGuestViewAt,
     })
     .from(inv)
     .leftJoin(rsvps, eq(rsvps.invitationId, inv.id))

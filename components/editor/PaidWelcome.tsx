@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+import { REFUND_NOTICE } from '@/shared/pricing'
+
 import styles from './Editor.module.scss'
 
 /**
@@ -50,6 +52,9 @@ export default function PaidWelcome({ photoLimit, wedding }: { photoLimit: numbe
             확인
           </button>
         </div>
+        <p className={styles.paidWelcomeNote} data-testid="paid-welcome-refund">
+          {REFUND_NOTICE}
+        </p>
         <p className={styles.paidWelcomeNote}>결제 내역은 내 초대장에서 볼 수 있어요.</p>
       </div>
     </div>

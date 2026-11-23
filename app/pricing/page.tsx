@@ -155,7 +155,7 @@ export default async function PricingPage() {
             따라 취소가 반영되는 데 며칠 걸릴 수 있어요.
           </li>
           <li>
-            dearday의 사정으로 프리미엄 기능을 쓰지 못한 경우에는 발행 여부와 관계없이 환불해요.
+            dearday의 사정으로 프리미엄 기능을 쓰지 못한 경우에는 공유 여부와 관계없이 환불해요.
             문의는 도움말의 이메일로 보내 주세요.
           </li>
         </ul>

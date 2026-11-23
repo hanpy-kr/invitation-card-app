@@ -348,7 +348,7 @@ async function main() {
   const href = await lk.first().getAttribute('href')
   check((await lk.count()) === 1 && bt === 0, `대시보드: 그로블 환불 안내 링크만, 환불 버튼 없음 (링크 ${await lk.count()}, 버튼 ${bt})`)
   check(href === 'https://www.groble.im/legal/refund', `대시보드: 환불 안내 링크 기본값 (${href})`)
-  check(dash.includes('발행 전에는 결제 후 7일 이내 전액 환불돼요'), '대시보드: 환불 안내 문구(REFUND_NOTICE 앞)')
+  check(dash.includes('결제 후 7일 이내이고 아직 공유하지 않았다면 전액 환불돼요'), '대시보드: 환불 안내 문구(REFUND_NOTICE 앞)')
   check(dash.includes('환불은 그로블에서 신청해 주세요. 회원은 로그인 후 구매내역, 비회원은 결제한 휴대폰 번호 인증 후 주문조회에서 신청할 수 있어요. 어려우면 groble@groble.im 으로 주문번호와 함께 문의해 주세요.'), '대시보드: 그로블 환불 안내 문구')
   check(!dash.includes('그로블 주문조회에서 환불을 신청해 주세요'), '대시보드: 옛 문구 없음')
   const copyBtn = page.locator('#orders [data-testid="copy-order-id"]').first()
@@ -591,7 +591,7 @@ async function main() {
   await paidCard.locator('[aria-label="더 보기"]').click()
   await paidCard.getByRole('menuitem', { name: '삭제' }).click()
   await page.waitForTimeout(500)
-  check(seen[0]?.includes('정말 삭제할까요? 응답 · 방명록도 함께 지워져요') && seen[0].includes('결제한 초대장이에요. 삭제해도 환불은 따로 신청해야 해요') && seen[0].includes('환불은 그로블에서 신청해 주세요. 회원은 로그인 후 구매내역'), `삭제 확인(결제한 초대장): 환불 안내 한 줄 (${JSON.stringify(seen[0])})`)
+  check(seen[0]?.includes('정말 삭제할까요? 응답 · 방명록도 함께 지워져요') && seen[0].includes('결제한 초대장이에요. 삭제해도 환불은 따로 신청해야 해요') && seen[0].includes('환불은 그로블에서 신청해 주세요. 회원은 로그인 후 구매내역') && seen[0].includes('결제 후 7일 이내이고 아직 공유하지 않았다면 전액 환불돼요'), `삭제 확인(결제한 초대장): 환불 안내 한 줄 (${JSON.stringify(seen[0])})`)
   check(sql(`select count(*) from invitations where id='${paidInv}'`) === '1', '취소하면 지워지지 않음')
   const freeCard = cardOf('E2E 배지 무료')
   await freeCard.locator('[aria-label="더 보기"]').click()
@@ -603,7 +603,7 @@ async function main() {
   page.on('dialog', (d) => d.accept())
 
   // ───────── 환불 안내 문구 통일 ─────────
-  const NOTICE = '발행 전에는 결제 후 7일 이내 전액 환불돼요. 발행하면 초대장이 하객에게 공개되어 환불이 제한돼요.'
+  const NOTICE = '결제 후 7일 이내이고 아직 공유하지 않았다면 전액 환불돼요. 링크를 공유하거나 하객이 열어 본 뒤에는 환불이 제한돼요.'
   const nid2 = await create(page, /결혼식/, 'E2E 환불 문구')
   await page.goto(`${BASE}/pay/${nid2}`)
   await page.getByRole('button', { name: /결제하기/ }).waitFor()
