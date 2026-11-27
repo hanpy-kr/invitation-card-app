@@ -18,6 +18,7 @@ import {
   shareTitle,
 } from '@/shared/share'
 import { designCoverOf } from '@/shared/covers'
+import { makeOwnNote, seasonNow } from '@/shared/season'
 import { SAMPLE_SLUG } from '@/shared/site'
 import { resolveFont, themeStyle } from '@/shared/themes'
 
@@ -95,6 +96,7 @@ export default async function InvitationPage({ params }: Props) {
           url={pageUrl}
           kakaoJsKey={ctx.kakaoJsKey}
           showMadeWith={!(ent.canHideMadeWith && inv.share.hideMadeWith)}
+          makeOwnNote={makeOwnNote(inv.eventType, seasonNow())}
           feed={kakaoFeed({
             url: pageUrl,
             title: shareTitle(inv),

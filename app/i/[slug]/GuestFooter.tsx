@@ -16,12 +16,15 @@ export default function GuestFooter({
   feed,
   kakaoJsKey,
   showMadeWith,
+  makeOwnNote,
 }: {
   slug: string
   url: string
   feed: KakaoFeed
   kakaoJsKey: string
   showMadeWith: boolean
+  /** 나도 만들기 아래 한 줄(시즌 문구). 없으면 안 보임 */
+  makeOwnNote?: string | null
 }) {
   const [msg, setMsg] = useState('')
 
@@ -76,6 +79,7 @@ export default function GuestFooter({
           <Link href={`/new?from=${slug}`} className={styles.makeOwn}>
             이 디자인으로 나도 만들기
           </Link>
+          {makeOwnNote ? <p className={styles.makeOwnNote}>{makeOwnNote}</p> : null}
         </div>
       ) : null}
     </footer>

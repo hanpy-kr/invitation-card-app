@@ -3,6 +3,7 @@ import Link from 'next/link'
 import SiteFooter from '@/components/site/SiteFooter'
 import { getSession } from '@/lib/auth/session'
 import { getEntitlements } from '@/shared/entitlements'
+import { CHRISTMAS_EXAMPLE_SLUG, isChristmasHome, seasonNow } from '@/shared/season'
 import { SAMPLE_SLUG } from '@/shared/site'
 
 import styles from './page.module.scss'
@@ -45,6 +46,8 @@ export default async function Home({
   const [{ login }, session] = await Promise.all([searchParams, getSession()])
   const error = login ? LOGIN_ERRORS[login] : undefined
   const loggedIn = Boolean(session)
+  // 12/1~12/25(KST) 시즌 화면: 띠지 + 시즌 카드. 날짜 상수(shared/season.ts)로 자동 전환
+  const xmas = isChristmasHome(seasonNow())
 
   return (
     <div className={styles.page}>
@@ -100,8 +103,8 @@ export default async function Home({
             loading="eager"
             fetchPriority="high"
           />
-          <span className={styles.band}>
-            <b>HAPPY DAY</b>
+          <span className={`${styles.band} ${xmas ? styles.bandXmas : ''}`}>
+            <b>{xmas ? 'MERRY CHRISTMAS' : 'HAPPY DAY'}</b>
           </span>
           <span className={styles.floor} />
         </div>
@@ -114,6 +117,27 @@ export default async function Home({
         <div className={styles.actions}>
           <Start loggedIn={loggedIn} />
         </div>
+        {xmas ? (
+          <aside className={styles.season} data-testid="season-card" aria-label="크리스마스 파티">
+            <p className={styles.seasonEn}>CHRISTMAS PARTY</p>
+            <strong>크리스마스 파티 초대장</strong>
+            <small>1월 31일까지 만들면 무료</small>
+            <div className={styles.seasonBtns}>
+              <a
+                href={
+                  loggedIn
+                    ? '/new?type=christmas'
+                    : `/api/auth/kakao/login?next=${encodeURIComponent('/new?type=christmas')}`
+                }
+              >
+                만들기
+              </a>
+              {CHRISTMAS_EXAMPLE_SLUG ? (
+                <Link href={`/i/${CHRISTMAS_EXAMPLE_SLUG}`}>예시 보기</Link>
+              ) : null}
+            </div>
+          </aside>
+        ) : null}
         {loggedIn ? (
           <p className={styles.free}>무료 · 사진 {getEntitlements().photoLimit}장까지</p>
         ) : null}

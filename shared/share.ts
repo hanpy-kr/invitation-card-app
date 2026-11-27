@@ -1,5 +1,5 @@
 import { EVENT_TYPE_LABELS, type EventType } from './blocks'
-import { formatEventDateTime, formatTime } from './date'
+import { formatEventDateTime, formatKoShort, formatTime } from './date'
 import { coverShareSrc, findCover } from './covers'
 import { mediaSrc, shareKey } from './media'
 import { isDateVoting } from './vote'
@@ -22,6 +22,12 @@ export function shareTitle(inv: ShareInput): string {
 
 export function shareDescription(inv: ShareInput): string {
   if (inv.share?.description) return inv.share.description
+  // 크리스마스 파티 기본 문구: '12월 24일 (목) 오후 7시 · 참석 여부와 가져올 것을 알려 주세요' (나눠 맡기가 숨김이면 '가져올 것' 뺌)
+  if (inv.eventType === 'christmas' && !isDateVoting(inv.blocks)) {
+    const bring = inv.blocks.some((b) => b.type === 'bring' && b.visible)
+    const ask = bring ? '참석 여부와 가져올 것을 알려 주세요' : '참석 여부를 알려 주세요'
+    return inv.eventAt ? `${formatKoShort(inv.eventAt)} · ${ask}` : ask
+  }
   const location = inv.blocks.find((b) => b.type === 'location' && b.visible)
   const place = location ? (location.config as { placeName?: string }).placeName : ''
   const when = isDateVoting(inv.blocks)

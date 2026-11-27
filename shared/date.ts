@@ -73,6 +73,12 @@ export function formatTime(value: Date | string): string {
   return `${p.dayPeriod} ${p.hour}시${minute}`
 }
 
+/** 12월 24일 (목) 오후 7시 — 공유 카드 설명용 */
+export function formatKoShort(value: Date | string): string {
+  const p = parts(toDate(value), { month: 'numeric', day: 'numeric', weekday: 'short' })
+  return `${p.month.replace('월', '')}월 ${p.day.replace('일', '')}일 (${p.weekday}) ${formatTime(value)}`
+}
+
 /** 2026년 11월 21일 토요일 오후 12시 30분 */
 export function formatEventDateTime(value: Date | string): string {
   return `${formatLongDate(value)} ${formatTime(value)}`

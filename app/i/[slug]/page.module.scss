@@ -113,6 +113,13 @@
   text-underline-offset: 3px;
 }
 
+.makeOwnNote {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--sub-1, var(--muted));
+  opacity: var(--make-opacity, 1);
+}
+
 .copyright {
   margin-top: var(--copy-mt, 0);
   font-size: var(--copy-size, 12px);

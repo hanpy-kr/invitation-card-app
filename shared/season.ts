@@ -26,3 +26,11 @@ export function seasonNow(): Date {
   const o = process.env.SEASON_NOW
   return o ? new Date(o) : new Date()
 }
+
+/** 하객 화면 '이 디자인으로 나도 만들기' 아래 한 줄 (크리스마스 초대장만). 12/26부터 자동으로 신년회 문구로 */
+export function makeOwnNote(eventType: string, now: Date = new Date()): string | null {
+  if (eventType !== 'christmas') return null
+  return isChristmasSeason(now)
+    ? '우리 모임도 크리스마스 파티 열기'
+    : '신년회 초대장도 무료로 만들어 보세요'
+}
