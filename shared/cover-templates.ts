@@ -16,13 +16,20 @@ export const COVER_TEMPLATES: readonly {
   { key: 'a', name: '1안', note: '작약 두 송이 · 큰 날짜' },
   { key: 'b', name: '2안', note: '금박 이름 · 작약 한 송이' },
   { key: 'c', name: '3안', note: '이중 테두리 · 필기체' },
+  { key: 'x', name: '금박', note: 'MERRY CHRISTMAS · 큰 날짜' },
 ]
+
+/** 결혼 초대장이 고르는 표지 안 / 크리스마스 초대장이 고르는 표지 안 */
+export const WEDDING_TEMPLATE_KEYS: readonly CoverTemplateKey[] = ['a', 'b', 'c']
+export const CHRISTMAS_TEMPLATE_KEYS: readonly CoverTemplateKey[] = ['x']
 
 export function templateName(key: CoverTemplateKey): string {
   return COVER_TEMPLATES.find((t) => t.key === key)?.name ?? ''
 }
 
 export type CoverTemplateText = {
+  /** 크리스마스 금박 표지에 들어가는 한글 제목 */
+  title: string
   groom: string
   bride: string
   /** 두 이름이 다 있을 때만 이니셜 · 이름 줄을 보여 준다 */
@@ -50,7 +57,7 @@ const up = (s: string) => s.trim().replace(/\s+/g, ' ').toUpperCase()
 
 /** config + 예식 일시(ISO) → 표지 글자. 날짜 투표 중이면 날짜를 비운다 */
 export function coverTemplateText(
-  config: Pick<CoverConfig, 'groomEn' | 'brideEn' | 'venueEn' | 'addressEn'>,
+  config: Pick<CoverConfig, 'groomEn' | 'brideEn' | 'venueEn' | 'addressEn'> & { title?: string },
   eventAt: string | null,
   dateVoting = false,
 ): CoverTemplateText {
@@ -73,6 +80,7 @@ export function coverTemplateText(
     }
   }
   return {
+    title: (config.title ?? '').trim(),
     groom,
     bride,
     hasNames: Boolean(groom && bride),
@@ -100,4 +108,14 @@ export const SAMPLE_COVER = {
   venueEn: 'THE GARDEN HALL',
   addressEn: '12 SAMPLE-RO, SEOUL',
   eventAt: '2027-12-26T17:30:00+09:00',
+} as const
+
+/** 크리스마스 금박 표지 예시(가상의 이름) */
+export const SAMPLE_CHRISTMAS_COVER = {
+  groomEn: '',
+  brideEn: '',
+  venueEn: '',
+  addressEn: '',
+  title: '다솜네 크리스마스 홈파티',
+  eventAt: '2026-12-24T19:00:00+09:00',
 } as const

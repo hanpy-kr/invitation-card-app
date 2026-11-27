@@ -1,3 +1,6 @@
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+
 import { ImageResponse } from 'next/og'
 
 import { EVENT_TYPES, type EventType } from '@/shared/blocks'
@@ -27,6 +30,13 @@ const LABEL: Record<EventType, string> = {
 
 export async function GET(_req: Request, { params }: { params: Promise<{ eventType: string }> }) {
   const { eventType } = await params
+  // 크리스마스: 음각 · 금박이 들어간 정적 PNG(next/og로는 음각을 못 그림). 만드는 법은 docs/PLAN.md '크리스마스 파티'
+  if (eventType === 'christmas') {
+    const png = await readFile(join(process.cwd(), 'public/share/christmas.png'))
+    return new Response(new Uint8Array(png), {
+      headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' },
+    })
+  }
   const label =
     LABEL[(EVENT_TYPES as readonly string[]).includes(eventType) ? (eventType as EventType) : 'etc']
   return new ImageResponse(

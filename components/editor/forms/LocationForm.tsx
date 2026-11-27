@@ -102,7 +102,11 @@ function PlaceSearch({ onPick }: { onPick: (r: GeoResult) => void }) {
   )
 }
 
-export default function LocationForm({ config, update }: FormProps<'location'>) {
+export default function LocationForm({
+  config,
+  update,
+  eventType,
+}: FormProps<'location'> & { eventType?: string }) {
   const set = patcher(update)
   const { geoSearchEnabled } = useEditorEnv()
   return (
@@ -146,6 +150,12 @@ export default function LocationForm({ config, update }: FormProps<'location'>) 
         placeholder="예) 디어홀 웨딩"
         onChange={(placeName) => set({ placeName })}
       />
+      {eventType === 'christmas' ? (
+        <p className={fieldStyles.hint} style={{ marginBottom: 10 }} data-testid="christmas-address-hint">
+          집 주소는 링크를 받은 누구나 볼 수 있어요. 동 · 호수는 ‘오시는 길 상세’(참석자 전용)에 적어
+          주세요.
+        </p>
+      ) : null}
       <TextField
         label="주소"
         hint={config.lat != null ? '지도 위치 연결됨' : undefined}

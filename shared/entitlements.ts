@@ -48,10 +48,12 @@ const PREMIUM: Entitlements = {
 
 /** 결혼 표지 템플릿 중 무료로 쓸 수 있는 안 (나머지는 프리미엄). 잠금 규칙은 이 한 곳 */
 export const FREE_COVER_TEMPLATE = 'b' as const
+/** 크리스마스 금박 표지는 프리미엄으로 잠그지 않음 (dearday/CHRISTMAS.md 가격 A안) */
+export const CHRISTMAS_COVER_TEMPLATE = 'x' as const
 
 /** 이 이용권으로 template 표지를 쓸 수 있나. 못 쓰면 FREE_COVER_TEMPLATE으로 대체해 보여 준다 */
 export function coverTemplateLocked(template: string, ent: Pick<Entitlements, 'coverTemplates'>): boolean {
-  return template !== FREE_COVER_TEMPLATE && !ent.coverTemplates
+  return template !== FREE_COVER_TEMPLATE && template !== CHRISTMAS_COVER_TEMPLATE && !ent.coverTemplates
 }
 
 /** 로그인 없이 만들기 시작한 임시 사용자 (카카오로 로그인하면 원래 플랜) */

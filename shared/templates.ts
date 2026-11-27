@@ -349,11 +349,16 @@ const TEMPLATES: Record<EventType, Template> = {
       {
         type: 'cover',
         config: {
-          layout: 'design',
-          designKey: defaultCoverKey('christmas'),
-          ...coverStart('christmas'),
+          // 금박 템플릿 · 눈 '조금' · 리본 봉투 (dearday/CHRISTMAS.md ③)
+          layout: 'template',
+          template: 'x',
+          designKey: null,
           title: '[모임 이름] 크리스마스 파티',
-          subtitle: 'MERRY CHRISTMAS',
+          subtitle: '',
+          effect: 'snow',
+          effectDensity: 'low',
+          effectDuration: 'loop',
+          intro: 'door',
         },
       },
       {
@@ -427,9 +432,9 @@ const TEMPLATES: Record<EventType, Template> = {
           items: [
             {
               title: '선물 교환',
-              body: '[가격 상한(예: 2만 원)]\n포장해서 가져와 주세요. 누구 선물인지 모르게 이름은 적지 않아요.',
+              body: '[금액 상한(예: 3만 원 이하)]\n포장해서 가져와 주세요. 누구 선물인지 모르게 이름은 적지 않아요.',
             },
-            { title: '드레스 코드', body: '[예: 빨강 · 초록 포인트를 하나씩]' },
+            { title: '드레스 코드', body: '[예: 빨강이나 초록 한 가지]' },
             {
               title: '오시는 길 상세',
               body: '[동 · 호수 · 공동현관 비밀번호를 적어 주세요]',

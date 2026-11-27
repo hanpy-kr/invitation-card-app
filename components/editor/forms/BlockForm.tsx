@@ -50,7 +50,7 @@ export default function BlockForm({
     case 'gallery':
       return <GalleryForm config={block.config} update={as<'gallery'>(update)} />
     case 'location':
-      return <LocationForm config={block.config} update={as<'location'>(update)} />
+      return <LocationForm config={block.config} update={as<'location'>(update)} eventType={eventType} />
     case 'rsvp':
       return <RsvpForm config={block.config} update={as<'rsvp'>(update)} eventType={eventType} />
     case 'guestbook':

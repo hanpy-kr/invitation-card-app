@@ -133,7 +133,8 @@ export type EffectKind = (typeof EFFECT_KINDS)[number]
 const shortText = (max: number) => z.string().trim().max(max)
 
 /** 결혼 표지 템플릿 (shared/cover-templates.ts): 1안 · 2안(무료) · 3안 */
-export const COVER_TEMPLATE_KEYS = ['a', 'b', 'c'] as const
+/** x: 크리스마스 파티 금박 표지(무료, 크리스마스 초대장에서만 고름) */
+export const COVER_TEMPLATE_KEYS = ['a', 'b', 'c', 'x'] as const
 export type CoverTemplateKey = (typeof COVER_TEMPLATE_KEYS)[number]
 
 /** 영문 이름: 영문 · 공백 · 하이픈만 (자동 로마자 변환은 하지 않음) */

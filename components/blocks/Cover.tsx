@@ -18,13 +18,66 @@ import type { BlockContext } from './types'
 
 const cx = classNames.bind(styles)
 
+/** 봉투(리본 카드 · 책 표지) 안에 보이는 표지 그림: 템플릿 표지를 줄여 찍은 정적 이미지 */
+const TEMPLATE_CARD: Record<string, string> = {
+  x: '/covers/templates/xmas-card-560.webp',
+}
+
 export default function Cover({ config, ctx }: { config: CoverConfig; ctx: BlockContext }) {
   // 결혼 표지 템플릿: 이용권이 없으면(결제 전 발행 · 환불 등) 무료인 2안으로 대체해 보여 줌 (봉투 · 효과와 같은 방식)
   if (config.layout === 'template') {
     const key = coverTemplateLocked(config.template, { coverTemplates: ctx.coverTemplates })
       ? FREE_COVER_TEMPLATE
       : config.template
-    return coverTemplateOf(key, config, ctx.eventAt, { title: ctx.title, dateVoting: ctx.dateVoting })
+    const face = coverTemplateOf(key, config, ctx.eventAt, {
+      title: ctx.title,
+      dateVoting: ctx.dateVoting,
+    })
+    // 봉투 · 떨어지는 효과: 디자인 표지와 같은 방식으로 템플릿 표지에서도 동작 (기본은 없음 → 결혼 표지는 그대로)
+    const fx = key === 'x' && ctx.introEffects
+    const effect = fx && config.effect !== 'none' ? config.effect : null
+    const intro = fx && config.intro !== 'none' ? config.intro : null
+    if (!effect && !intro) return face
+    const style = {
+      '--cv-paper': '#f3f1ec',
+      '--cv-surface': '#f8f7f3',
+      '--cv-line': '#d9d4cb',
+      '--cv-accent': '#a8915f',
+      '--cover-accent': '#a8915f',
+    } as React.CSSProperties
+    const cls = cx('cover', 'light')
+    const inner = (
+      <>
+        {face}
+        {effect ? (
+          <CoverEffect
+            key={`${effect}-${config.effectDensity}-${config.effectDuration}`}
+            kind={effect}
+            lightPaper
+            density={config.effectDensity}
+            once={config.effectDuration === 'once'}
+          />
+        ) : null}
+      </>
+    )
+    return intro ? (
+      <CoverShell
+        kind={intro}
+        slug={ctx.slug}
+        preview={Boolean(ctx.preview)}
+        title={config.title}
+        sealText={config.sealText}
+        imageSrc={TEMPLATE_CARD[key] ?? TEMPLATE_CARD.x}
+        className={cls}
+        style={style}
+      >
+        {inner}
+      </CoverShell>
+    ) : (
+      <section className={cls} style={style}>
+        {inner}
+      </section>
+    )
   }
   const design = config.layout === 'design' ? findCover(config.designKey) : undefined
   const photo = config.layout === 'photo' ? config.image : null

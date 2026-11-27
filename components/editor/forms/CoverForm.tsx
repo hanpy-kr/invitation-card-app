@@ -70,6 +70,79 @@ export default function CoverForm({
         ))}
       </div>
     )
+  const fxControls = (
+    <>
+    {!env.introEffects ? (
+      <p className={styles.hint}>
+        봉투 열기 · 떨어지는 효과는 프리미엄에서 하객에게 보여요. 미리보기에서는 볼 수 있어요.
+      </p>
+    ) : null}
+    <Segmented
+      label="여는 방식"
+      value={config.intro}
+      options={[
+        { value: 'none', label: '없음' },
+        { value: 'seal', label: '도장 봉투' },
+        { value: 'door', label: '리본 카드' },
+        { value: 'book', label: '책 표지' },
+      ]}
+      onChange={(intro) => set({ intro })}
+    />
+    {config.intro !== 'none' ? (
+      <TextField
+        label="도장 글자 (최대 3자)"
+        value={config.sealText}
+        maxLength={3}
+        onChange={(sealText) => set({ sealText })}
+      />
+    ) : null}
+    {config.intro !== 'none' ? (
+      <p className={styles.hint}>비워 두면 제목에서 처음 나오는 글자를 써요.</p>
+    ) : null}
+    <Select
+      label="떨어지는 효과"
+      value={config.effect}
+      options={[
+        { value: 'none', label: '없음' },
+        { value: 'petal', label: '꽃잎' },
+        { value: 'snow', label: '눈' },
+        { value: 'party', label: '풍선 · 색종이' },
+        { value: 'bubble', label: '비눗방울' },
+        { value: 'leaf', label: '잎사귀' },
+        { value: 'ginkgo', label: '은행잎' },
+      ]}
+      onChange={(effect) => set({ effect })}
+    />
+    {config.effect !== 'none' ? (
+      <>
+        <Segmented
+          label="효과 세기"
+          value={config.effectDensity}
+          options={[
+            { value: 'low', label: '약하게' },
+            { value: 'mid', label: '보통' },
+            { value: 'high', label: '많이' },
+          ]}
+          onChange={(effectDensity) => set({ effectDensity })}
+        />
+        <Segmented
+          label="효과 시간"
+          value={config.effectDuration}
+          options={[
+            { value: 'loop', label: '계속' },
+            { value: 'once', label: '처음 5초만' },
+          ]}
+          onChange={(effectDuration) => set({ effectDuration })}
+        />
+        {reduced ? (
+          <p className={styles.hint}>
+            이 기기는 &apos;동작 줄이기&apos;가 켜져 있어 효과가 보이지 않아요. 하객 화면에서는 설정에 따라 보여요.
+          </p>
+        ) : null}
+      </>
+    ) : null}
+    </>
+  )
   return (
     <>
       <Segmented
@@ -77,7 +150,7 @@ export default function CoverForm({
         value={config.layout}
         options={[
           // 결혼 표지 템플릿은 결혼 초대장에만 보임 (이미 템플릿으로 만든 초대장은 그대로 보임)
-          ...(eventType === 'wedding' || config.layout === 'template'
+          ...(eventType === 'wedding' || eventType === 'christmas' || config.layout === 'template'
             ? [{ value: 'template' as const, label: '템플릿' }]
             : []),
           // 결혼은 표지 템플릿이 생겨 디자인 표지를 새로 고르지 않음. 이미 디자인 표지인 초대장만 현재 선택으로 보임
@@ -96,7 +169,9 @@ export default function CoverForm({
                   designKey:
                     defaultCoverKey(eventType) ?? coversForEvent(eventType)[0]?.key ?? null,
                 }
-              : { layout },
+              : layout === 'template' && eventType === 'christmas'
+                ? { layout, template: 'x' as const, designKey: null }
+                : { layout },
           )
         }
       />
@@ -106,13 +181,34 @@ export default function CoverForm({
           없어요.
         </p>
       ) : null}
-      {config.layout === 'template' ? (
+      {config.layout === 'template' && config.template === 'x' ? (
+        <>
+          <p className={styles.caption}>표지 템플릿</p>
+          <CoverTemplatePicker value="x" onChange={() => {}} keys={['x']} />
+          <TextField
+            label="큰 제목 (한글)"
+            value={config.title}
+            maxLength={40}
+            onChange={(title) => set({ title })}
+          />
+          {!eventAt ? (
+            <p className={styles.hint} data-testid="cover-date-guide">
+              행사 일시를 정하면 큰 날짜 · 요일 · 시간이 표지에 자동으로 들어가요. 날짜가 없거나
+              날짜 투표 중이면 DECEMBER만 보여요.
+            </p>
+          ) : null}
+          <p className={styles.hint}>영문 이름은 필요 없어요. 장소는 표지에 나오지 않고 본문에서 보여요.</p>
+          {fxControls}
+        </>
+      ) : null}
+      {config.layout === 'template' && config.template !== 'x' ? (
         <>
           <p className={styles.caption}>표지 템플릿</p>
           <CoverTemplatePicker
             value={config.template}
             onChange={(template) => set({ template })}
             lockedKeys={env.coverTemplates ? [] : ['a', 'c']}
+            keys={['a', 'b', 'c']}
           />
           {coverTemplateLocked(config.template, env) ? (
             <p className={styles.hint}>
@@ -176,75 +272,7 @@ export default function CoverForm({
           ) : null}
           {grid(others)}
           <p className={styles.hint}>내 사진을 쓰고 싶으면 위에서 [사진]을 눌러 주세요.</p>
-          {!env.introEffects ? (
-            <p className={styles.hint}>
-              봉투 열기 · 떨어지는 효과는 프리미엄에서 하객에게 보여요. 미리보기에서는 볼 수 있어요.
-            </p>
-          ) : null}
-          <Segmented
-            label="여는 방식"
-            value={config.intro}
-            options={[
-              { value: 'none', label: '없음' },
-              { value: 'seal', label: '도장 봉투' },
-              { value: 'door', label: '리본 카드' },
-              { value: 'book', label: '책 표지' },
-            ]}
-            onChange={(intro) => set({ intro })}
-          />
-          {config.intro !== 'none' ? (
-            <TextField
-              label="도장 글자 (최대 3자)"
-              value={config.sealText}
-              maxLength={3}
-              onChange={(sealText) => set({ sealText })}
-            />
-          ) : null}
-          {config.intro !== 'none' ? (
-            <p className={styles.hint}>비워 두면 제목에서 처음 나오는 글자를 써요.</p>
-          ) : null}
-          <Select
-            label="떨어지는 효과"
-            value={config.effect}
-            options={[
-              { value: 'none', label: '없음' },
-              { value: 'petal', label: '꽃잎' },
-              { value: 'snow', label: '눈' },
-              { value: 'party', label: '풍선 · 색종이' },
-              { value: 'bubble', label: '비눗방울' },
-              { value: 'leaf', label: '잎사귀' },
-              { value: 'ginkgo', label: '은행잎' },
-            ]}
-            onChange={(effect) => set({ effect })}
-          />
-          {config.effect !== 'none' ? (
-            <>
-              <Segmented
-                label="효과 세기"
-                value={config.effectDensity}
-                options={[
-                  { value: 'low', label: '약하게' },
-                  { value: 'mid', label: '보통' },
-                  { value: 'high', label: '많이' },
-                ]}
-                onChange={(effectDensity) => set({ effectDensity })}
-              />
-              <Segmented
-                label="효과 시간"
-                value={config.effectDuration}
-                options={[
-                  { value: 'loop', label: '계속' },
-                  { value: 'once', label: '처음 5초만' },
-                ]}
-                onChange={(effectDuration) => set({ effectDuration })}
-              />
-              {reduced ? (
-                <p className={styles.hint}>
-                  이 기기는 &apos;동작 줄이기&apos;가 켜져 있어 효과가 보이지 않아요. 하객 화면에서는 설정에 따라 보여요.
-                </p>
-              ) : null}
-            </>
-          ) : null}
+          {fxControls}
         </>
       ) : null}
       {config.layout === 'photo' ? (

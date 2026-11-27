@@ -9,6 +9,7 @@ import { EVENT_TYPE_LABELS } from '@/shared/blocks'
 import { THEMES } from '@/shared/themes'
 import { coverTemplateLocked, getEntitlements } from '@/shared/entitlements'
 import { newInvitationPlan } from '@/lib/plan'
+import { isChristmasSeason, seasonNow } from '@/shared/season'
 
 import EventTypePicker, { StartFromDesign } from './EventTypePicker'
 import styles from './page.module.scss'
@@ -19,11 +20,13 @@ export const metadata: Metadata = { title: '새 초대장 — dearday', robots: 
 export default async function NewInvitationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string }>
+  searchParams: Promise<{ from?: string; type?: string }>
 }) {
-  const { from } = await searchParams
+  const { from, type } = await searchParams
   const fromSlug = typeof from === 'string' && /^[a-z0-9]{8}$/.test(from) ? from : null
-  await requireSession(fromSlug ? `/new?from=${fromSlug}` : '/new')
+  await requireSession(
+    fromSlug ? `/new?from=${fromSlug}` : type === 'christmas' ? '/new?type=christmas' : '/new',
+  )
   // 지금 새로 만드는 결혼 초대장의 플랜 → 프리미엄이 필요한 표지 안(결제 전에는 모두 열려 있어 빈 배열)
   const ent = getEntitlements({ plan: newInvitationPlan('wedding') })
   const lockedCoverKeys = (['a', 'b', 'c'] as const).filter((k) => coverTemplateLocked(k, ent))
@@ -53,7 +56,10 @@ export default async function NewInvitationPage({
           </p>
         </>
       )}
-      <EventTypePicker lockedCoverKeys={lockedCoverKeys} />
+      <EventTypePicker
+        lockedCoverKeys={lockedCoverKeys}
+        showChristmas={isChristmasSeason(seasonNow()) || type === 'christmas'}
+      />
     </main>
   )
 }

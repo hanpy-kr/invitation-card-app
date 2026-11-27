@@ -20,6 +20,7 @@ const NEEDS: Record<CoverTemplateKey, (keyof typeof FONTS)[]> = {
   a: ['cinzel500', 'bodoni'],
   b: ['cinzel500'],
   c: ['cinzel600', 'bodoni', 'pinyon'],
+  x: ['cinzel500', 'cinzel600', 'bodoni', 'pinyon'],
 }
 
 /** 이 안이 쓰는 서체만 HTML에서 바로 받기 시작 (첫 화면에서 글자가 늦게 바뀌는 것을 줄임) */
@@ -46,7 +47,15 @@ export default function CoverTemplate({ template, text, title, thumb }: Props) {
       data-cover-template={template}
     >
       {title ? <h1 className={styles.sr}>{title}</h1> : null}
-      {template === 'a' ? <A t={text} /> : template === 'b' ? <B t={text} /> : <C t={text} />}
+      {template === 'a' ? (
+        <A t={text} />
+      ) : template === 'b' ? (
+        <B t={text} />
+      ) : template === 'x' ? (
+        <X t={text} />
+      ) : (
+        <C t={text} />
+      )}
     </section>
   )
 }
@@ -430,6 +439,149 @@ function C({ t }: { t: CoverTemplateText }) {
               {d.year} · {d.time}
             </div>
           </>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+// ───────── 크리스마스 금박 표지 (글자만): MERRY / CHRISTMAS · 큰 음각 날짜 · 한글 제목 · with love · 음각 별 9개(3개는 금박) ─────────
+/** 4갈래 별(✦) 경로 — 반지름 1 기준 */
+const STAR = 'M0 -1C.12 -.35 .35 -.12 1 0C.35 .12 .12 .35 0 1C-.12 .35 -.35 .12 -1 0C-.35 -.12 -.12 -.35 0 -1Z'
+/** x · y · 반지름(디자인 px) · 금박 여부. 글자 줄을 피해 가장자리에 흩뿌림 */
+const STARS: readonly [number, number, number, boolean][] = [
+  [64, 146, 9, false],
+  [330, 112, 6, true],
+  [196, 70, 5, false],
+  [38, 468, 6, false],
+  [352, 512, 10, true],
+  [92, 742, 8, false],
+  [304, 700, 6, false],
+  [200, 790, 5, true],
+  [350, 330, 5, false],
+]
+
+function X({ t }: { t: CoverTemplateText }) {
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
+  const fBig = `dbx${uid}`
+  const fStar = `dbs${uid}`
+  const d = t.date
+  const titleSize = fitSize(t.title, 520, 26, 1.0, 15)
+  const time = d ? d.time.replace(':', ' : ') : ''
+  return (
+    <div className={styles.stage}>
+      <svg aria-hidden="true" className={styles.deboss} viewBox="0 0 390 844">
+        <defs>
+          <Deboss id={fBig} depth={1.8} blur={1.3} />
+          <Deboss id={fStar} depth={1.2} blur={0.8} />
+        </defs>
+        {STARS.filter(([, , , gold]) => !gold).map(([x, y, r]) => (
+          <path
+            key={`${x}-${y}`}
+            d={STAR}
+            transform={`translate(${x} ${y}) scale(${r})`}
+            filter={`url(#${fStar})`}
+            fill="#e9e5dd"
+          />
+        ))}
+        {STARS.filter(([, , , gold]) => gold).map(([x, y, r]) => (
+          <path
+            key={`${x}-${y}`}
+            d={STAR}
+            transform={`translate(${x} ${y}) scale(${r})`}
+            fill="#a8915f"
+            style={{ filter: 'drop-shadow(0 1px 0 rgba(255,255,255,0.9)) drop-shadow(0 -1px 0 rgba(90,68,30,0.28))' }}
+          />
+        ))}
+        {d ? (
+          <text
+            x="195"
+            y="418"
+            textAnchor="middle"
+            filter={`url(#${fBig})`}
+            fill="#e9e5dd"
+            style={{ fontFamily: "'Cover Bodoni', serif", fontSize: 150 }}
+          >
+            {d.day2}
+          </text>
+        ) : (
+          <text
+            x="195"
+            y="388"
+            textAnchor="middle"
+            filter={`url(#${fBig})`}
+            fill="#e9e5dd"
+            style={{ fontFamily: "'Cover Bodoni', serif", fontSize: 46, letterSpacing: 3 }}
+          >
+            DECEMBER
+          </text>
+        )}
+      </svg>
+      <div className={styles.abs} style={{ left: 0, right: 0, top: U(176), textAlign: 'center' }}>
+        <p
+          className={`${styles.line} ${styles.foil}`}
+          style={{ fontWeight: 500, fontSize: U(26), letterSpacing: '0.34em', paddingLeft: '0.34em' }}
+        >
+          MERRY
+        </p>
+        <p
+          className={`${styles.line} ${styles.foil}`}
+          style={{
+            marginTop: U(6),
+            fontWeight: 500,
+            fontSize: U(38),
+            letterSpacing: '0.16em',
+            paddingLeft: '0.16em',
+          }}
+        >
+          CHRISTMAS
+        </p>
+      </div>
+      {d ? (
+        <div
+          className={`${styles.abs} ${styles.ink}`}
+          style={{
+            left: 0,
+            right: 0,
+            top: U(452),
+            textAlign: 'center',
+            fontWeight: 600,
+            fontSize: U(12),
+            letterSpacing: '0.34em',
+            paddingLeft: '0.34em',
+          }}
+        >
+          {d.monthShort} · {d.weekday}
+        </div>
+      ) : null}
+      <div className={styles.abs} style={{ left: U(45), right: U(45), top: U(d ? 510 : 450), textAlign: 'center' }}>
+        {t.title ? (
+          <p
+            className={`${styles.line} ${styles.ink} ${styles.ko}`}
+            style={{ fontSize: U(titleSize), lineHeight: 1.45, wordBreak: 'keep-all' }}
+          >
+            {t.title}
+          </p>
+        ) : null}
+        <p
+          className={`${styles.line} ${styles.ink} ${styles.pinyon}`}
+          style={{ marginTop: U(t.title ? 22 : 0), fontSize: U(34), lineHeight: 1.1 }}
+        >
+          with love
+        </p>
+        {d ? (
+          <p
+            className={`${styles.line} ${styles.ink}`}
+            style={{
+              marginTop: U(18),
+              fontWeight: 600,
+              fontSize: U(11),
+              letterSpacing: '0.34em',
+              paddingLeft: '0.34em',
+            }}
+          >
+            {time}
+          </p>
         ) : null}
       </div>
     </div>

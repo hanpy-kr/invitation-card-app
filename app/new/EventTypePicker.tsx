@@ -106,7 +106,10 @@ const GROUPS: { en: string; title: string; items: { type: EventType; sub: string
 
 export default function EventTypePicker({
   lockedCoverKeys = [],
+  showChristmas = false,
 }: {
+  /** 크리스마스 시즌(~12/25 KST)이거나 ?type=christmas로 들어왔을 때 모임 맨 앞에 보임 */
+  showChristmas?: boolean
   /** 프리미엄이 필요한 결혼 표지 안(표시용). 고르기 · 미리보기는 누구나 */
   lockedCoverKeys?: readonly CoverTemplateKey[]
 }) {
@@ -193,7 +196,12 @@ export default function EventTypePicker({
 
   return (
     <>
-      {GROUPS.map((g) => (
+      {GROUPS.map((group) => {
+        const g =
+          group.en === 'GATHERING' && showChristmas
+            ? { ...group, items: [{ type: 'christmas' as EventType, sub: '선물 교환 · 가져올 것 · 마니또' }, ...group.items] }
+            : group
+        return (
         <section key={g.title} className={styles.group}>
           <h2 className={styles.groupTitle}>
             <span className={styles.groupEn} aria-hidden="true">
@@ -207,6 +215,7 @@ export default function EventTypePicker({
                 <button
                   type="button"
                   className={styles.row}
+                  data-type={o.type}
                   disabled={pending !== null}
                   onClick={() => (o.type === 'wedding' ? setCoverStep(true) : create(o.type))}
                 >
@@ -243,7 +252,8 @@ export default function EventTypePicker({
             ))}
           </ul>
         </section>
-      ))}
+        )
+      })}
       {error ? <p className={styles.error}>{error}</p> : null}
     </>
   )
