@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { manitoEnabled } from './manito'
 import { asc, eq } from 'drizzle-orm'
 import { cache } from 'react'
 
@@ -76,7 +77,13 @@ export const getPublishedInvitation = cache(
         .map(toBlock)
         .filter((b): b is Block => b !== null)
         // 참석자 전용 안내는 공개 데이터에 싣지 않음
-        .map(redactMemberOnly),
+        .map(redactMemberOnly)
+        // 마니또 스위치가 꺼져 있으면 하객 화면에서 버튼이 사라지게 (설정은 그대로 둠)
+        .map((b) =>
+          b.type === 'rsvp' && b.config.manito && !manitoEnabled()
+            ? { ...b, config: { ...b.config, manito: false } }
+            : b,
+        ),
     }
   },
 )

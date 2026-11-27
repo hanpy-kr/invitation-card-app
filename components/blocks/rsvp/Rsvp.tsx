@@ -17,6 +17,7 @@ import Section from '../common/Section'
 import { postJson, readLocal, removeLocal, writeLocal } from '../common/storage'
 import Text from '../common/Text'
 import Attendees from './Attendees'
+import Manito from './Manito'
 import type { BlockContext } from '../types'
 
 type Saved = {
@@ -323,6 +324,9 @@ export default function Rsvp({ config, ctx }: { config: RsvpConfig; ctx: BlockCo
           참석 의사 전달하기
         </button>
       )}
+      {config.manito && !ctx.preview && !open && (saved ? saved.attending : true) ? (
+        <Manito key={saved?.editToken ?? 'none'} slug={ctx.slug} editToken={saved?.editToken ?? null} />
+      ) : null}
       {config.showAttendees && !ctx.preview ? (
         <Attendees slug={ctx.slug} version={version} />
       ) : null}

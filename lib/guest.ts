@@ -16,6 +16,7 @@ import { ApiError } from './api'
 import { notifyNewRsvp } from './notify'
 import { verifyPayload } from './auth/token'
 import { getDb, schema } from './db/client'
+import { manitoEnabled, myManito, type MyManito } from './manito'
 import { hashGuestToken, isGuestToken, newGuestToken } from './guest-token'
 
 /** 발행된 초대장 + 보이는 해당 블록 설정 (쿼리 1회). 없으면 404 */
@@ -224,4 +225,17 @@ export async function memberNotices(
       .filter((it) => it.only && (it.title || it.body))
       .map(({ index, title, body }) => ({ index, title, body })),
   }
+}
+
+/**
+ * 내 마니또 (크리스마스): 응답 토큰으로 확인한 본인 응답에게만 짝 이름 하나를 준다.
+ * 토큰이 없거나 틀리거나 참여자가 아니면 403. 스위치(MANITO_ENABLED=0)가 꺼져 있으면 404.
+ */
+export async function manitoForGuest(slug: string, editToken: string | undefined): Promise<MyManito> {
+  if (!manitoEnabled()) throw new ApiError(404, '지금은 쓸 수 없어요.')
+  const { invitationId, config } = await getTarget(slug, 'rsvp')
+  if (!config.manito) throw new ApiError(404, '이 초대장은 선물 교환을 쓰지 않아요.')
+  const rid = await findOwnRsvp(invitationId, editToken)
+  if (!rid) throw new ApiError(403, '참석 응답을 보낸 분에게만 보여요.')
+  return myManito(invitationId, rid)
 }

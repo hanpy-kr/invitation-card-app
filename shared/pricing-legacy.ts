@@ -14,6 +14,7 @@ export const PRICE_KRW: Record<EventType, number> = {
   prewedding: 3900,
   birthday: 3900,
   housewarming: 3900,
+  christmas: 3900,
 }
 
 export const priceFor = (eventType: EventType): number => PRICE_KRW[eventType]

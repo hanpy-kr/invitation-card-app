@@ -19,6 +19,7 @@ export const EVENT_TYPES = [
   'birthday',
   'housewarming',
   'thanks',
+  'christmas',
 ] as const
 export type EventType = (typeof EVENT_TYPES)[number]
 
@@ -32,6 +33,7 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   birthday: '생일',
   housewarming: '집들이',
   thanks: '감사장',
+  christmas: '크리스마스 파티',
 }
 
 /** 참석자 명단 공개 기본값: 모임형 켜짐, 결혼 · 돌 꺼짐 */
@@ -42,6 +44,7 @@ export function defaultShowAttendees(eventType: EventType): boolean {
 /** 화면에 보여 줄 순서 (/new 선택 · 편집기) */
 export const EVENT_TYPE_ORDER: readonly EventType[] = [
   'wedding',
+  'christmas',
   'yearend',
   'prewedding',
   'dol',
@@ -250,6 +253,8 @@ export const rsvpConfigSchema = z.object({
    * 값이 없는 1차 블록은 꺼짐 — 안내 없이 응답한 하객 이름이 갑자기 공개되지 않게
    */
   showAttendees: z.boolean().default(false),
+  /** (크리스마스) 선물 교환 마니또 — 켜면 대시보드 '선물 교환' 패널과 하객 [내 마니또 보기]가 생김 */
+  manito: z.boolean().default(false),
   /** 주최자가 만든 질문 (최대 5개). 답은 rsvps.answers에 {질문id: 값} */
   questions: z.array(rsvpQuestionSchema).max(QUESTION_LIMITS.count).default([]),
 })

@@ -81,13 +81,13 @@ export const THEMES = {
   wine: {
     label: '와인',
     font: 'song-myung',
-    events: ['yearend', 'prewedding', 'meetup'],
+    events: ['yearend', 'prewedding', 'meetup', 'christmas'],
     vars: { accent: '#a23b4f' },
   },
   pine: {
     label: '파인',
     font: 'gowun-dodum',
-    events: ['yearend', 'housewarming', 'meetup'],
+    events: ['yearend', 'housewarming', 'meetup', 'christmas'],
     vars: { accent: '#2f6b57' },
   },
 } as const satisfies Record<string, ThemeDef>

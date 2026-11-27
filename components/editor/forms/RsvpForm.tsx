@@ -119,7 +119,11 @@ function QuestionFields({
   )
 }
 
-export default function RsvpForm({ config, update }: FormProps<'rsvp'>) {
+export default function RsvpForm({
+  config,
+  update,
+  eventType,
+}: FormProps<'rsvp'> & { eventType?: string }) {
   const set = patcher(update)
   const setQuestions = (fn: (qs: RsvpQuestion[]) => RsvpQuestion[]) =>
     update((c) => ({ ...c, questions: fn(c.questions) }))
@@ -162,6 +166,21 @@ export default function RsvpForm({ config, update }: FormProps<'rsvp'>) {
           참석한다고 답한 분의 이름만 초대장에 보여요(인원 · 답변은 안 보임). 켜기 전에 응답한 분의
           이름도 함께 보여요.
         </p>
+      ) : null}
+      {eventType === 'christmas' || config.manito ? (
+        <>
+          <Toggle
+            label="선물 교환 마니또 쓰기"
+            checked={config.manito}
+            onChange={(manito) => set({ manito })}
+          />
+          {config.manito ? (
+            <p className={fieldStyles.hint} style={{ marginTop: -8, marginBottom: 16 }}>
+              “선물 교환” 질문에 “참여”라고 답한 분끼리 짝을 지어요(질문이 없으면 참석자 모두, 3명 이상).
+              뽑기는 응답 확인 화면에서 해요. 하객은 자기 짝만 볼 수 있어요.
+            </p>
+          ) : null}
+        </>
       ) : null}
       <Toggle
         label="식사 여부도 묻기"

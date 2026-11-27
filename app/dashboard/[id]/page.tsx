@@ -20,6 +20,7 @@ import styles from './page.module.scss'
 import { GuestbookList, RsvpList } from './Responses'
 import AlbumPanel from './AlbumPanel'
 import BringPanel from './BringPanel'
+import GiftPanel from './GiftPanel'
 import InviteePanel from './InviteePanel'
 import SettlementPanel from './SettlementPanel'
 import EditorsPanel from './EditorsPanel'
@@ -148,6 +149,8 @@ export default async function ResponsesPage({ params }: { params: Promise<{ id: 
           voters={data.vote.voters}
         />
       ) : null}
+
+      {data.manito ? <GiftPanel invitationId={data.id} /> : null}
 
       {data.bring ? <BringPanel invitationId={data.id} bring={data.bring} /> : null}
 

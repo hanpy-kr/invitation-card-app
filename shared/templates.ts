@@ -1,4 +1,5 @@
 import { coverStart, defaultCoverKey } from './covers'
+import { GIFT_QUESTION_ID, GIFT_YES, GIFT_NO } from './manito'
 import {
   defaultShowAttendees,
   parseBlockConfig,
@@ -339,6 +340,131 @@ const TEMPLATES: Record<EventType, Template> = {
           ],
         },
       },
+    ],
+  },
+  christmas: {
+    title: '[모임 이름] 크리스마스 파티',
+    theme: 'pine',
+    blocks: [
+      {
+        type: 'cover',
+        config: {
+          layout: 'design',
+          designKey: defaultCoverKey('christmas'),
+          ...coverStart('christmas'),
+          title: '[모임 이름] 크리스마스 파티',
+          subtitle: 'MERRY CHRISTMAS',
+        },
+      },
+      {
+        type: 'greeting',
+        config: {
+          icon: 'none',
+          title: '메리 크리스마스',
+          message:
+            '올해 크리스마스는 함께 모여 보내요.\n맛있는 음식, 선물, 웃음까지 준비해 둘게요.\n\n편한 마음으로 오세요.',
+          hosts: ['[주최자 이름]'],
+        },
+      },
+      { type: 'calendar', config: { title: '', showDday: true } },
+      {
+        type: 'timeline',
+        hidden: true,
+        config: {
+          title: '진행 순서',
+          items: [
+            { time: '오후 7시', title: '모임', body: '한 명씩 도착하면 음료 한 잔' },
+            { time: '오후 8시', title: '선물 교환', body: '' },
+            { time: '오후 9시', title: '케이크', body: '' },
+          ],
+        },
+      },
+      { type: 'location', config: { title: '오시는 길' } },
+      {
+        type: 'vote',
+        hidden: true,
+        config: {
+          title: '날짜 투표',
+          message: '가능한 날을 모두 골라 주세요.',
+          kind: 'date',
+          options: [
+            { id: 'dec19a', label: '토요일 저녁', at: '2026-12-19T19:00:00+09:00', address: '' },
+            { id: 'dec24a', label: '이브 저녁', at: '2026-12-24T19:00:00+09:00', address: '' },
+            { id: 'dec25a', label: '크리스마스 저녁', at: '2026-12-25T19:00:00+09:00', address: '' },
+          ],
+        },
+      },
+      {
+        type: 'rsvp',
+        config: {
+          title: '참석 여부',
+          message: '참석 여부와 선물 교환 참여 여부를 알려 주세요.',
+          maxPartySize: 2,
+          manito: true,
+          questions: [
+            {
+              id: GIFT_QUESTION_ID,
+              kind: 'choice',
+              label: '선물 교환 참여할래요?',
+              options: [GIFT_YES, GIFT_NO],
+              required: true,
+              target: 'attending',
+            },
+            {
+              id: 'drink1',
+              kind: 'choice',
+              label: '마실 것',
+              options: ['술', '무알콜', '상관없음'],
+              target: 'attending',
+            },
+          ],
+        },
+      },
+      {
+        type: 'notice',
+        config: {
+          title: '안내',
+          items: [
+            {
+              title: '선물 교환',
+              body: '[가격 상한(예: 2만 원)]\n포장해서 가져와 주세요. 누구 선물인지 모르게 이름은 적지 않아요.',
+            },
+            { title: '드레스 코드', body: '[예: 빨강 · 초록 포인트를 하나씩]' },
+            {
+              title: '오시는 길 상세',
+              body: '[동 · 호수 · 공동현관 비밀번호를 적어 주세요]',
+              attendeesOnly: true,
+            },
+          ],
+        },
+      },
+      {
+        type: 'bring',
+        config: {
+          title: '가져올 것',
+          message: '하나씩 맡아 주세요. 겹치지 않게 골라 주세요!',
+          items: [
+            { id: 'cake01', name: '케이크', need: 1 },
+            { id: 'chick1', name: '치킨', need: 1 },
+            { id: 'drink2', name: '음료', need: 2 },
+            { id: 'wine01', name: '와인', need: 3 },
+            { id: 'fruit1', name: '과일', need: 1 },
+            { id: 'dess01', name: '디저트', need: 2 },
+            { id: 'game01', name: '보드게임', need: 1 },
+          ],
+        },
+      },
+      {
+        type: 'account',
+        hidden: true,
+        config: {
+          title: '회비 안내',
+          message: '당일 정산이 편하도록 미리 보내 주세요.',
+          groups: [{ label: '회비 계좌', accounts: [{ relation: '총무' }] }],
+        },
+      },
+      { type: 'album', hidden: true, config: {} },
+      { type: 'guestbook', config: { title: '방명록' } },
     ],
   },
   prewedding: {

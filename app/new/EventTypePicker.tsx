@@ -53,6 +53,12 @@ const ICONS: Record<EventType, React.ReactNode> = {
       <path d="M10.5 19.5v-5h3v5" />
     </>
   ),
+  christmas: (
+    <>
+      <path d="M12 3.5l1.2 2.6 2.8.4-2 2 .5 2.8-2.5-1.4-2.5 1.4.5-2.8-2-2 2.8-.4z" />
+      <path d="M12 12v8M8.5 20.5h7" />
+    </>
+  ),
   thanks: (
     <>
       <path d="M12 20.5V8" />

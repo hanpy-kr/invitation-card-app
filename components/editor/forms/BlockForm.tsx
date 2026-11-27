@@ -52,7 +52,7 @@ export default function BlockForm({
     case 'location':
       return <LocationForm config={block.config} update={as<'location'>(update)} />
     case 'rsvp':
-      return <RsvpForm config={block.config} update={as<'rsvp'>(update)} />
+      return <RsvpForm config={block.config} update={as<'rsvp'>(update)} eventType={eventType} />
     case 'guestbook':
       return <GuestbookForm config={block.config} update={as<'guestbook'>(update)} />
     case 'account':

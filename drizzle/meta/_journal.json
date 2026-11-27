@@ -148,6 +148,13 @@
       "when": 1795423103359,
       "tag": "0020_military_red_wolf",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1795762964718,
+      "tag": "0021_sweet_klaw",
+      "breakpoints": true
     }
   ]
 }

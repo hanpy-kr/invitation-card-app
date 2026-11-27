@@ -4,6 +4,7 @@ import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
 
 import { parseBlockConfig, parseShareOverride } from '@/shared/blocks'
 import { tallyBring, usableBringItems } from '@/shared/bring'
+import { manitoEnabled } from './manito'
 import { choiceOptions, type Answers, type RsvpQuestion } from '@/shared/rsvp-questions'
 import { usableOptions } from '@/shared/vote'
 
@@ -211,6 +212,8 @@ export async function getResponses(id: string, userId: string) {
       share: parseShareOverride(row.share),
     },
     rsvpDeadline: rsvpBlock?.deadline ?? null,
+    /** 선물 교환(마니또) 패널을 보일지 — 스위치가 꺼져 있으면 숨김 */
+    manito: Boolean(rsvpBlock?.manito) && manitoEnabled(),
     hasAlbum: row.blocks.some((b) => b.type === 'album'),
     vote,
     bring,

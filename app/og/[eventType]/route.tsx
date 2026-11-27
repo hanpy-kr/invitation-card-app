@@ -22,6 +22,7 @@ const LABEL: Record<EventType, string> = {
   birthday: 'BIRTHDAY PARTY',
   housewarming: 'HOUSEWARMING',
   thanks: 'THANK YOU',
+  christmas: 'MERRY CHRISTMAS',
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ eventType: string }> }) {

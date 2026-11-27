@@ -147,6 +147,27 @@ export const rsvps = pgTable(
   ],
 )
 
+/** (크리스마스) 선물 교환 마니또 짝: giver가 receiver에게 선물. 하객 응답 id 기준. 초대장 복제 · 나도 만들기로 옮기지 않음 */
+export const giftPairs = pgTable(
+  'gift_pairs',
+  {
+    invitationId: uuid('invitation_id')
+      .notNull()
+      .references(() => invitations.id, { onDelete: 'cascade' }),
+    giverRsvpId: uuid('giver_rsvp_id')
+      .notNull()
+      .references(() => rsvps.id, { onDelete: 'cascade' }),
+    receiverRsvpId: uuid('receiver_rsvp_id')
+      .notNull()
+      .references(() => rsvps.id, { onDelete: 'cascade' }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.invitationId, t.giverRsvpId] }),
+    index('gift_pairs_receiver_idx').on(t.receiverRsvpId),
+  ],
+)
+
 export const guestbookEntries = pgTable(
   'guestbook_entries',
   {

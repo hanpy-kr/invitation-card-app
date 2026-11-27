@@ -785,3 +785,63 @@
   margin-top: 6px;
   font-size: 14px;
 }
+
+.gift {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.giftNote {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0;
+
+  strong {
+    color: var(--text);
+  }
+}
+
+.giftWarn {
+  font-size: 13px;
+  color: #a23b4f;
+  margin: 0;
+}
+
+.giftBtn {
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--btn-line, var(--text));
+  background: var(--btn, var(--text));
+  color: var(--btn-text, #fff);
+
+  &:disabled {
+    opacity: 0.45;
+  }
+}
+
+.giftLink {
+  font: inherit;
+  font-size: 13px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+.giftPairs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-size: 14px;
+
+  li {
+    padding: 8px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+}
